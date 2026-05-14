@@ -1,0 +1,224 @@
+<nz-card>
+  <div class="page-header">
+    <div class="header-left">
+      <h2>Stock Transfer</h2>
+      <p>Transfer stock between warehouses</p>
+    </div>
+  </div>
+
+  <nz-alert
+    nzType="info"
+    nzMessage="Stock Transfer"
+    nzDescription="Transfer inventory from one warehouse to another. Available stock will be checked automatically."
+    nzShowIcon
+    [nzCloseable]="true"
+    style="margin-bottom: 24px;"
+  ></nz-alert>
+
+  <form nz-form [formGroup]="transferForm" (ngSubmit)="onSubmit()" nzLayout="vertical">
+    <div nz-row [nzGutter]="16">
+      <!-- From Warehouse -->
+      <div nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>
+            <span nz-icon nzType="home" style="margin-right: 4px;"></span>
+            From Warehouse
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Please select source warehouse">
+            <nz-select
+              formControlName="fromWarehouseId"
+              nzShowSearch
+              nzPlaceHolder="Select source warehouse"
+              [nzLoading]="loading"
+            >
+              <nz-option
+                *ngFor="let warehouse of warehouses"
+                [nzLabel]="warehouse.name"
+                [nzValue]="warehouse.id"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- To Warehouse -->
+      <div nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>
+            <span nz-icon nzType="swap-right" style="margin-right: 4px;"></span>
+            To Warehouse
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Please select destination warehouse">
+            <nz-select
+              formControlName="toWarehouseId"
+              nzShowSearch
+              nzPlaceHolder="Select destination warehouse"
+              [nzLoading]="loading"
+            >
+              <nz-option
+                *ngFor="let warehouse of getToWarehouses()"
+                [nzLabel]="warehouse.name"
+                [nzValue]="warehouse.id"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <!-- Product -->
+    <nz-form-item>
+      <nz-form-label nzRequired>Product</nz-form-label>
+      <nz-form-control nzErrorTip="Please select product">
+        <nz-select
+          formControlName="productId"
+          nzShowSearch
+          nzPlaceHolder="Select product to transfer"
+          [nzLoading]="loading"
+        >
+          <nz-option
+            *ngFor="let product of products"
+            [nzLabel]="product.name + ' (' + product.sku + ')'"
+            [nzValue]="product.id"
+          ></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <!-- Available Stock Alert -->
+    <nz-alert
+      *ngIf="availableStock"
+      nzType="success"
+      [nzMessage]="'Available Stock: ' + availableStock.available + ' ' + availableStock.product.unit.symbol"
+      nzShowIcon
+      style="margin-bottom: 16px;"
+    ></nz-alert>
+
+    <nz-alert
+      *ngIf="!availableStock && transferForm.get('productId')?.value && transferForm.get('fromWarehouseId')?.value && !checkingStock"
+      nzType="warning"
+      nzMessage="No stock available in selected warehouse"
+      nzShowIcon
+      style="margin-bottom: 16px;"
+    ></nz-alert>
+
+    <div nz-row [nzGutter]="16">
+      <!-- Quantity -->
+      <div nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>Quantity</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="availableStock ? 'Quantity must be between 1 and ' + availableStock.available : 'Please enter quantity'">
+            <nz-input-number
+              formControlName="quantity"
+              [nzMin]="1"
+              [nzMax]="availableStock?.available || 999999"
+              [nzStep]="1"
+              style="width: 100%;"
+              nzPlaceHolder="Enter quantity"
+              [nzDisabled]="!availableStock"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- Batch Number (Optional) -->
+      <div nz-col [nzXs]="24" [nzMd]="12">
+        <nz-form-item>
+          <nz-form-label>Batch Number</nz-form-label>
+          <nz-form-control>
+            <input
+              nz-input
+              formControlName="batchNumber"
+              placeholder="Optional batch/lot number"
+            />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <!-- Reason -->
+    <nz-form-item>
+      <nz-form-label>Reason</nz-form-label>
+      <nz-form-control nzErrorTip="Reason must be at least 5 characters">
+        <textarea
+          nz-input
+          formControlName="reason"
+          [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+          placeholder="Optional: Enter reason for transfer"
+        ></textarea>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-divider></nz-divider>
+
+    <!-- Transfer Preview -->
+    <div class="transfer-preview" *ngIf="canShowPreview && availableStock">
+      <div class="preview-header">
+        <span nz-icon nzType="swap" style="color: #1890ff; font-size: 20px;"></span>
+        <strong>Transfer Summary</strong>
+      </div>
+      <div class="preview-content">
+        <div class="transfer-flow">
+          <div class="warehouse-box from">
+            <div class="warehouse-icon">
+              <span nz-icon nzType="home"></span>
+            </div>
+            <div class="warehouse-name">
+              {{ fromWarehouseName }}
+            </div>
+            <div class="stock-info">
+              Current: {{ availableStock.available }} {{ availableStock.product.unit.symbol }}
+            </div>
+          </div>
+
+          <div class="arrow">
+            <span nz-icon nzType="arrow-right" style="font-size: 24px; color: #1890ff;"></span>
+            <div class="transfer-qty">
+              {{ transferForm.get('quantity')?.value }} {{ availableStock.product.unit.symbol }}
+            </div>
+          </div>
+
+          <div class="warehouse-box to">
+            <div class="warehouse-icon">
+              <span nz-icon nzType="home"></span>
+            </div>
+            <div class="warehouse-name">
+              {{ toWarehouseName }}
+            </div>
+            <div class="stock-info">
+              Will receive
+            </div>
+          </div>
+        </div>
+
+        <div class="product-info">
+          <strong>Product:</strong> {{ availableStock.product.name }} ({{ availableStock.product.sku }})
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button
+        nz-button
+        nzType="default"
+        (click)="onCancel()"
+        [disabled]="saving"
+      >
+        Cancel
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        type="submit"
+        [nzLoading]="saving"
+        [disabled]="!transferForm.valid || !availableStock"
+      >
+        <span nz-icon nzType="swap"></span>
+        Transfer Stock
+      </button>
+    </div>
+  </form>
+</nz-card>
+

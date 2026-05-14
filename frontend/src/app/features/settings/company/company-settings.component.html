@@ -1,0 +1,173 @@
+<nz-card>
+  <div class="page-header">
+    <div class="header-left">
+      <h2>
+        <span nz-icon nzType="shop" style="margin-right: 8px;"></span>
+        Company Settings
+      </h2>
+      <p>Manage your company information and preferences</p>
+    </div>
+  </div>
+
+  <form nz-form [formGroup]="companyForm" nzLayout="vertical">
+    <!-- Company Logo -->
+    <nz-card nzTitle="Company Logo" class="settings-section" [nzLoading]="loading">
+      <div class="logo-upload-section">
+        <div class="logo-preview" *ngIf="logoUrl">
+          <img [src]="logoUrl" alt="Company Logo" />
+          <button nz-button nzType="link" nzDanger (click)="removeLogo()">
+            <span nz-icon nzType="delete"></span>
+            Remove
+          </button>
+        </div>
+        <nz-upload
+          nzAction=""
+          [nzBeforeUpload]="beforeUpload"
+          nzListType="picture-card"
+          [nzShowUploadList]="false"
+          *ngIf="!logoUrl"
+        >
+          <div>
+            <span nz-icon nzType="plus"></span>
+            <div style="margin-top: 8px;">Upload Logo</div>
+          </div>
+        </nz-upload>
+        <small class="upload-hint">Recommended: 200x200px, Max size: 2MB</small>
+      </div>
+    </nz-card>
+
+    <nz-divider></nz-divider>
+
+    <!-- Basic Information -->
+    <nz-card nzTitle="Basic Information" class="settings-section">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Company Name</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter company name">
+              <input nz-input formControlName="name" placeholder="Invenzo Inc." />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Email</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter a valid email">
+              <input nz-input formControlName="email" placeholder="contact@company.com" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Phone</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter phone number">
+              <input nz-input formControlName="phone" placeholder="+1 (555) 123-4567" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label>Website</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="website" placeholder="https://company.com" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label>Tax ID / VAT Number</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="taxId" placeholder="XX-XXXXXXX" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Currency</nz-form-label>
+            <nz-form-control>
+              <nz-select formControlName="currency" nzPlaceHolder="Select currency">
+                <nz-option
+                  *ngFor="let currency of currencies"
+                  [nzLabel]="currency.label"
+                  [nzValue]="currency.value"
+                ></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </nz-card>
+
+    <nz-divider></nz-divider>
+
+    <!-- Address Information -->
+    <nz-card nzTitle="Address Information" class="settings-section">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label nzRequired>Street Address</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter street address">
+              <textarea
+                nz-input
+                formControlName="address"
+                placeholder="123 Business Street"
+                [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+              ></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>City</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter city">
+              <input nz-input formControlName="city" placeholder="New York" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>State / Province</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter state">
+              <input nz-input formControlName="state" placeholder="NY" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Country</nz-form-label>
+            <nz-form-control nzErrorTip="Please select country">
+              <nz-select formControlName="country" nzPlaceHolder="Select country" nzShowSearch>
+                <nz-option *ngFor="let country of countries" [nzLabel]="country" [nzValue]="country"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzMd]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Postal Code</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter postal code">
+              <input nz-input formControlName="postalCode" placeholder="10001" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </nz-card>
+
+    <!-- Save Button -->
+    <div class="form-actions">
+      <button nz-button nzType="primary" nzSize="large" (click)="saveSettings()" [nzLoading]="saving">
+        <span nz-icon nzType="save"></span>
+        Save Settings
+      </button>
+    </div>
+  </form>
+</nz-card>

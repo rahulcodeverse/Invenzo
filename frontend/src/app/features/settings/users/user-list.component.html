@@ -1,0 +1,203 @@
+<nz-card>
+  <div class="page-header">
+    <div class="header-left">
+      <h2>
+        <span nz-icon nzType="team" style="margin-right: 8px;"></span>
+        User Management
+      </h2>
+      <p>Manage system users and their roles</p>
+      <small style="color: #8c8c8c;">Users loaded: {{ users.length }} | Loading: {{ loading }}</small>
+    </div>
+    <div class="header-right">
+      <button nz-button nzType="primary" (click)="openCreateModal()">
+        <span nz-icon nzType="plus"></span>
+        Add User
+      </button>
+    </div>
+  </div>
+
+  <nz-table
+    #usersTable
+    [nzData]="users"
+    [nzLoading]="loading"
+    [nzPageSize]="20"
+    nzSize="middle"
+  >
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Role</th>
+        <th nzAlign="center">Status</th>
+        <th>Created At</th>
+        <th nzAlign="center" nzWidth="150px">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of usersTable.data">
+        <td>{{ user.email }}</td>
+        <td>{{ user.firstName }} {{ user.lastName }}</td>
+        <td>
+          <nz-tag [nzColor]="getRoleColor(user.role)">
+            {{ user.role }}
+          </nz-tag>
+        </td>
+        <td nzAlign="center">
+          <nz-tag [nzColor]="user.isActive ? 'success' : 'default'">
+            {{ user.isActive ? 'Active' : 'Inactive' }}
+          </nz-tag>
+        </td>
+        <td>{{ user.createdAt | date: 'MMM dd, yyyy' }}</td>
+        <td nzAlign="center">
+          <nz-space [nzSize]="8">
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="link"
+              nzSize="small"
+              (click)="openEditModal(user)"
+              nz-tooltip
+              nzTooltipTitle="Edit User"
+            >
+              <span nz-icon nzType="edit"></span>
+            </button>
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="link"
+              nzSize="small"
+              [nzDanger]="user.isActive"
+              (click)="toggleUserStatus(user)"
+              nz-tooltip
+              [nzTooltipTitle]="user.isActive ? 'Deactivate' : 'Activate'"
+            >
+              <span nz-icon [nzType]="user.isActive ? 'stop' : 'check-circle'"></span>
+            </button>
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="link"
+              nzSize="small"
+              nzDanger
+              nz-popconfirm
+              nzPopconfirmTitle="Are you sure you want to delete this user?"
+              (nzOnConfirm)="deleteUser(user.id)"
+              nz-tooltip
+              nzTooltipTitle="Delete User"
+            >
+              <span nz-icon nzType="delete"></span>
+            </button>
+          </nz-space>
+        </td>
+      </tr>
+      <tr *ngIf="!loading && users.length === 0">
+        <td colspan="6" style="text-align: center; padding: 40px;">
+          <nz-empty
+            nzNotFoundContent="No users found. Click 'Add User' to create your first user."
+          ></nz-empty>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+
+<!-- User Form Modal -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="isEditMode ? 'Edit User' : 'Create New User'"
+  [nzFooter]="modalFooter"
+  (nzOnCancel)="handleCancel()"
+  nzWidth="600px"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="userForm" nzLayout="vertical">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label nzRequired>Email</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter a valid email">
+              <input
+                nz-input
+                formControlName="email"
+                placeholder="user@example.com"
+                [disabled]="isEditMode"
+              />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzRequired]="!isEditMode">Password</nz-form-label>
+            <nz-form-control [nzErrorTip]="isEditMode ? 'Password must be at least 8 characters' : 'Please enter a password (min 8 characters)'">
+              <input
+                nz-input
+                type="password"
+                formControlName="password"
+                [placeholder]="isEditMode ? 'Leave blank to keep current password' : 'Enter password (min 8 characters)'"
+              />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>First Name</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter first name">
+              <input nz-input formControlName="firstName" placeholder="John" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Last Name</nz-form-label>
+            <nz-form-control nzErrorTip="Please enter last name">
+              <input nz-input formControlName="lastName" placeholder="Doe" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Role</nz-form-label>
+            <nz-form-control>
+              <nz-select formControlName="role" nzPlaceHolder="Select role">
+                <nz-option
+                  *ngFor="let role of roles"
+                  [nzLabel]="role.label"
+                  [nzValue]="role.value"
+                ></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="12" *ngIf="isEditMode">
+          <nz-form-item>
+            <nz-form-label>Status</nz-form-label>
+            <nz-form-control>
+              <nz-switch formControlName="isActive"></nz-switch>
+              <span style="margin-left: 8px;">{{ userForm.get('isActive')?.value ? 'Active' : 'Inactive' }}</span>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12" *ngIf="!isEditMode">
+          <nz-form-item>
+            <nz-form-label>&nbsp;</nz-form-label>
+            <nz-form-control>
+              <small class="text-muted">New users are active by default</small>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="handleSubmit()" [nzLoading]="loading">
+      {{ isEditMode ? 'Update' : 'Create' }}
+    </button>
+  </ng-template>
+</nz-modal>

@@ -1,0 +1,171 @@
+<nz-card>
+  <div class="page-header">
+    <div class="header-left">
+      <h2>Stock Overview</h2>
+      <p>View and manage inventory across warehouses</p>
+    </div>
+    <div class="header-right">
+      <button nz-button nzType="primary" routerLink="/inventory/adjustments">
+        <span nz-icon nzType="plus"></span>
+        Stock Adjustment
+      </button>
+      <button nz-button nzType="default" routerLink="/inventory/transfers" style="margin-left: 8px;">
+        <span nz-icon nzType="swap"></span>
+        Transfer Stock
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <nz-space [nzSize]="'middle'" style="width: 100%; flex-wrap: wrap;">
+      <nz-select
+        *nzSpaceItem
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Filter by Warehouse"
+        [(ngModel)]="selectedWarehouse"
+        (ngModelChange)="onFilterChange()"
+        style="width: 200px;"
+      >
+        <nz-option
+          *ngFor="let warehouse of warehouses"
+          [nzLabel]="warehouse.name"
+          [nzValue]="warehouse.id"
+        ></nz-option>
+      </nz-select>
+
+      <nz-select
+        *nzSpaceItem
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Filter by Product"
+        [(ngModel)]="selectedProduct"
+        (ngModelChange)="onFilterChange()"
+        style="width: 250px;"
+      >
+        <nz-option
+          *ngFor="let product of products"
+          [nzLabel]="product.name + ' (' + product.sku + ')'"
+          [nzValue]="product.id"
+        ></nz-option>
+      </nz-select>
+
+      <div *nzSpaceItem style="display: flex; align-items: center; gap: 8px;">
+        <nz-switch [(ngModel)]="showLowStockOnly" (ngModelChange)="onFilterChange()"></nz-switch>
+        <span>Low Stock Only</span>
+      </div>
+
+      <button
+        *nzSpaceItem
+        nz-button
+        nzType="default"
+        (click)="resetFilters()"
+      >
+        <span nz-icon nzType="redo"></span>
+        Reset
+      </button>
+    </nz-space>
+  </div>
+
+  <!-- Stock Table -->
+  <nz-table
+    #stockTable
+    [nzData]="stocks"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzFrontPagination]="false"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+    nzSize="middle"
+  >
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>SKU</th>
+        <th>Warehouse</th>
+        <th nzAlign="right">Available</th>
+        <th nzAlign="right">Reserved</th>
+        <th nzAlign="right">Total</th>
+        <th>Unit</th>
+        <th nzAlign="center">Status</th>
+        <th nzAlign="center" nzWidth="120px">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let stock of stockTable.data" [class.low-stock-row]="isLowStock(stock)">
+        <td>
+          <strong>{{ stock.product.name }}</strong>
+          <div class="reorder-info" *ngIf="stock.reorderPoint">
+            <small>Reorder Point: {{ stock.reorderPoint }}</small>
+          </div>
+        </td>
+        <td>
+          <nz-tag nzColor="blue">{{ stock.product.sku }}</nz-tag>
+        </td>
+        <td>
+          <span nz-icon nzType="home"></span>
+          {{ stock.warehouse.name }}
+        </td>
+        <td nzAlign="right">
+          <strong [class.text-danger]="stock.available === 0">
+            {{ stock.available }}
+          </strong>
+        </td>
+        <td nzAlign="right">{{ stock.reserved }}</td>
+        <td nzAlign="right">
+          <strong>{{ stock.total }}</strong>
+        </td>
+        <td>{{ stock.product.unit.symbol }}</td>
+        <td nzAlign="center">
+          <nz-badge
+            [nzStatus]="getStockStatus(stock).color === 'green' ? 'success' : getStockStatus(stock).color === 'orange' ? 'warning' : 'error'"
+            [nzText]="getStockStatus(stock).text"
+          ></nz-badge>
+        </td>
+        <td nzAlign="center">
+          <nz-space>
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="link"
+              nzSize="small"
+              [routerLink]="['/inventory/movements']"
+              [queryParams]="{ productId: stock.productId, warehouseId: stock.warehouseId }"
+            >
+              <span nz-icon nzType="history"></span>
+              History
+            </button>
+          </nz-space>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <!-- Summary Section -->
+  <div class="summary-section" *ngIf="stocks.length > 0">
+    <nz-space [nzSize]="'large'">
+      <div *nzSpaceItem class="summary-item">
+        <div class="summary-label">Total Products</div>
+        <div class="summary-value">{{ stocks.length }}</div>
+      </div>
+      <div *nzSpaceItem class="summary-item">
+        <div class="summary-label">Total Stock</div>
+        <div class="summary-value">{{ totalStock }}</div>
+      </div>
+      <div *nzSpaceItem class="summary-item">
+        <div class="summary-label">Available</div>
+        <div class="summary-value">{{ totalAvailable }}</div>
+      </div>
+      <div *nzSpaceItem class="summary-item">
+        <div class="summary-label">Reserved</div>
+        <div class="summary-value">{{ totalReserved }}</div>
+      </div>
+    </nz-space>
+  </div>
+</nz-card>
+

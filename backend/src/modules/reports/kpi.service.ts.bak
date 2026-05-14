@@ -1,0 +1,399 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { PaymentStatus } from '@prisma/client';
+
+@Injectable()
+export class KpiService {
+  constructor(private prisma: PrismaService) {}
+
+  async getSummaryKpis(tenantId: string) {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+
+    const [
+      revenue,
+      purchases,
+      receivables,
+      payables,
+      inventoryValue,
+      customerCount,
+      vendorCount,
+      productCount,
+    ] = await Promise.all([
+      // Revenue
+      this.prisma.salesInvoice.aggregate({
+        where: {
+          tenantId,
+          status: { in: [PaymentStatus.PAID, PaymentStatus.PARTIAL] },
+        },
+        _sum: { paidAmount: true },
+      }),
+      // Purchases
+      this.prisma.purchaseInvoice.aggregate({
+        where: {
+          tenantId,
+          status: { in: [PaymentStatus.PAID, PaymentStatus.PARTIAL] },
+        },
+        _sum: { paidAmount: true },
+      }),
+      // Receivables
+      this.prisma.salesInvoice.aggregate({
+        where: {
+          tenantId,
+          status: { in: [PaymentStatus.PENDING, PaymentStatus.PARTIAL] },
+        },
+        _sum: { balanceAmount: true },
+      }),
+      // Payables
+      this.prisma.purchaseInvoice.aggregate({
+        where: {
+          tenantId,
+          status: { in: [PaymentStatus.PENDING, PaymentStatus.PARTIAL] },
+        },
+        _sum: { balanceAmount: true },
+      }),
+      // Inventory Value
+      this.calculateInventoryValue(tenantId),
+      // Counts
+      this.prisma.customer.count({ where: { tenantId, isActive: true } }),
+      this.prisma.vendor.count({ where: { tenantId, isActive: true } }),
+      this.prisma.product.count({ where: { tenantId, isActive: true } }),
+    ]);
+
+    return {
+      finance: {
+        totalRevenue: Number(revenue._sum.paidAmount || 0),
+        totalPurchases: Number(purchases._sum.paidAmount || 0),
+        outstandingReceivables: Number(receivables._sum.balanceAmount || 0),
+        outstandingPayables: Number(payables._sum.balanceAmount || 0),
+        grossProfit:
+          Number(revenue._sum.paidAmount || 0) - Number(purchases._sum.paidAmount || 0),
+      },
+      inventory: {
+        totalValue: inventoryValue,
+        productCount,
+      },
+      business: {
+        customerCount,
+        vendorCount,
+      },
+      timestamp: new Date(),
+    };
+  }
+
+  async getFinanceKpis(tenantId: string, fromDate: Date, toDate: Date) {
+    const [revenue, purchases, salesCount, purchaseCount] = await Promise.all([
+      // Revenue in period
+      this.prisma.salesInvoice.aggregate({
+        where: {
+          tenantId,
+          invoiceDate: { gte: fromDate, lte: toDate },
+        },
+        _sum: { total: true, paidAmount: true },
+        _count: true,
+      }),
+      // Purchases in period
+      this.prisma.purchaseInvoice.aggregate({
+        where: {
+          tenantId,
+          invoiceDate: { gte: fromDate, lte: toDate },
+        },
+        _sum: { total: true, paidAmount: true },
+        _count: true,
+      }),
+      // Sales order count
+      this.prisma.salesOrder.count({
+        where: {
+          tenantId,
+          orderDate: { gte: fromDate, lte: toDate },
+          status: { not: 'CANCELLED' },
+        },
+      }),
+      // Purchase order count
+      this.prisma.purchaseOrder.count({
+        where: {
+          tenantId,
+          orderDate: { gte: fromDate, lte: toDate },
+          status: { not: 'CANCELLED' },
+        },
+      }),
+    ]);
+
+    const totalRevenue = Number(revenue._sum.total || 0);
+    const totalPurchases = Number(purchases._sum.total || 0);
+    const grossProfit = totalRevenue - totalPurchases;
+    const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+
+    return {
+      period: { from: fromDate, to: toDate },
+      revenue: {
+        total: totalRevenue,
+        collected: Number(revenue._sum.paidAmount || 0),
+        invoiceCount: revenue._count,
+      },
+      purchases: {
+        total: totalPurchases,
+        paid: Number(purchases._sum.paidAmount || 0),
+        invoiceCount: purchases._count,
+      },
+      profit: {
+        gross: grossProfit,
+        grossMargin,
+      },
+      orders: {
+        sales: salesCount,
+        purchases: purchaseCount,
+      },
+    };
+  }
+
+  async getInventoryKpis(tenantId: string) {
+    const [
+      totalValue,
+      lowStock,
+      outOfStock,
+      expiringBatches,
+      deadStock,
+    ] = await Promise.all([
+      this.calculateInventoryValue(tenantId),
+      this.getLowStockCount(tenantId),
+      this.getOutOfStockCount(tenantId),
+      this.getExpiringBatchesCount(tenantId),
+      this.getDeadStockCount(tenantId),
+    ]);
+
+    return {
+      inventory: {
+        totalValue,
+        lowStockItems: lowStock,
+        outOfStockItems: outOfStock,
+        expiringBatches,
+        deadStockItems: deadStock,
+      },
+      timestamp: new Date(),
+    };
+  }
+
+  async getTopProducts(tenantId: string, limit: number = 10) {
+    // Get products with highest sales value
+    const salesItems = await this.prisma.salesOrderItem.groupBy({
+      by: ['productId'],
+      where: {
+        salesOrder: {
+          tenantId,
+          status: 'COMPLETED',
+        },
+      },
+      _sum: {
+        quantity: true,
+        total: true,
+      },
+      orderBy: {
+        _sum: {
+          total: 'desc',
+        },
+      },
+      take: limit,
+    });
+
+    const productIds = salesItems.map(item => item.productId);
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+      },
+    });
+
+    const productMap = new Map(products.map(p => [p.id, p]));
+
+    return salesItems.map(item => ({
+      product: productMap.get(item.productId),
+      quantitySold: item._sum.quantity || 0,
+      revenue: Number(item._sum.total || 0),
+    }));
+  }
+
+  async getTopCustomers(tenantId: string, limit: number = 10) {
+    const customerSales = await this.prisma.salesInvoice.groupBy({
+      by: ['customerId'],
+      where: {
+        tenantId,
+        status: { not: 'CANCELLED' },
+      },
+      _sum: {
+        total: true,
+        paidAmount: true,
+      },
+      _count: true,
+      orderBy: {
+        _sum: {
+          total: 'desc',
+        },
+      },
+      take: limit,
+    });
+
+    const customerIds = customerSales.map(cs => cs.customerId);
+    const customers = await this.prisma.customer.findMany({
+      where: { id: { in: customerIds } },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+      },
+    });
+
+    const customerMap = new Map(customers.map(c => [c.id, c]));
+
+    return customerSales.map(cs => ({
+      customer: customerMap.get(cs.customerId),
+      totalRevenue: Number(cs._sum.total || 0),
+      totalPaid: Number(cs._sum.paidAmount || 0),
+      invoiceCount: cs._count,
+    }));
+  }
+
+  async getTopVendors(tenantId: string, limit: number = 10) {
+    const vendorPurchases = await this.prisma.purchaseInvoice.groupBy({
+      by: ['vendorId'],
+      where: {
+        tenantId,
+      },
+      _sum: {
+        total: true,
+        paidAmount: true,
+      },
+      _count: true,
+      orderBy: {
+        _sum: {
+          total: 'desc',
+        },
+      },
+      take: limit,
+    });
+
+    const vendorIds = vendorPurchases.map(vp => vp.vendorId);
+    const vendors = await this.prisma.vendor.findMany({
+      where: { id: { in: vendorIds } },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+      },
+    });
+
+    const vendorMap = new Map(vendors.map(v => [v.id, v]));
+
+    return vendorPurchases.map(vp => ({
+      vendor: vendorMap.get(vp.vendorId),
+      totalPurchases: Number(vp._sum.total || 0),
+      totalPaid: Number(vp._sum.paidAmount || 0),
+      invoiceCount: vp._count,
+    }));
+  }
+
+  // Helper methods
+  private async calculateInventoryValue(tenantId: string): Promise<number> {
+    const stocks = await this.prisma.stock.findMany({
+      where: {
+        product: { tenantId },
+      },
+      select: {
+        quantity: true,
+        product: {
+          select: {
+            unitPrice: true,
+          },
+        },
+      },
+    });
+
+    return stocks.reduce(
+      (total, stock) => total + stock.quantity * Number(stock.product.unitPrice || 0),
+      0,
+    );
+  }
+
+  private async getLowStockCount(tenantId: string): Promise<number> {
+    return this.prisma.product.count({
+      where: {
+        tenantId,
+        isActive: true,
+        stocks: {
+          some: {
+            available: {
+              lte: this.prisma.product.fields.minStock,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  private async getOutOfStockCount(tenantId: string): Promise<number> {
+    return this.prisma.product.count({
+      where: {
+        tenantId,
+        isActive: true,
+        stocks: {
+          every: {
+            available: 0,
+          },
+        },
+      },
+    });
+  }
+
+  private async getExpiringBatchesCount(tenantId: string): Promise<number> {
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+    return this.prisma.batch.count({
+      where: {
+        stock: {
+          product: { tenantId },
+        },
+        expiryDate: {
+          lte: thirtyDaysFromNow,
+          gte: new Date(),
+        },
+        quantity: { gt: 0 },
+      },
+    });
+  }
+
+  private async getDeadStockCount(tenantId: string): Promise<number> {
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    // Products with no sales in last 90 days
+    const productsWithRecentSales = await this.prisma.salesOrderItem.findMany({
+      where: {
+        salesOrder: {
+          tenantId,
+          orderDate: { gte: ninetyDaysAgo },
+        },
+      },
+      select: { productId: true },
+      distinct: ['productId'],
+    });
+
+    const recentlySoldProductIds = new Set(
+      productsWithRecentSales.map(item => item.productId),
+    );
+
+    const allProducts = await this.prisma.product.findMany({
+      where: {
+        tenantId,
+        isActive: true,
+      },
+      select: { id: true },
+    });
+
+    return allProducts.filter(p => !recentlySoldProductIds.has(p.id)).length;
+  }
+}
+

@@ -1,0 +1,373 @@
+<nz-card>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h2>
+        <span nz-icon nzType="history" style="margin-right: 8px;"></span>
+        Inventory Movements
+      </h2>
+      <p>Complete stock in/out history across all warehouses</p>
+    </div>
+    <div class="header-right">
+      <nz-space>
+        <button
+          *nzSpaceItem
+          nz-button
+          nzType="default"
+          (click)="toggleFilters()"
+        >
+          <span nz-icon nzType="filter"></span>
+          {{ showFilters ? 'Hide' : 'Show' }} Filters        </button>
+        <button
+          *nzSpaceItem
+          nz-button
+          nzType="default"
+          nz-dropdown
+          [nzDropdownMenu]="exportMenu"
+          [nzDisabled]="!canExport"
+          [nzLoading]="exporting"
+        >
+          <span nz-icon nzType="export"></span>
+          Export
+          <span nz-icon nzType="down"></span>
+        </button>
+      </nz-space>
+
+      <nz-dropdown-menu #exportMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item (click)="exportCSV()">
+            <span nz-icon nzType="file-excel"></span>
+            Export as CSV
+          </li>
+          <li nz-menu-item (click)="exportExcel()">
+            <span nz-icon nzType="file-excel"></span>
+            Export as Excel
+          </li>
+          <li nz-menu-item (click)="printMovements()">
+            <span nz-icon nzType="printer"></span>
+            Print
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div *ngIf="!loadingSummary && summary" nz-row [nzGutter]="16" style="margin-bottom: 24px;">
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+      <nz-card class="summary-card">
+        <nz-statistic
+          [nzValue]="summary.totalIn"
+          nzTitle="Total Stock IN"
+          [nzPrefix]="inPrefix"
+          [nzValueStyle]="{ color: '#52c41a' }"
+        ></nz-statistic>
+        <ng-template #inPrefix>
+          <span nz-icon nzType="arrow-down" style="color: #52c41a;"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+      <nz-card class="summary-card">
+        <nz-statistic
+          [nzValue]="summary.totalOut"
+          nzTitle="Total Stock OUT"
+          [nzPrefix]="outPrefix"
+          [nzValueStyle]="{ color: '#ff4d4f' }"
+        ></nz-statistic>
+        <ng-template #outPrefix>
+          <span nz-icon nzType="arrow-up" style="color: #ff4d4f;"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+      <nz-card class="summary-card">
+        <nz-statistic
+          [nzValue]="summary.totalAdjustment"
+          nzTitle="Adjustments"
+          [nzPrefix]="adjustPrefix"
+          [nzValueStyle]="{ color: '#faad14' }"
+        ></nz-statistic>
+        <ng-template #adjustPrefix>
+          <span nz-icon nzType="edit" style="color: #faad14;"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+    <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+      <nz-card class="summary-card">
+        <nz-statistic
+          [nzValue]="summary.movementCount"
+          nzTitle="Total Movements"
+          [nzPrefix]="countPrefix"
+        ></nz-statistic>
+        <ng-template #countPrefix>
+          <span nz-icon nzType="history"></span>
+        </ng-template>
+      </nz-card>
+    </div>
+  </div>
+
+
+  <!-- Filter Panel -->
+  <div *ngIf="showFilters" class="filter-panel">
+    <nz-card nzTitle="Filters" [nzExtra]="filterExtra">
+      <div nz-row [nzGutter]="16">
+        <!-- Date Range -->
+        <div nz-col [nzXs]="24" [nzMd]="8">
+          <label>Date Range</label>
+          <nz-range-picker
+            [(ngModel)]="dateRange"
+            style="width: 100%;"
+            nzFormat="MMM dd, yyyy"
+          ></nz-range-picker>
+        </div>
+
+        <!-- Product -->
+        <div nz-col [nzXs]="24" [nzMd]="8">
+          <label>Product</label>
+          <nz-select
+            [(ngModel)]="filters.productId"
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="Select product"
+            style="width: 100%;"
+            [nzLoading]="loadingProducts"
+          >
+            <nz-option
+              *ngFor="let product of products"
+              [nzLabel]="product.name + ' (' + product.sku + ')'"
+              [nzValue]="product.id"
+            ></nz-option>
+          </nz-select>
+        </div>
+
+        <!-- Warehouse -->
+        <div nz-col [nzXs]="24" [nzMd]="8">
+          <label>Warehouse</label>
+          <nz-select
+            [(ngModel)]="filters.warehouseId"
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="Select warehouse"
+            style="width: 100%;"
+            [nzLoading]="loadingWarehouses"
+          >
+            <nz-option
+              *ngFor="let warehouse of warehouses"
+              [nzLabel]="warehouse.name"
+              [nzValue]="warehouse.id"
+            ></nz-option>
+          </nz-select>
+        </div>
+
+        <!-- Movement Type -->
+        <div nz-col [nzXs]="24" [nzMd]="8" style="margin-top: 16px;">
+          <label>Movement Type</label>
+          <nz-select
+            [(ngModel)]="filters.type"
+            nzAllowClear
+            nzPlaceHolder="All types"
+            style="width: 100%;"
+          >
+            <nz-option
+              *ngFor="let type of movementTypes"
+              [nzLabel]="movementTypeConfig[type].label"
+              [nzValue]="type"
+            ></nz-option>
+          </nz-select>
+        </div>
+
+        <!-- Reference No -->
+        <div nz-col [nzXs]="24" [nzMd]="8" style="margin-top: 16px;">
+          <label>Reference No</label>
+          <nz-input-group [nzPrefix]="searchIcon">
+            <input
+              nz-input
+              [(ngModel)]="filters.referenceNo"
+              placeholder="Search by reference"
+            />
+          </nz-input-group>
+          <ng-template #searchIcon>
+            <span nz-icon nzType="search"></span>
+          </ng-template>
+        </div>
+
+        <!-- Min Quantity -->
+        <div nz-col [nzXs]="12" [nzMd]="4" style="margin-top: 16px;">
+          <label>Min Qty</label>
+          <nz-input-number
+            [(ngModel)]="filters.minQuantity"
+            [nzMin]="0"
+            style="width: 100%;"
+          ></nz-input-number>
+        </div>
+
+        <!-- Max Quantity -->
+        <div nz-col [nzXs]="12" [nzMd]="4" style="margin-top: 16px;">
+          <label>Max Qty</label>
+          <nz-input-number
+            [(ngModel)]="filters.maxQuantity"
+            [nzMin]="0"
+            style="width: 100%;"
+          ></nz-input-number>
+        </div>
+      </div>
+
+      <ng-template #filterExtra>
+        <nz-space>
+          <button *nzSpaceItem nz-button nzType="default" (click)="resetFilters()">
+            <span nz-icon nzType="redo"></span>
+            Reset
+          </button>
+          <button *nzSpaceItem nz-button nzType="primary" (click)="applyFilters()">
+            <span nz-icon nzType="check"></span>
+            Apply
+          </button>
+        </nz-space>
+      </ng-template>
+    </nz-card>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-bar" style="margin-bottom: 16px; margin-top: 16px;">
+    <nz-input-group [nzPrefix]="searchIconPrefix" [nzSuffix]="searchSuffix" style="max-width: 400px;">
+      <input
+        nz-input
+        [(ngModel)]="searchText"
+        (ngModelChange)="onSearch($event)"
+        placeholder="Search by product, warehouse, or reference..."
+      />
+    </nz-input-group>
+    <ng-template #searchIconPrefix>
+      <span nz-icon nzType="search"></span>
+    </ng-template>
+    <ng-template #searchSuffix>
+      <span
+        *ngIf="searchText"
+        nz-icon
+        nzType="close-circle"
+        class="clear-icon"
+        (click)="searchText = ''; onSearch('')"
+      ></span>
+    </ng-template>
+  </div>
+
+  <!-- Movements Table -->
+  <nz-table
+    #movementsTable
+    [nzData]="movements"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzFrontPagination]="false"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    [nzScroll]="{ x: '1200px' }"
+    nzSize="middle"
+  >
+    <thead>
+      <tr>
+        <th *ngIf="visibleColumns.date" nzWidth="160px">Date & Time</th>
+        <th *ngIf="visibleColumns.product" nzWidth="200px">Product</th>
+        <th *ngIf="visibleColumns.warehouse" nzWidth="150px">Warehouse</th>
+        <th *ngIf="visibleColumns.type" nzWidth="120px" nzAlign="center">Type</th>
+        <th *ngIf="visibleColumns.quantity" nzWidth="100px" nzAlign="right">Quantity</th>
+        <th *ngIf="visibleColumns.reference" nzWidth="150px">Reference</th>
+        <th *ngIf="visibleColumns.notes" nzWidth="200px">Notes</th>
+        <th *ngIf="visibleColumns.user" nzWidth="150px">User</th>
+        <th *ngIf="visibleColumns.actions" nzWidth="80px" nzAlign="center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let movement of movementsTable.data">
+        <!-- Date & Time -->
+        <td *ngIf="visibleColumns.date">
+          <small>{{ formatDate(movement.createdAt) }}</small>
+        </td>
+
+        <!-- Product -->
+        <td *ngIf="visibleColumns.product">
+          <div>
+            <strong>{{ movement.product?.name || '-' }}</strong>
+            <br />
+            <small class="text-muted">{{ movement.product?.sku || '-' }}</small>
+          </div>
+        </td>
+
+        <!-- Warehouse -->
+        <td *ngIf="visibleColumns.warehouse">
+          {{ movement.warehouse?.name || '-' }}
+        </td>
+
+        <!-- Type -->
+        <td *ngIf="visibleColumns.type" nzAlign="center">
+          <nz-tag
+            [nzColor]="getTypeConfig(movement.type).color"
+            [style.background-color]="getTypeConfig(movement.type).bgColor"
+            [style.border-color]="getTypeConfig(movement.type).borderColor"
+          >
+            <span nz-icon [nzType]="getTypeConfig(movement.type).icon"></span>
+            {{ getTypeConfig(movement.type).label }}
+          </nz-tag>
+        </td>
+
+        <!-- Quantity -->
+        <td *ngIf="visibleColumns.quantity" nzAlign="right">
+          <strong [ngClass]="getQuantityClass(movement.quantity)">
+            {{ formatQuantity(movement.quantity) }}
+          </strong>
+        </td>
+
+        <!-- Reference -->
+        <td *ngIf="visibleColumns.reference">
+          <div *ngIf="movement.reference">
+            <code>{{ movement.reference }}</code>
+          </div>
+          <span *ngIf="!movement.reference" class="text-muted">-</span>
+        </td>
+
+        <!-- Notes -->
+        <td *ngIf="visibleColumns.notes">
+          <span>{{ movement.notes || '-' }}</span>
+        </td>
+
+        <!-- User -->
+        <td *ngIf="movement.user">
+          <span *ngIf="movement.user">
+            {{ movement.user.firstName }} {{ movement.user.lastName }}
+          </span>
+          <span *ngIf="!movement.user" class="text-muted">-</span>
+        </td>
+
+        <!-- Actions -->
+        <td *ngIf="visibleColumns.actions" nzAlign="center">
+          <button
+            nz-button
+            nzType="link"
+            nzSize="small"
+            (click)="viewDetails(movement)"
+            nz-tooltip="View Details"
+          >
+            <span nz-icon nzType="eye"></span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <!-- Empty State -->
+  <nz-empty
+    *ngIf="!loading && movements.length === 0"
+    nzNotFoundContent="No movements found"
+    [nzNotFoundFooter]="emptyFooter"
+  >
+    <ng-template #emptyFooter>
+      <button nz-button nzType="primary" (click)="resetFilters()">
+        Reset Filters
+      </button>
+    </ng-template>
+  </nz-empty>
+</nz-card>

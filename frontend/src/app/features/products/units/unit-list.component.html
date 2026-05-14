@@ -1,0 +1,107 @@
+<nz-card>
+  <div class="page-header">
+    <div class="header-left">
+      <h2>Units of Measure</h2>
+      <p>Manage measurement units</p>
+    </div>
+    <div class="header-right">
+      <button nz-button nzType="primary" (click)="openCreateModal()">
+        <span nz-icon nzType="plus"></span>
+        Add Unit
+      </button>
+    </div>
+  </div>
+
+  <nz-table
+    #unitsTable
+    [nzData]="units"
+    [nzLoading]="loading"
+    [nzPageSize]="20"
+    nzSize="middle"
+  >
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Symbol</th>
+        <th nzAlign="center">Status</th>
+        <th nzAlign="center" nzWidth="120px">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let unit of unitsTable.data">
+        <td>
+          <strong>{{ unit.name }}</strong>
+        </td>
+        <td>
+          <nz-tag nzColor="orange">{{ unit.symbol }}</nz-tag>
+        </td>
+        <td nzAlign="center">
+          <nz-tag [nzColor]="unit.isActive ? 'green' : 'red'">
+            {{ unit.isActive ? 'Active' : 'Inactive' }}
+          </nz-tag>
+        </td>
+        <td nzAlign="center">
+          <nz-space>
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="default"
+              nzSize="small"
+              (click)="openEditModal(unit)"
+            >
+              <span nz-icon nzType="edit"></span>
+            </button>
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="default"
+              nzDanger
+              nzSize="small"
+              (click)="confirmDelete(unit)"
+            >
+              <span nz-icon nzType="delete"></span>
+            </button>
+          </nz-space>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+
+<!-- Unit Form Modal -->
+<nz-modal
+  [(nzVisible)]="modalVisible"
+  [nzTitle]="modalTitle"
+  (nzOnCancel)="handleModalCancel()"
+  (nzOnOk)="handleModalOk()"
+  nzWidth="500px"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="unitForm" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label nzRequired>Unit Name</nz-form-label>
+        <nz-form-control nzErrorTip="Please enter unit name (min 2 characters)">
+          <input nz-input formControlName="name" placeholder="e.g., Piece, Kilogram" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Symbol</nz-form-label>
+        <nz-form-control nzErrorTip="Please enter symbol (max 10 characters)">
+          <input nz-input formControlName="symbol" placeholder="e.g., pcs, kg" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEditMode">
+        <nz-form-label>Status</nz-form-label>
+        <nz-form-control>
+          <nz-switch formControlName="isActive"></nz-switch>
+          <span class="status-label">
+            {{ unitForm.get('isActive')?.value ? 'Active' : 'Inactive' }}
+          </span>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>
+

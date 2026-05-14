@@ -1,0 +1,310 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+
+@Injectable()
+export class SalesAnalyticsService {
+  constructor(private prisma: PrismaService) {}
+
+  async getSalesTrend(
+    tenantId: string,
+    fromDate: Date,
+    toDate: Date,
+    groupBy: 'day' | 'week' | 'month' = 'day',
+  ) {
+    const invoices = await this.prisma.salesInvoice.findMany({
+      where: {
+        tenantId,
+        invoiceDate: { gte: fromDate, lte: toDate },
+      },
+      select: {
+        invoiceDate: true,
+        total: true,
+        subtotal: true,
+        taxAmount: true,
+      },
+      orderBy: { invoiceDate: 'asc' },
+    });
+
+    // Group by period
+    const grouped = new Map<string, { total: number; count: number; tax: number }>();
+
+    invoices.forEach(inv => {
+      const key = this.getDateKey(inv.invoiceDate, groupBy);
+      const existing = grouped.get(key) || { total: 0, count: 0, tax: 0 };
+      grouped.set(key, {
+        total: existing.total + Number(inv.total),
+        count: existing.count + 1,
+        tax: existing.tax + Number(inv.taxAmount),
+      });
+    });
+
+    return Array.from(grouped.entries())
+      .map(([period, data]) => ({
+        period,
+        revenue: data.total,
+        invoiceCount: data.count,
+        taxCollected: data.tax,
+      }))
+      .sort((a, b) => a.period.localeCompare(b.period));
+  }
+
+  async getProductWiseSales(
+    tenantId: string,
+    fromDate: Date,
+    toDate: Date,
+    limit: number = 50,
+  ) {
+    const salesItems = await this.prisma.salesOrderItem.groupBy({
+      by: ['productId'],
+      where: {
+        salesOrder: {
+          tenantId,
+          orderDate: { gte: fromDate, lte: toDate },
+          status: { not: 'CANCELLED' },
+        },
+      },
+      _sum: {
+        quantity: true,
+        total: true,
+        discount: true,
+      },
+      _count: true,
+      orderBy: {
+        _sum: {
+          total: 'desc',
+        },
+      },
+      take: limit,
+    });
+
+    const productIds = salesItems.map(item => item.productId);
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        unitPrice: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    const productMap = new Map(products.map(p => [p.id, p]));
+
+    return salesItems.map(item => {
+      const product = productMap.get(item.productId);
+      const quantitySold = item._sum.quantity || 0;
+      const revenue = Number(item._sum.total || 0);
+      const discount = Number(item._sum.discount || 0);
+      const unitPrice = Number(product?.unitPrice || 0);
+      const costEstimate = quantitySold * unitPrice * 0.7; // Rough 70% cost estimate
+      const profit = revenue - costEstimate;
+
+      return {
+        product: {
+          id: product?.id,
+          name: product?.name,
+          sku: product?.sku,
+          category: product?.category?.name,
+        },
+        quantitySold,
+        revenue,
+        discount,
+        orderCount: item._count,
+        estimatedProfit: profit,
+        profitMargin: revenue > 0 ? (profit / revenue) * 100 : 0,
+      };
+    });
+  }
+
+  async getCategoryWiseSales(tenantId: string, fromDate: Date, toDate: Date) {
+    const salesItems = await this.prisma.salesOrderItem.findMany({
+      where: {
+        salesOrder: {
+          tenantId,
+          orderDate: { gte: fromDate, lte: toDate },
+          status: { not: 'CANCELLED' },
+        },
+      },
+      select: {
+        quantity: true,
+        total: true,
+        product: {
+          select: {
+            categoryId: true,
+          },
+        },
+      },
+    });
+
+    // Group by category
+    const categoryMap = new Map<string, { quantity: number; revenue: number }>();
+
+    salesItems.forEach(item => {
+      const catId = item.product.categoryId || 'uncategorized';
+      const existing = categoryMap.get(catId) || { quantity: 0, revenue: 0 };
+      categoryMap.set(catId, {
+        quantity: existing.quantity + item.quantity,
+        revenue: existing.revenue + Number(item.total),
+      });
+    });
+
+    // Get category names
+    const categoryIds = Array.from(categoryMap.keys()).filter(id => id !== 'uncategorized');
+    const categories = await this.prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: { id: true, name: true },
+    });
+
+    const categoryNameMap = new Map(categories.map(c => [c.id, c.name]));
+
+    return Array.from(categoryMap.entries())
+      .map(([id, data]) => ({
+        category: {
+          id: id === 'uncategorized' ? null : id,
+          name: id === 'uncategorized' ? 'Uncategorized' : categoryNameMap.get(id),
+        },
+        quantitySold: data.quantity,
+        revenue: data.revenue,
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+  }
+
+  async getCustomerWiseSales(
+    tenantId: string,
+    fromDate: Date,
+    toDate: Date,
+    limit: number = 50,
+  ) {
+    const customerSales = await this.prisma.salesInvoice.groupBy({
+      by: ['customerId'],
+      where: {
+        tenantId,
+        invoiceDate: { gte: fromDate, lte: toDate },
+      },
+      _sum: {
+        total: true,
+        paidAmount: true,
+        balanceAmount: true,
+      },
+      _count: true,
+      orderBy: {
+        _sum: {
+          total: 'desc',
+        },
+      },
+      take: limit,
+    });
+
+    const customerIds = customerSales.map(cs => cs.customerId);
+    const customers = await this.prisma.customer.findMany({
+      where: { id: { in: customerIds } },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        creditLimit: true,
+      },
+    });
+
+    const customerMap = new Map(customers.map(c => [c.id, c]));
+
+    return customerSales.map(cs => {
+      const customer = customerMap.get(cs.customerId);
+      const revenue = Number(cs._sum.total || 0);
+      const paid = Number(cs._sum.paidAmount || 0);
+      const outstanding = Number(cs._sum.balanceAmount || 0);
+
+      return {
+        customer: {
+          id: customer?.id,
+          name: customer?.name,
+          code: customer?.code,
+          creditLimit: Number(customer?.creditLimit || 0),
+        },
+        revenue,
+        paid,
+        outstanding,
+        invoiceCount: cs._count,
+        paymentRate: revenue > 0 ? (paid / revenue) * 100 : 0,
+      };
+    });
+  }
+
+  async getSalesGrowth(tenantId: string) {
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    const [thisMonth, lastMonth] = await Promise.all([
+      this.prisma.salesInvoice.aggregate({
+        where: {
+          tenantId,
+          invoiceDate: { gte: thisMonthStart },
+        },
+        _sum: { total: true },
+        _count: true,
+      }),
+      this.prisma.salesInvoice.aggregate({
+        where: {
+          tenantId,
+          invoiceDate: { gte: lastMonthStart, lte: lastMonthEnd },
+        },
+        _sum: { total: true },
+        _count: true,
+      }),
+    ]);
+
+    const thisMonthRevenue = Number(thisMonth._sum.total || 0);
+    const lastMonthRevenue = Number(lastMonth._sum.total || 0);
+    const revenueGrowth =
+      lastMonthRevenue > 0
+        ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+        : 0;
+
+    const orderGrowth =
+      lastMonth._count > 0
+        ? ((thisMonth._count - lastMonth._count) / lastMonth._count) * 100
+        : 0;
+
+    return {
+      thisMonth: {
+        revenue: thisMonthRevenue,
+        orderCount: thisMonth._count,
+      },
+      lastMonth: {
+        revenue: lastMonthRevenue,
+        orderCount: lastMonth._count,
+      },
+      growth: {
+        revenue: revenueGrowth,
+        orders: orderGrowth,
+      },
+    };
+  }
+
+  private getDateKey(date: Date, groupBy: 'day' | 'week' | 'month'): string {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+
+    switch (groupBy) {
+      case 'day':
+        return `${year}-${month}-${day}`;
+      case 'week':
+        const weekNum = Math.ceil(d.getDate() / 7);
+        return `${year}-W${String(weekNum).padStart(2, '0')}`;
+      case 'month':
+        return `${year}-${month}`;
+      default:
+        return `${year}-${month}-${day}`;
+    }
+  }
+}
+

@@ -1,0 +1,199 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .header-left {
+    h2 {
+      margin: 0 0 4px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #262626;
+      display: flex;
+      align-items: center;
+    }
+
+    p {
+      margin: 0;
+      color: #8c8c8c;
+      font-size: 14px;
+    }
+  }
+
+  .header-right {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.summary-card {
+  ::ng-deep .ant-card-body {
+    padding: 16px;
+  }
+
+  ::ng-deep .ant-statistic-title {
+    font-size: 12px;
+    color: #8c8c8c;
+    margin-bottom: 4px;
+  }
+
+  ::ng-deep .ant-statistic-content {
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
+.filter-panel {
+  margin-bottom: 24px;
+
+  label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #595959;
+  }
+
+  ::ng-deep .ant-card-head {
+    border-bottom: 1px solid #f0f0f0;
+  }
+}
+
+.search-bar {
+  .clear-icon {
+    cursor: pointer;
+    color: #bfbfbf;
+
+    &:hover {
+      color: #595959;
+    }
+  }
+}
+
+// Table styles
+::ng-deep {
+  .ant-table {
+    .text-success {
+      color: #52c41a;
+      font-weight: 600;
+    }
+
+    .text-danger {
+      color: #ff4d4f;
+      font-weight: 600;
+    }
+
+    .text-muted {
+      color: #8c8c8c;
+      font-size: 12px;
+    }
+
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 12px;
+      color: #1890ff;
+    }
+
+    // Sticky header
+    .ant-table-thead > tr > th {
+      background: #fafafa;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    // Row hover effect
+    .ant-table-tbody > tr:hover > td {
+      background: #f5f5f5;
+    }
+
+    // Responsive table scroll
+    .ant-table-content {
+      overflow-x: auto;
+    }
+  }
+
+  // Tag customization
+  .ant-tag {
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+
+    .anticon {
+      margin-right: 4px;
+    }
+  }
+
+  // Badge customization
+  .ant-badge {
+    .ant-badge-count {
+      background-color: #f0f0f0;
+      color: #262626;
+      font-weight: 600;
+      box-shadow: none;
+    }
+  }
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .page-header {
+    .header-left h2 {
+      font-size: 20px;
+    }
+
+    .header-right {
+      width: 100%;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+
+  .filter-panel {
+    ::ng-deep .ant-card-extra {
+      width: 100%;
+      margin-top: 12px;
+    }
+  }
+
+  ::ng-deep .ant-table {
+    font-size: 12px;
+
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      padding: 8px 4px;
+    }
+  }
+}
+
+// Loading overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+// Empty state
+::ng-deep .ant-empty {
+  padding: 48px 0;
+
+  .ant-empty-description {
+    color: #8c8c8c;
+  }
+}

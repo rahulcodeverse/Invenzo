@@ -1,0 +1,220 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import { SalesService } from '../../services/sales.service';
+import { MasterDataService } from '../../../../core/services/master-data.service';
+import { SalesInvoice, InvoiceStatus } from '../../models/sales.model';
+import { Customer } from '../../../../core/models/master-data.model';
+import { debounceTime, Subject } from 'rxjs';
+
+@Component({
+  selector: 'app-invoice-list',
+  standalone: true,
+  imports: [
+    CommonModule, FormsModule, NzTableModule, NzButtonModule, NzInputModule,
+    NzSelectModule, NzTagModule, NzModalModule, NzIconModule, NzSpaceModule,
+    NzCardModule, NzBadgeModule
+  ],
+  template: `
+    <nz-card>
+      <div class="page-header">
+        <div class="header-left">
+          <h2>Sales Invoices</h2>
+          <p>Manage customer invoices</p>
+        </div>
+        <div class="header-right">
+          <button nz-button nzType="primary" (click)="navigateToNew()">
+            <span nz-icon nzType="plus"></span>
+            New Invoice
+          </button>
+        </div>
+      </div>
+
+      <div class="filters-section">
+        <nz-space [nzSize]="'middle'">
+          <nz-input-group *nzSpaceItem nzSearch [nzAddOnAfter]="suffixIconButton" style="width: 300px;">
+            <input type="text" nz-input placeholder="Search..." [(ngModel)]="searchText" (ngModelChange)="onSearch($event)" />
+          </nz-input-group>
+          <ng-template #suffixIconButton>
+            <button nz-button nzType="primary" nzSearch><span nz-icon nzType="search"></span></button>
+          </ng-template>
+
+          <nz-select *nzSpaceItem nzAllowClear nzPlaceHolder="Status" [(ngModel)]="selectedStatus"
+                     (ngModelChange)="onFilterChange()" style="width: 150px;">
+            <nz-option nzLabel="Pending" nzValue="PENDING"></nz-option>
+            <nz-option nzLabel="Partial" nzValue="PARTIAL"></nz-option>
+            <nz-option nzLabel="Paid" nzValue="PAID"></nz-option>
+            <nz-option nzLabel="Overdue" nzValue="OVERDUE"></nz-option>
+          </nz-select>
+
+          <nz-select *nzSpaceItem nzShowSearch nzAllowClear nzPlaceHolder="Customer"
+                     [(ngModel)]="selectedCustomer" (ngModelChange)="onFilterChange()" style="width: 200px;">
+            <nz-option *ngFor="let customer of customers" [nzLabel]="customer.name" [nzValue]="customer.id"></nz-option>
+          </nz-select>
+
+          <button *nzSpaceItem nz-button (click)="resetFilters()">
+            <span nz-icon nzType="redo"></span> Reset
+          </button>
+        </nz-space>
+      </div>
+
+      <nz-table #table [nzData]="invoices" [nzLoading]="loading" [nzTotal]="total"
+                [nzPageSize]="pageSize" [nzPageIndex]="pageIndex" [nzFrontPagination]="false"
+                (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"
+                [nzShowSizeChanger]="true" [nzPageSizeOptions]="[10, 20, 50]">
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Customer</th>
+            <th>Invoice Date</th>
+            <th>Due Date</th>
+            <th nzAlign="right">Total</th>
+            <th nzAlign="right">Paid</th>
+            <th nzAlign="right">Balance</th>
+            <th nzAlign="center">Status</th>
+            <th nzAlign="center" nzWidth="150px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let invoice of table.data" [class.overdue-row]="invoice.status === 'OVERDUE'">
+            <td><nz-tag nzColor="orange">{{ invoice.invoiceNumber }}</nz-tag></td>
+            <td><strong>{{ invoice.customer?.name || '-' }}</strong></td>
+            <td>{{ invoice.invoiceDate | date:'dd/MM/yyyy' }}</td>
+            <td>{{ invoice.dueDate | date:'dd/MM/yyyy' }}</td>
+            <td nzAlign="right"><strong>₹{{ invoice.totalAmount.toLocaleString() }}</strong></td>
+            <td nzAlign="right">₹{{ invoice.paidAmount.toLocaleString() }}</td>
+            <td nzAlign="right">
+              <strong [class.text-danger]="invoice.balanceAmount > 0">
+                ₹{{ invoice.balanceAmount.toLocaleString() }}
+              </strong>
+            </td>
+            <td nzAlign="center">
+              <nz-badge [nzStatus]="getStatusBadge(invoice.status)" [nzText]="invoice.status"></nz-badge>
+            </td>
+            <td nzAlign="center">
+              <nz-space>
+                <button *nzSpaceItem nz-button nzSize="small" (click)="viewInvoice(invoice)">
+                  <span nz-icon nzType="eye"></span>
+                </button>
+                <ng-container *ngIf="invoice.balanceAmount > 0">
+                  <button *nzSpaceItem nz-button nzSize="small" nzType="primary" (click)="recordPayment(invoice)">
+                    <span nz-icon nzType="dollar"></span> Pay
+                  </button>
+                </ng-container>
+              </nz-space>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+
+      <div class="summary-section" *ngIf="invoices.length > 0">
+        <nz-space [nzSize]="'large'">
+          <div *nzSpaceItem class="summary-item">
+            <div class="summary-label">Total Invoiced</div>
+            <div class="summary-value">₹{{ getTotalInvoiced().toLocaleString() }}</div>
+          </div>
+          <div *nzSpaceItem class="summary-item">
+            <div class="summary-label">Total Paid</div>
+            <div class="summary-value text-success">₹{{ getTotalPaid().toLocaleString() }}</div>
+          </div>
+          <div *nzSpaceItem class="summary-item">
+            <div class="summary-label">Outstanding</div>
+            <div class="summary-value text-danger">₹{{ getTotalOutstanding().toLocaleString() }}</div>
+          </div>
+        </nz-space>
+      </div>
+    </nz-card>
+  `,
+  styles: [`
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header-left h2 { margin: 0; font-size: 24px; font-weight: 600; }
+    .header-left p { margin: 4px 0 0; color: rgba(0, 0, 0, 0.45); }
+    .filters-section { margin-bottom: 16px; padding: 16px; background: #fafafa; border-radius: 4px; }
+    .overdue-row { background-color: #fff1f0; }
+    .text-danger { color: #cf1322; }
+    .text-success { color: #52c41a; }
+    .summary-section { margin-top: 24px; padding: 16px; background: #f0f2f5; border-radius: 4px; }
+    .summary-item { text-align: center; }
+    .summary-label { font-size: 12px; color: rgba(0, 0, 0, 0.45); margin-bottom: 4px; }
+    .summary-value { font-size: 24px; font-weight: 600; }
+  `]
+})
+export class InvoiceListComponent implements OnInit {
+  invoices: SalesInvoice[] = [];
+  customers: Customer[] = [];
+  loading = false;
+  total = 0;
+  pageSize = 20;
+  pageIndex = 1;
+  searchText = '';
+  selectedStatus: string | null = null;
+  selectedCustomer: string | null = null;
+  private searchSubject = new Subject<string>();
+
+  constructor(
+    private salesService: SalesService,
+    private masterDataService: MasterDataService,
+    private router: Router,
+    private message: NzMessageService
+  ) {
+    this.searchSubject.pipe(debounceTime(500)).subscribe(() => this.loadInvoices());
+  }
+
+  ngOnInit(): void {
+    this.loadInvoices();
+    this.loadCustomers();
+  }
+
+  loadInvoices(): void {
+    this.loading = true;
+    this.salesService.getSalesInvoices({
+      page: this.pageIndex,
+      limit: this.pageSize,
+      customerId: this.selectedCustomer || undefined,
+      status: this.selectedStatus || undefined
+    }).subscribe({
+      next: (res) => { this.invoices = res.data; this.total = res.meta.total; this.loading = false; },
+      error: () => { this.loading = false; }
+    });
+  }
+
+  loadCustomers(): void {
+    this.masterDataService.getCustomers({ limit: 200 }).subscribe({
+      next: (res) => { this.customers = res.data; }
+    });
+  }
+
+  onSearch(value: string): void { this.searchSubject.next(value); }
+  onPageChange(page: number): void { this.pageIndex = page; this.loadInvoices(); }
+  onPageSizeChange(size: number): void { this.pageSize = size; this.pageIndex = 1; this.loadInvoices(); }
+  onFilterChange(): void { this.pageIndex = 1; this.loadInvoices(); }
+  resetFilters(): void { this.searchText = ''; this.selectedStatus = null; this.selectedCustomer = null; this.loadInvoices(); }
+  navigateToNew(): void { this.router.navigate(['/sales/invoices/new']); }
+  viewInvoice(invoice: SalesInvoice): void { this.router.navigate(['/sales/invoices', invoice.id]); }
+
+  getStatusBadge(status: string): 'success' | 'processing' | 'default' | 'error' | 'warning' {
+    const badges: any = { PAID: 'success', PARTIAL: 'processing', PENDING: 'warning', OVERDUE: 'error' };
+    return badges[status] || 'default';
+  }
+
+  recordPayment(invoice: SalesInvoice): void {
+    this.router.navigate(['/sales/payments/new'], { queryParams: { invoiceId: invoice.id } });
+  }
+
+  getTotalInvoiced(): number { return this.invoices.reduce((sum, inv) => sum + inv.totalAmount, 0); }
+  getTotalPaid(): number { return this.invoices.reduce((sum, inv) => sum + inv.paidAmount, 0); }
+  getTotalOutstanding(): number { return this.invoices.reduce((sum, inv) => sum + inv.balanceAmount, 0); }
+}
+

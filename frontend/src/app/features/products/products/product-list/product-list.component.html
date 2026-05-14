@@ -1,0 +1,192 @@
+<nz-card>
+  <div class="page-header">
+    <div class="header-left">
+      <h2>Products</h2>
+      <p>Manage your product catalog</p>
+    </div>
+    <div class="header-right">
+      <button nz-button nzType="primary" (click)="navigateToNew()">
+        <span nz-icon nzType="plus"></span>
+        Add Product
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <nz-space [nzSize]="'middle'" style="width: 100%; flex-wrap: wrap;">
+      <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" *nzSpaceItem style="width: 300px;">
+        <input
+          type="text"
+          nz-input
+          placeholder="Search by name or SKU..."
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearch($event)"
+        />
+      </nz-input-group>
+      <ng-template #suffixIconButton>
+        <button nz-button nzType="primary" nzSearch>
+          <span nz-icon nzType="search"></span>
+        </button>
+      </ng-template>
+
+      <nz-select
+        *nzSpaceItem
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Category"
+        [(ngModel)]="selectedCategory"
+        (ngModelChange)="onFilterChange()"
+        style="width: 200px;"
+      >
+        <nz-option
+          *ngFor="let category of categories"
+          [nzLabel]="category.name"
+          [nzValue]="category.id"
+        ></nz-option>
+      </nz-select>
+
+      <nz-select
+        *nzSpaceItem
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Brand"
+        [(ngModel)]="selectedBrand"
+        (ngModelChange)="onFilterChange()"
+        style="width: 200px;"
+      >
+        <nz-option
+          *ngFor="let brand of brands"
+          [nzLabel]="brand.name"
+          [nzValue]="brand.id"
+        ></nz-option>
+      </nz-select>
+
+      <nz-select
+        *nzSpaceItem
+        nzAllowClear
+        nzPlaceHolder="Status"
+        [(ngModel)]="selectedStatus"
+        (ngModelChange)="onFilterChange()"
+        style="width: 150px;"
+      >
+        <nz-option nzLabel="Active" [nzValue]="true"></nz-option>
+        <nz-option nzLabel="Inactive" [nzValue]="false"></nz-option>
+      </nz-select>
+
+      <button
+        *nzSpaceItem
+        nz-button
+        nzType="default"
+        (click)="resetFilters()"
+      >
+        <span nz-icon nzType="redo"></span>
+        Reset
+      </button>
+    </nz-space>
+  </div>
+
+  <!-- Table -->
+  <nz-table
+    #productsTable
+    [nzData]="products"
+    [nzLoading]="loading"
+    [nzTotal]="total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzFrontPagination]="false"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    [nzShowSizeChanger]="true"
+    [nzPageSizeOptions]="[10, 20, 50, 100]"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="80px">Image</th>
+        <th>SKU</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Brand</th>
+        <th nzAlign="right">Price</th>
+        <th nzAlign="center">Status</th>
+        <th nzAlign="center" nzWidth="150px">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of productsTable.data">
+        <td>
+          <div class="product-image">
+            <img
+              *ngIf="product.imageUrl"
+              [src]="product.imageUrl"
+              [alt]="product.name"
+            />
+            <span *ngIf="!product.imageUrl" nz-icon nzType="picture" class="placeholder-icon"></span>
+          </div>
+        </td>
+        <td>
+          <nz-tag nzColor="blue">{{ product.sku }}</nz-tag>
+        </td>
+        <td>
+          <strong>{{ product.name }}</strong>
+          <div class="product-description" *ngIf="product.description">
+            {{ product.description }}
+          </div>
+        </td>
+        <td>
+          <span *ngIf="product.category">{{ product.category.name }}</span>
+          <span *ngIf="!product.category" class="text-muted">-</span>
+        </td>
+        <td>
+          <span *ngIf="product.brand">{{ product.brand.name }}</span>
+          <span *ngIf="!product.brand" class="text-muted">-</span>
+        </td>
+        <td nzAlign="right">
+          <strong>{{ formatCurrency(product.sellingPrice) }}</strong>
+        </td>
+        <td nzAlign="center">
+          <nz-tag [nzColor]="product.isActive ? 'green' : 'red'">
+            {{ product.isActive ? 'Active' : 'Inactive' }}
+          </nz-tag>
+        </td>
+        <td nzAlign="center">
+          <nz-space>
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="default"
+              nzSize="small"
+              (click)="navigateToEdit(product.id)"
+            >
+              <span nz-icon nzType="edit"></span>
+            </button>
+            <button
+              *nzSpaceItem
+              nz-button
+              nzType="default"
+              nzDanger
+              nzSize="small"
+              (click)="confirmDelete(product)"
+            >
+              <span nz-icon nzType="delete"></span>
+            </button>
+          </nz-space>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <!-- Empty State -->
+  <nz-empty
+    *ngIf="!loading && products.length === 0"
+    [nzNotFoundContent]="searchText ? 'No products found' : 'No products yet'"
+    [nzNotFoundFooter]="emptyFooter"
+  >
+    <ng-template #emptyFooter>
+      <button nz-button nzType="primary" (click)="navigateToNew()">
+        Create First Product
+      </button>
+    </ng-template>
+  </nz-empty>
+</nz-card>
+
