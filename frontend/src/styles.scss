@@ -11,5 +11,83 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji';
+  color: #172033;
+  background:
+    radial-gradient(circle at top left, rgba(249, 166, 70, 0.12), transparent 28rem),
+    linear-gradient(180deg, #fff8ee 0%, #f6f8fb 52%, #eef4fb 100%);
+}
+
+:root {
+  --invenzo-cream: #fff8ee;
+  --invenzo-surface: #ffffff;
+  --invenzo-blue: #12345b;
+  --invenzo-blue-2: #1d5f92;
+  --invenzo-orange: #f08a24;
+  --invenzo-border: #eadfce;
+  --invenzo-muted: #68758a;
+}
+
+.ant-card {
+  border: 1px solid rgba(18, 52, 91, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 10px 26px rgba(18, 52, 91, 0.07);
+}
+
+.ant-card-head {
+  border-bottom-color: rgba(18, 52, 91, 0.08);
+}
+
+.ant-card-head-title,
+.page-header h2,
+.header-left h2 {
+  color: var(--invenzo-blue);
+}
+
+.page-header p,
+.header-left p {
+  color: var(--invenzo-muted) !important;
+}
+
+.ant-btn-primary {
+  background: linear-gradient(135deg, var(--invenzo-blue-2), var(--invenzo-blue));
+  border-color: var(--invenzo-blue);
+  box-shadow: 0 8px 18px rgba(18, 52, 91, 0.18);
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background: linear-gradient(135deg, #276fa8, #16436f);
+  border-color: #16436f;
+}
+
+.ant-tag-orange,
+.ant-badge-status-warning + .ant-badge-status-text {
+  color: #9a520f;
+}
+
+.ant-table-thead > tr > th {
+  background: #f8efe4;
+  color: #31435a;
+  font-weight: 600;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #fff7eb;
+}
+
+.ant-input,
+.ant-select-selector,
+.ant-picker,
+.ant-input-number {
+  border-radius: 6px !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused,
+.ant-input-number-focused {
+  border-color: var(--invenzo-orange) !important;
+  box-shadow: 0 0 0 2px rgba(240, 138, 36, 0.14) !important;
 }
 

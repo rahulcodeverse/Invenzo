@@ -50,7 +50,9 @@ import {
   FileExcelOutline,
   PrinterOutline,
   HistoryOutline,
-  SaveOutline
+  SaveOutline,
+  FileTextOutline,
+  StopOutline
 } from '@ant-design/icons-angular/icons';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -101,7 +103,9 @@ const icons = [
   FileExcelOutline,
   PrinterOutline,
   HistoryOutline,
-  SaveOutline
+  SaveOutline,
+  FileTextOutline,
+  StopOutline
 ];
 
 export const appConfig: ApplicationConfig = {

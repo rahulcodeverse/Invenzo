@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -149,7 +149,8 @@ export class GrnListComponent implements OnInit {
     private service: PurchasesService,
     private masterData: MasterDataService,
     private fb: FormBuilder,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -180,6 +181,12 @@ export class GrnListComponent implements OnInit {
     this.service.getPurchaseOrders({ limit: 100, status: 'APPROVED' }).subscribe((res: any) => {
       const data = res.data?.data ?? res.data ?? res;
       this.purchaseOrders = Array.isArray(data) ? data : data.data ?? [];
+      const poId = this.route.snapshot.queryParamMap.get('poId');
+      if (poId) {
+        this.openCreateModal();
+        this.grnForm.patchValue({ purchaseOrderId: poId });
+        this.onPoChange(poId);
+      }
     });
     this.masterData.getWarehouses().subscribe((res: any) => {
       const data = res.data?.data ?? res.data ?? res;

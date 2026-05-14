@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
@@ -7,6 +8,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { EChartsOption } from 'echarts';
 import { HttpClient } from '@angular/common/http';
@@ -41,6 +43,7 @@ interface TopProduct {
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     NzCardModule,
     NzStatisticModule,
     NzGridModule,
@@ -48,6 +51,7 @@ interface TopProduct {
     NzTableModule,
     NzTagModule,
     NzSpinModule,
+    NzButtonModule,
     NgxEchartsModule
   ],
   templateUrl: './dashboard.component.html',

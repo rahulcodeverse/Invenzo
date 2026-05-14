@@ -86,6 +86,11 @@ import { debounceTime, Subject } from 'rxjs';
                     <span nz-icon nzType="check"></span>
                   </button>
                 </ng-container>
+                <ng-container *ngIf="po.status === 'APPROVED'">
+                  <a *nzSpaceItem nz-button nzType="primary" nzSize="small" [routerLink]="['/purchases/grn']" [queryParams]="{ poId: po.id }">
+                    <span nz-icon nzType="inbox"></span> Receive
+                  </a>
+                </ng-container>
                 <ng-container *ngIf="po.status !== 'CANCELLED' && po.status !== 'CLOSED'">
                   <button *nzSpaceItem nz-button nzDanger nzSize="small" (click)="cancel(po)">
                     <span nz-icon nzType="stop"></span>

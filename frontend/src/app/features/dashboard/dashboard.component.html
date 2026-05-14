@@ -1,4 +1,29 @@
 <div class="dashboard-container" *ngIf="!loading; else loadingTpl">
+  <section class="workflow-panel">
+    <div>
+      <p class="eyebrow">Today’s Workflow</p>
+      <h1>Run sales, purchasing, stock, and finance from one place.</h1>
+    </div>
+    <div class="workflow-actions">
+      <a nz-button nzType="primary" routerLink="/sales/quotations/new">
+        <span nz-icon nzType="plus"></span>
+        New Quotation
+      </a>
+      <a nz-button routerLink="/purchases/orders/new">
+        <span nz-icon nzType="shopping-cart"></span>
+        New PO
+      </a>
+      <a nz-button routerLink="/inventory/stock">
+        <span nz-icon nzType="inbox"></span>
+        Check Stock
+      </a>
+      <a nz-button routerLink="/accounting/reports">
+        <span nz-icon nzType="bar-chart"></span>
+        Finance View
+      </a>
+    </div>
+  </section>
+
   <!-- KPI Cards Row -->
   <div nz-row [nzGutter]="16" class="kpi-row">
     <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">

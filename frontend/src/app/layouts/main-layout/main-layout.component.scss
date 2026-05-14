@@ -7,13 +7,15 @@
 
 .app-layout {
   min-height: 100vh;
+  background: transparent;
 }
 
 .menu-sidebar {
   position: relative;
   z-index: 10;
   min-height: 100vh;
-  box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+  background: #12345b;
+  box-shadow: 8px 0 30px rgba(18, 52, 91, 0.18);
 }
 
 .sidebar-logo {
@@ -22,26 +24,44 @@
   padding-left: 24px;
   overflow: hidden;
   line-height: 64px;
-  background: #001529;
+  background: linear-gradient(135deg, #12345b 0%, #1d5f92 100%);
   transition: all 0.3s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 
   h1 {
     display: inline-block;
     margin: 0;
     color: #fff;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 20px;
+    letter-spacing: 0;
     font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
     vertical-align: middle;
   }
+}
+
+:host ::ng-deep .ant-layout-sider,
+:host ::ng-deep .ant-menu.ant-menu-dark,
+:host ::ng-deep .ant-menu-dark .ant-menu-inline.ant-menu-sub {
+  background: #12345b;
+}
+
+:host ::ng-deep .ant-menu-dark .ant-menu-item-selected {
+  background: #f08a24;
+}
+
+:host ::ng-deep .ant-menu-dark .ant-menu-item:hover,
+:host ::ng-deep .ant-menu-dark .ant-menu-submenu-title:hover {
+  background: rgba(240, 138, 36, 0.18);
 }
 
 nz-header {
   padding: 0;
   width: 100%;
   z-index: 2;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  background: rgba(255, 252, 246, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgba(18, 52, 91, 0.08);
 }
 
 .app-header {
@@ -58,7 +78,7 @@ nz-header {
   transition: color 0.3s;
 
   &:hover {
-    color: #1890ff;
+    color: #f08a24;
   }
 }
 
@@ -75,7 +95,7 @@ nz-header {
   transition: color 0.3s;
 
   &:hover {
-    color: #1890ff;
+    color: #f08a24;
   }
 }
 
@@ -97,13 +117,13 @@ nz-header {
 
 nz-content {
   margin: 24px;
+  background: transparent;
 }
 
 .inner-content {
-  padding: 24px;
-  background: #fff;
+  padding: 0;
+  background: transparent;
   min-height: calc(100vh - 112px);
-  border-radius: 4px;
 }
 
 @media (max-width: 768px) {
