@@ -14,8 +14,8 @@
   position: relative;
   z-index: 10;
   min-height: 100vh;
-  background: #12345b;
-  box-shadow: 8px 0 30px rgba(18, 52, 91, 0.18);
+  background: #101820;
+  box-shadow: 8px 0 30px rgba(16, 24, 32, 0.16);
 }
 
 .sidebar-logo {
@@ -24,7 +24,7 @@
   padding-left: 24px;
   overflow: hidden;
   line-height: 64px;
-  background: linear-gradient(135deg, #12345b 0%, #1d5f92 100%);
+  background: #101820;
   transition: all 0.3s;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 
@@ -43,25 +43,25 @@
 :host ::ng-deep .ant-layout-sider,
 :host ::ng-deep .ant-menu.ant-menu-dark,
 :host ::ng-deep .ant-menu-dark .ant-menu-inline.ant-menu-sub {
-  background: #12345b;
+  background: #101820;
 }
 
 :host ::ng-deep .ant-menu-dark .ant-menu-item-selected {
-  background: #f08a24;
+  background: #0f8f83;
 }
 
 :host ::ng-deep .ant-menu-dark .ant-menu-item:hover,
 :host ::ng-deep .ant-menu-dark .ant-menu-submenu-title:hover {
-  background: rgba(240, 138, 36, 0.18);
+  background: rgba(20, 184, 166, 0.16);
 }
 
 nz-header {
   padding: 0;
   width: 100%;
   z-index: 2;
-  background: rgba(255, 252, 246, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(10px);
-  box-shadow: 0 1px 0 rgba(18, 52, 91, 0.08);
+  box-shadow: 0 1px 0 rgba(16, 24, 32, 0.08);
 }
 
 .app-header {
@@ -78,7 +78,7 @@ nz-header {
   transition: color 0.3s;
 
   &:hover {
-    color: #f08a24;
+    color: #14b8a6;
   }
 }
 
@@ -95,7 +95,7 @@ nz-header {
   transition: color 0.3s;
 
   &:hover {
-    color: #f08a24;
+    color: #14b8a6;
   }
 }
 

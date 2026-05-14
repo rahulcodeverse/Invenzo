@@ -1,8 +1,47 @@
 <div class="login-container">
+  <section class="brand-panel">
+    <div class="brand-mark">
+      <span>IV</span>
+    </div>
+    <div class="brand-copy">
+      <p class="eyebrow">Inventory Operations</p>
+      <h1>Invenzo</h1>
+      <p>Control stock, sales, purchasing, accounting, and reports from a single operating desk.</p>
+    </div>
+
+    <div class="ops-board">
+      <div class="ops-header">
+        <span>Live Flow</span>
+        <strong>Today</strong>
+      </div>
+      <div class="pipeline">
+        <div><span></span>Quotation</div>
+        <div><span></span>Order</div>
+        <div><span></span>Dispatch</div>
+        <div><span></span>Payment</div>
+      </div>
+      <div class="metric-grid">
+        <div>
+          <strong>42</strong>
+          <span>SKUs moving</span>
+        </div>
+        <div>
+          <strong>8</strong>
+          <span>Low stock</span>
+        </div>
+        <div>
+          <strong>16</strong>
+          <span>Orders open</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="login-card">
     <div class="login-header">
-      <h1>Invenzo</h1>
-      <p>Inventory Management System</p>
+      <div class="mini-mark">IV</div>
+      <h2>Welcome back</h2>
+      <p>Sign in to your Invenzo workspace</p>
     </div>
 
     <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -13,7 +52,7 @@
               type="email"
               nz-input
               formControlName="email"
-              placeholder="Email"
+              placeholder="Work email"
             />
           </nz-input-group>
         </nz-form-control>
@@ -38,7 +77,7 @@
             <span>Remember me</span>
           </label>
           <a class="login-form-forgot" routerLink="/auth/forgot-password">
-            Forgot password
+            Forgot password?
           </a>
         </nz-form-control>
       </nz-form-item>
@@ -50,14 +89,16 @@
         [nzLoading]="loading"
         [disabled]="!loginForm.valid"
       >
-        Log in
+        Sign in
       </button>
     </form>
 
     <div class="demo-credentials">
-      <p><strong>Demo Credentials:</strong></p>
-      <p>Owner: owner&#64;invenzo.com / password123</p>
-      <p>Manager: manager&#64;invenzo.com / password123</p>
+      <div>
+        <strong>Owner demo</strong>
+        <span>owner&#64;invenzo.com</span>
+      </div>
+      <code>password123</code>
     </div>
   </div>
 </div>
