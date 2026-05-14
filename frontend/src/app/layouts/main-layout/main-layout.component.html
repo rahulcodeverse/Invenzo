@@ -1,111 +1,74 @@
 <nz-layout class="app-layout">
-  <nz-sider
-    class="menu-sidebar"
-    nzCollapsible
-    nzWidth="256px"
-    nzBreakpoint="md"
-    [(nzCollapsed)]="isCollapsed"
-    [nzTrigger]="null"
-  >
-    <div class="sidebar-logo">
-      <a routerLink="/">
-        <h1>{{ isCollapsed ? 'INV' : 'Invenzo' }}</h1>
+  <nz-header class="top-shell">
+    <div class="top-bar">
+      <a routerLink="/" class="brand">
+        <span class="brand-mark">IV</span>
+        <span class="brand-name">Invenzo</span>
       </a>
-    </div>
-    <ul
-      nz-menu
-      nzTheme="dark"
-      nzMode="inline"
-      [nzInlineCollapsed]="isCollapsed"
-    >
-      <ng-container *ngFor="let item of filteredMenuItems">
-        <li
-          *ngIf="!item.children"
-          nz-menu-item
-          [routerLink]="item.link"
-          routerLinkActive="ant-menu-item-selected"
+
+      <nav class="module-nav" aria-label="Primary navigation">
+        <a
+          *ngFor="let item of filteredMenuItems"
+          class="module-link"
+          [class.active]="isTopItemActive(item)"
+          [routerLink]="item.link || item.children?.[0]?.link"
         >
           <span nz-icon [nzType]="item.icon"></span>
           <span>{{ item.title }}</span>
-        </li>
+        </a>
+      </nav>
 
-        <li
-          *ngIf="item.children"
-          nz-submenu
-          [nzTitle]="item.title"
-          [nzIcon]="item.icon"
+      <div class="header-right">
+        <nz-badge [nzCount]="0">
+          <span nz-icon nzType="bell" class="header-icon"></span>
+        </nz-badge>
+
+        <a
+          nz-dropdown
+          [nzDropdownMenu]="menu"
+          nzTrigger="click"
+          class="user-dropdown"
         >
-          <ul>
-            <li
-              *ngFor="let child of item.children"
-              nz-menu-item
-              [routerLink]="child.link"
-              routerLinkActive="ant-menu-item-selected"
-            >
-              {{ child.title }}
+          <nz-avatar [nzText]="userInitials" nzSize="small"></nz-avatar>
+          <span class="user-name">{{ userName }}</span>
+          <span nz-icon nzType="down"></span>
+        </a>
+
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item>
+              <span nz-icon nzType="user"></span>
+              Profile
+            </li>
+            <li nz-menu-item routerLink="/settings/company">
+              <span nz-icon nzType="setting"></span>
+              Settings
+            </li>
+            <li nz-menu-divider></li>
+            <li nz-menu-item (click)="logout()">
+              <span nz-icon nzType="logout"></span>
+              Logout
             </li>
           </ul>
-        </li>
-      </ng-container>
-    </ul>
-  </nz-sider>
-
-  <nz-layout>
-    <nz-header>
-      <div class="app-header">
-        <span
-          class="header-trigger"
-          (click)="isCollapsed = !isCollapsed"
-        >
-          <span
-            class="trigger"
-            nz-icon
-            [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
-          ></span>
-        </span>
-
-        <div class="header-right">
-          <nz-badge [nzCount]="0">
-            <span nz-icon nzType="bell" class="header-icon"></span>
-          </nz-badge>
-
-          <a
-            nz-dropdown
-            [nzDropdownMenu]="menu"
-            nzTrigger="click"
-            class="user-dropdown"
-          >
-            <nz-avatar [nzText]="userInitials" nzSize="small"></nz-avatar>
-            <span class="user-name">{{ userName }}</span>
-            <span nz-icon nzType="down"></span>
-          </a>
-
-          <nz-dropdown-menu #menu="nzDropdownMenu">
-            <ul nz-menu>
-              <li nz-menu-item>
-                <span nz-icon nzType="user"></span>
-                Profile
-              </li>
-              <li nz-menu-item>
-                <span nz-icon nzType="setting"></span>
-                Settings
-              </li>
-              <li nz-menu-divider></li>
-              <li nz-menu-item (click)="logout()">
-                <span nz-icon nzType="logout"></span>
-                Logout
-              </li>
-            </ul>
-          </nz-dropdown-menu>
-        </div>
+        </nz-dropdown-menu>
       </div>
-    </nz-header>
+    </div>
 
-    <nz-content>
-      <div class="inner-content">
-        <router-outlet></router-outlet>
-      </div>
-    </nz-content>
-  </nz-layout>
+    <div class="sub-tab-bar" *ngIf="activeChildren.length">
+      <a
+        *ngFor="let child of activeChildren"
+        class="sub-tab"
+        [class.active]="isChildActive(child.link)"
+        [routerLink]="child.link"
+      >
+        {{ child.title }}
+      </a>
+    </div>
+  </nz-header>
+
+  <nz-content>
+    <div class="inner-content">
+      <router-outlet></router-outlet>
+    </div>
+  </nz-content>
 </nz-layout>
-

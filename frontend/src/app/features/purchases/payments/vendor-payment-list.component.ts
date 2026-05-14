@@ -53,7 +53,7 @@ import { VendorPayment } from '../models/purchases.model';
             <td><strong>{{ pay.paymentNumber }}</strong></td>
             <td>{{ pay.vendor?.name || '-' }}</td>
             <td>{{ pay.paymentDate | date:'dd MMM yyyy' }}</td>
-            <td nzAlign="right" style="color:#52c41a;font-weight:600">{{ pay.amount | number:'1.2-2' }}</td>
+            <td nzAlign="right" style="color:#9a4f12;font-weight:600">{{ pay.amount | number:'1.2-2' }}</td>
             <td><nz-tag>{{ pay.method }}</nz-tag></td>
             <td>{{ pay.reference || '-' }}</td>
           </tr>

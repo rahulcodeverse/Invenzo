@@ -107,7 +107,7 @@ import { Customer } from '../../../../core/models/master-data.model';
               </td>
               <td><strong>₹{{ item.get('total')?.value?.toLocaleString() || 0 }}</strong></td>
               <td *ngIf="isEditMode">
-                <nz-tag [nzColor]="item.get('deliveredQty')?.value >= item.get('quantity')?.value ? 'green' : 'orange'">
+                <nz-tag [nzColor]="item.get('deliveredQty')?.value >= item.get('quantity')?.value ? 'gold' : 'orange'">
                   {{ item.get('deliveredQty')?.value || 0 }} / {{ item.get('quantity')?.value }}
                 </nz-tag>
               </td>

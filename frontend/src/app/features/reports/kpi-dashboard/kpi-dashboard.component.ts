@@ -35,14 +35,14 @@ import { ReportsService } from '../services/reports.service';
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic nzTitle="Total Revenue" [nzValue]="summary.totalRevenue || 0"
-              [nzValueStyle]="{'color':'#52c41a'}" nzPrefix="₹" >
+              [nzValueStyle]="{'color':'#9a4f12'}" nzPrefix="₹" >
             </nz-statistic>
           </nz-card>
         </div>
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic nzTitle="Receivables" [nzValue]="summary.totalReceivables || 0"
-              [nzValueStyle]="{'color':'#1890ff'}" nzPrefix="₹" >
+              [nzValueStyle]="{'color':'#c56a1a'}" nzPrefix="₹" >
             </nz-statistic>
           </nz-card>
         </div>
@@ -56,7 +56,7 @@ import { ReportsService } from '../services/reports.service';
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic nzTitle="Low Stock Items" [nzValue]="summary.lowStockCount || 0"
-              [nzValueStyle]="{'color': (summary.lowStockCount || 0) > 0 ? '#faad14' : '#52c41a'}">
+              [nzValueStyle]="{'color': (summary.lowStockCount || 0) > 0 ? '#faad14' : '#9a4f12'}">
             </nz-statistic>
           </nz-card>
         </div>
@@ -78,7 +78,7 @@ import { ReportsService } from '../services/reports.service';
                 <tr *ngFor="let p of topProducts">
                   <td>{{ p.productName || p.name }}</td>
                   <td nzAlign="right">{{ p.totalQuantity | number }}</td>
-                  <td nzAlign="right" style="color:#52c41a">₹ {{ p.totalRevenue | number:'1.2-2' }}</td>
+                  <td nzAlign="right" style="color:#9a4f12">₹ {{ p.totalRevenue | number:'1.2-2' }}</td>
                 </tr>
               </tbody>
             </nz-table>
@@ -100,7 +100,7 @@ import { ReportsService } from '../services/reports.service';
                 <tr *ngFor="let c of topCustomers">
                   <td>{{ c.customerName || c.name }}</td>
                   <td nzAlign="right">{{ c.totalOrders | number }}</td>
-                  <td nzAlign="right" style="color:#52c41a">₹ {{ c.totalRevenue | number:'1.2-2' }}</td>
+                  <td nzAlign="right" style="color:#9a4f12">₹ {{ c.totalRevenue | number:'1.2-2' }}</td>
                 </tr>
               </tbody>
             </nz-table>

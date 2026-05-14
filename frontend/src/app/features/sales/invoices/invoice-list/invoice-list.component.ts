@@ -144,7 +144,7 @@ import { debounceTime, Subject } from 'rxjs';
     .filters-section { margin-bottom: 16px; padding: 16px; background: #fafafa; border-radius: 4px; }
     .overdue-row { background-color: #fff1f0; }
     .text-danger { color: #cf1322; }
-    .text-success { color: #52c41a; }
+    .text-success { color: #9a4f12; }
     .summary-section { margin-top: 24px; padding: 16px; background: #f0f2f5; border-radius: 4px; }
     .summary-item { text-align: center; }
     .summary-label { font-size: 12px; color: rgba(0, 0, 0, 0.45); margin-bottom: 4px; }

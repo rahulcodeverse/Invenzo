@@ -85,7 +85,7 @@ import { debounceTime, Subject } from 'rxjs';
         </thead>
         <tbody>
           <tr *ngFor="let item of table.data">
-            <td><nz-tag nzColor="blue">{{ item.quotationNumber }}</nz-tag></td>
+            <td><nz-tag nzColor="gold">{{ item.quotationNumber }}</nz-tag></td>
             <td><strong>{{ item.customer?.name || '-' }}</strong></td>
             <td>{{ item.quotationDate | date:'dd/MM/yyyy' }}</td>
             <td>{{ item.validUntil | date:'dd/MM/yyyy' }}</td>
@@ -175,7 +175,7 @@ export class QuotationListComponent implements OnInit {
   navigateToNew(): void { this.router.navigate(['/sales/quotations/new']); }
 
   getStatusColor(status: string): string {
-    const colors: any = { DRAFT: 'default', SENT: 'blue', APPROVED: 'green', REJECTED: 'red', CONVERTED: 'purple' };
+    const colors: any = { DRAFT: 'default', SENT: 'gold', APPROVED: 'gold', REJECTED: 'red', CONVERTED: 'purple' };
     return colors[status] || 'default';
   }
 

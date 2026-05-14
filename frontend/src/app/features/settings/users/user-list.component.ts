@@ -236,8 +236,8 @@ export class UserListComponent implements OnInit {
   getRoleColor(role: string): string {
     const colors: any = {
       OWNER: 'red',
-      MANAGER: 'blue',
-      STAFF: 'green',
+      MANAGER: 'gold',
+      STAFF: 'gold',
       ACCOUNTANT: 'orange'
     };
     return colors[role] || 'default';

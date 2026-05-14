@@ -51,12 +51,12 @@ import { Warehouse } from '../../../core/models/master-data.model';
         </thead>
         <tbody>
           <tr *ngFor="let item of table.data">
-            <td><nz-tag nzColor="cyan">{{ item.code }}</nz-tag></td>
+            <td><nz-tag nzColor="gold">{{ item.code }}</nz-tag></td>
             <td><strong>{{ item.name }}</strong></td>
             <td>{{ item.address || '-' }}</td>
             <td>{{ item.phone || '-' }}</td>
             <td nzAlign="center">
-              <nz-tag [nzColor]="item.isActive ? 'green' : 'red'">
+              <nz-tag [nzColor]="item.isActive ? 'gold' : 'red'">
                 {{ item.isActive ? 'Active' : 'Inactive' }}
               </nz-tag>
             </td>

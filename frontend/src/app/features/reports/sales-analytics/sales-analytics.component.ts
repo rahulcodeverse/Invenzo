@@ -45,26 +45,26 @@ import { ReportsService } from '../services/reports.service';
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic nzTitle="This Month Revenue" [nzValue]="growth.currentMonth?.revenue || 0"
-              [nzValueStyle]="{'color':'#52c41a'}" nzPrefix="₹" ></nz-statistic>
+              [nzValueStyle]="{'color':'#9a4f12'}" nzPrefix="₹" ></nz-statistic>
           </nz-card>
         </div>
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic nzTitle="Last Month Revenue" [nzValue]="growth.previousMonth?.revenue || 0"
-              [nzValueStyle]="{'color':'#1890ff'}" nzPrefix="₹" ></nz-statistic>
+              [nzValueStyle]="{'color':'#c56a1a'}" nzPrefix="₹" ></nz-statistic>
           </nz-card>
         </div>
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic nzTitle="MoM Growth" [nzValue]="growth.revenueGrowthPercent || 0"
-              [nzValueStyle]="{'color': (growth.revenueGrowthPercent || 0) >= 0 ? '#52c41a' : '#ff4d4f'}"
+              [nzValueStyle]="{'color': (growth.revenueGrowthPercent || 0) >= 0 ? '#9a4f12' : '#ff4d4f'}"
               nzSuffix="%" ></nz-statistic>
           </nz-card>
         </div>
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic nzTitle="Order Growth" [nzValue]="growth.orderGrowthPercent || 0"
-              [nzValueStyle]="{'color': (growth.orderGrowthPercent || 0) >= 0 ? '#52c41a' : '#ff4d4f'}"
+              [nzValueStyle]="{'color': (growth.orderGrowthPercent || 0) >= 0 ? '#9a4f12' : '#ff4d4f'}"
               nzSuffix="%" ></nz-statistic>
           </nz-card>
         </div>
@@ -87,7 +87,7 @@ import { ReportsService } from '../services/reports.service';
               <tr *ngFor="let t of trend">
                 <td>{{ t.period }}</td>
                 <td nzAlign="right">{{ t.orderCount | number }}</td>
-                <td nzAlign="right" style="color:#52c41a">₹ {{ t.revenue | number:'1.2-2' }}</td>
+                <td nzAlign="right" style="color:#9a4f12">₹ {{ t.revenue | number:'1.2-2' }}</td>
                 <td nzAlign="right">₹ {{ (t.orderCount > 0 ? t.revenue / t.orderCount : 0) | number:'1.2-2' }}</td>
               </tr>
             </tbody>
@@ -111,7 +111,7 @@ import { ReportsService } from '../services/reports.service';
                 <td><strong>{{ p.productName || p.name }}</strong></td>
                 <td>{{ p.sku || '-' }}</td>
                 <td nzAlign="right">{{ p.totalQuantity | number }}</td>
-                <td nzAlign="right" style="color:#52c41a">₹ {{ p.totalRevenue | number:'1.2-2' }}</td>
+                <td nzAlign="right" style="color:#9a4f12">₹ {{ p.totalRevenue | number:'1.2-2' }}</td>
               </tr>
             </tbody>
           </nz-table>
@@ -132,7 +132,7 @@ import { ReportsService } from '../services/reports.service';
               <tr *ngFor="let c of categorySales">
                 <td><strong>{{ c.categoryName || c.name }}</strong></td>
                 <td nzAlign="right">{{ c.totalQuantity | number }}</td>
-                <td nzAlign="right" style="color:#52c41a">₹ {{ c.totalRevenue | number:'1.2-2' }}</td>
+                <td nzAlign="right" style="color:#9a4f12">₹ {{ c.totalRevenue | number:'1.2-2' }}</td>
               </tr>
             </tbody>
           </nz-table>
@@ -153,7 +153,7 @@ import { ReportsService } from '../services/reports.service';
               <tr *ngFor="let c of customerSales">
                 <td><strong>{{ c.customerName || c.name }}</strong></td>
                 <td nzAlign="right">{{ c.totalOrders | number }}</td>
-                <td nzAlign="right" style="color:#52c41a">₹ {{ c.totalRevenue | number:'1.2-2' }}</td>
+                <td nzAlign="right" style="color:#9a4f12">₹ {{ c.totalRevenue | number:'1.2-2' }}</td>
               </tr>
             </tbody>
           </nz-table>

@@ -67,7 +67,7 @@ import { AccountingService } from '../services/accounting.service';
               <td nzAlign="right">{{ e.totalDebit | number:'1.2-2' }}</td>
               <td nzAlign="right">{{ e.totalCredit | number:'1.2-2' }}</td>
               <td nzAlign="center">
-                <nz-tag [nzColor]="e.isReversed ? 'red' : 'green'">{{ e.isReversed ? 'Reversed' : 'Posted' }}</nz-tag>
+                <nz-tag [nzColor]="e.isReversed ? 'red' : 'gold'">{{ e.isReversed ? 'Reversed' : 'Posted' }}</nz-tag>
               </td>
               <td nzAlign="center">
                 <button nz-button nzType="default" nzSize="small" *ngIf="!e.isReversed && e.type === 'MANUAL'"
@@ -175,7 +175,7 @@ import { AccountingService } from '../services/accounting.service';
     .header-left h2 { margin:0; font-size:24px; font-weight:600; }
     .header-left p { margin:4px 0 0; color:rgba(0,0,0,.45); }
     .balance-info { padding:8px 12px; border-radius:4px; background:#f5f5f5; }
-    .balance-ok { background:#f6ffed; border:1px solid #b7eb8f; color:#52c41a; }
+    .balance-ok { background:#fff4e8; border:1px solid #e6c29a; color:#9a4f12; }
     .balance-error { background:#fff2f0; border:1px solid #ffccc7; color:#ff4d4f; }
   `]
 })

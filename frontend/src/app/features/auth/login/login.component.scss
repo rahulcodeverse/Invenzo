@@ -7,9 +7,9 @@
   gap: 48px;
   padding: 48px;
   background:
-    radial-gradient(circle at 18% 20%, rgba(20, 184, 166, 0.22), transparent 30rem),
-    radial-gradient(circle at 80% 88%, rgba(245, 158, 11, 0.16), transparent 22rem),
-    #101820;
+    radial-gradient(circle at 18% 20%, rgba(197, 106, 26, 0.24), transparent 30rem),
+    radial-gradient(circle at 80% 88%, rgba(119, 106, 92, 0.18), transparent 22rem),
+    #211f1c;
 }
 
 .brand-panel {
@@ -24,8 +24,8 @@
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  background: #14b8a6;
-  color: #101820;
+  background: #c56a1a;
+  color: #211f1c;
   font-weight: 800;
 }
 
@@ -34,7 +34,7 @@
 
   .eyebrow {
     margin: 0 0 10px;
-    color: #14b8a6;
+    color: #d58a3a;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -52,7 +52,7 @@
   p {
     max-width: 560px;
     margin: 18px 0 0;
-    color: #b8c7d4;
+    color: #c8c1b8;
     font-size: 18px;
     line-height: 1.6;
   }
@@ -80,7 +80,7 @@
   margin-bottom: 18px;
 
   strong {
-    color: #14b8a6;
+    color: #d58a3a;
   }
 }
 
@@ -105,7 +105,7 @@
     height: 4px;
     margin-bottom: 10px;
     border-radius: 999px;
-    background: #14b8a6;
+    background: #d58a3a;
   }
 }
 
@@ -123,14 +123,14 @@
   }
 
   strong {
-    color: #f59e0b;
+    color: #d58a3a;
     font-size: 24px;
     line-height: 1;
   }
 
   span {
     margin-top: 6px;
-    color: #b8c7d4;
+    color: #c8c1b8;
     font-size: 12px;
   }
 }
@@ -158,12 +158,12 @@
   h2 {
     font-size: 28px;
     font-weight: 800;
-    color: #101820;
+    color: #211f1c;
     margin-bottom: 8px;
   }
 
   p {
-    color: #657384;
+    color: #6f675f;
     margin: 0;
   }
 }
@@ -182,8 +182,8 @@
 .demo-credentials {
   margin-top: 24px;
   padding: 14px;
-  background: #eefaf8;
-  border: 1px solid #c9f0eb;
+  background: #fff4e8;
+  border: 1px solid #efd1b0;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -196,13 +196,13 @@
   }
 
   strong {
-    color: #101820;
+    color: #211f1c;
     font-size: 13px;
   }
 
   span,
   code {
-    color: #506274;
+    color: #6f675f;
     font-size: 12px;
   }
 
@@ -210,7 +210,7 @@
     padding: 5px 8px;
     border-radius: 5px;
     background: #fff;
-    border: 1px solid #d9e2e8;
+    border: 1px solid #ddd6cc;
   }
 }
 

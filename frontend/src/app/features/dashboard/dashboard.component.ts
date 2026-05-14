@@ -176,17 +176,17 @@ export class DashboardComponent implements OnInit {
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: 'rgba(24, 144, 255, 0.3)' },
-                { offset: 1, color: 'rgba(24, 144, 255, 0)' }
+                { offset: 0, color: 'rgba(197, 106, 26, 0.28)' },
+                { offset: 1, color: 'rgba(197, 106, 26, 0)' }
               ]
             }
           },
           lineStyle: {
-            color: '#1890ff',
+            color: '#c56a1a',
             width: 2
           },
           itemStyle: {
-            color: '#1890ff'
+            color: '#c56a1a'
           }
         }
       ],

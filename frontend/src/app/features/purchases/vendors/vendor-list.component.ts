@@ -70,7 +70,7 @@ import { debounceTime, Subject } from 'rxjs';
             <td>{{ item.gstNumber || '-' }}</td>
             <td nzAlign="right">{{ item.creditLimit ? '₹' + item.creditLimit.toLocaleString() : '-' }}</td>
             <td nzAlign="center">
-              <nz-tag [nzColor]="item.isActive ? 'green' : 'red'">
+              <nz-tag [nzColor]="item.isActive ? 'gold' : 'red'">
                 {{ item.isActive ? 'Active' : 'Inactive' }}
               </nz-tag>
             </td>

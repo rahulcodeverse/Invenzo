@@ -44,9 +44,9 @@ export class StockAdjustmentComponent implements OnInit {
   saving = false;
 
   adjustmentTypes = [
-    { label: 'Stock In', value: 'IN', icon: 'arrow-up', color: 'green' },
+    { label: 'Stock In', value: 'IN', icon: 'arrow-up', color: '#9a4f12' },
     { label: 'Stock Out', value: 'OUT', icon: 'arrow-down', color: 'red' },
-    { label: 'Adjustment', value: 'ADJUSTMENT', icon: 'sync', color: 'blue' },
+    { label: 'Adjustment', value: 'ADJUSTMENT', icon: 'sync', color: '#c56a1a' },
     { label: 'Damage/Loss', value: 'DAMAGE', icon: 'warning', color: 'orange' }
   ];
 

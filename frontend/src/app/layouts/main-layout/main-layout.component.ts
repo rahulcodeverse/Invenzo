@@ -135,6 +135,30 @@ export class MainLayoutComponent implements OnInit {
     );
   }
 
+  get activeMenuItem() {
+    const url = this.router.url.split('?')[0];
+    return this.filteredMenuItems.find(item => {
+      if (item.link && (url === item.link || url.startsWith(`${item.link}/`))) {
+        return true;
+      }
+
+      return item.children?.some(child => url === child.link || url.startsWith(`${child.link}/`));
+    }) || this.filteredMenuItems[0];
+  }
+
+  get activeChildren() {
+    return this.activeMenuItem?.children || [];
+  }
+
+  isTopItemActive(item: any): boolean {
+    return this.activeMenuItem === item;
+  }
+
+  isChildActive(link: string): boolean {
+    const url = this.router.url.split('?')[0];
+    return url === link || url.startsWith(`${link}/`);
+  }
+
   hasRole(roles: string[]): boolean {
     return this.authService.hasRole(roles);
   }

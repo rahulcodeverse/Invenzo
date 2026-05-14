@@ -143,7 +143,7 @@ export class PoListComponent implements OnInit {
   }
 
   getStatusColor(s: string) {
-    return { DRAFT:'default', SENT:'blue', APPROVED:'cyan', RECEIVED:'orange', CLOSED:'green', CANCELLED:'red' }[s] ?? 'default';
+    return { DRAFT:'default', SENT:'gold', APPROVED:'orange', RECEIVED:'orange', CLOSED:'gold', CANCELLED:'red' }[s] ?? 'default';
   }
 
   approve(po: PurchaseOrder) {

@@ -41,7 +41,7 @@ import { DeliveryNote } from '../../models/sales.model';
         </thead>
         <tbody>
           <tr *ngFor="let delivery of table.data">
-            <td><nz-tag nzColor="blue">{{ delivery.deliveryNumber }}</nz-tag></td>
+            <td><nz-tag nzColor="gold">{{ delivery.deliveryNumber }}</nz-tag></td>
             <td>{{ delivery.salesOrder?.soNumber || delivery.salesOrder?.orderNumber || '-' }}</td>
             <td>{{ delivery.salesOrder?.customer?.name || delivery.salesOrder?.customer || '-' }}</td>
             <td>{{ delivery.deliveryDate | date:'dd/MM/yyyy' }}</td>

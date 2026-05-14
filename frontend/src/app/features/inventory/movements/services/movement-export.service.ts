@@ -151,7 +151,7 @@ export class MovementExportService {
               font-weight: bold;
             }
             .positive {
-              color: #52c41a;
+              color: #9a4f12;
             }
             .negative {
               color: #ff4d4f;

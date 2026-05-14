@@ -20,7 +20,7 @@
   padding: 24px;
   background: #f0f2f5;
   border-radius: 8px;
-  border-left: 4px solid #1890ff;
+  border-left: 4px solid #c56a1a;
 
   .preview-header {
     display: flex;
@@ -51,12 +51,12 @@
         }
 
         &.to {
-          border-color: #52c41a;
+          border-color: #9a4f12;
         }
 
         .warehouse-icon {
           font-size: 32px;
-          color: #1890ff;
+          color: #c56a1a;
           margin-bottom: 8px;
         }
 
@@ -81,7 +81,7 @@
         .transfer-qty {
           font-size: 14px;
           font-weight: 600;
-          color: #1890ff;
+          color: #c56a1a;
           white-space: nowrap;
         }
       }

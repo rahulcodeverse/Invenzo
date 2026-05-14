@@ -155,7 +155,7 @@
     <!-- Transfer Preview -->
     <div class="transfer-preview" *ngIf="canShowPreview && availableStock">
       <div class="preview-header">
-        <span nz-icon nzType="swap" style="color: #1890ff; font-size: 20px;"></span>
+        <span nz-icon nzType="swap" style="color: #c56a1a; font-size: 20px;"></span>
         <strong>Transfer Summary</strong>
       </div>
       <div class="preview-content">
@@ -173,7 +173,7 @@
           </div>
 
           <div class="arrow">
-            <span nz-icon nzType="arrow-right" style="font-size: 24px; color: #1890ff;"></span>
+            <span nz-icon nzType="arrow-right" style="font-size: 24px; color: #c56a1a;"></span>
             <div class="transfer-qty">
               {{ transferForm.get('quantity')?.value }} {{ availableStock.product.unit.symbol }}
             </div>

@@ -105,7 +105,7 @@
           </div>
         </td>
         <td>
-          <nz-tag nzColor="blue">{{ stock.product.sku }}</nz-tag>
+          <nz-tag nzColor="gold">{{ stock.product.sku }}</nz-tag>
         </td>
         <td>
           <span nz-icon nzType="home"></span>
@@ -123,7 +123,7 @@
         <td>{{ stock.product.unit.symbol }}</td>
         <td nzAlign="center">
           <nz-badge
-            [nzStatus]="getStockStatus(stock).color === 'green' ? 'success' : getStockStatus(stock).color === 'orange' ? 'warning' : 'error'"
+            [nzStatus]="getStockStatus(stock).color === 'default' ? 'default' : getStockStatus(stock).color === 'orange' ? 'warning' : 'error'"
             [nzText]="getStockStatus(stock).text"
           ></nz-badge>
         </td>

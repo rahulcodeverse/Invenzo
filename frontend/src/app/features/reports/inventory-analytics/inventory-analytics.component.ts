@@ -163,7 +163,7 @@ import { ReportsService } from '../services/reports.service';
                 <td><strong>{{ w.warehouseName || w.warehouse?.name }}</strong></td>
                 <td nzAlign="right">{{ w.productCount | number }}</td>
                 <td nzAlign="right">{{ w.totalQuantity | number }}</td>
-                <td nzAlign="right" style="color:#1890ff">₹ {{ w.totalValue | number:'1.2-2' }}</td>
+                <td nzAlign="right" style="color:#c56a1a">₹ {{ w.totalValue | number:'1.2-2' }}</td>
               </tr>
             </tbody>
           </nz-table>
@@ -214,6 +214,6 @@ export class InventoryAnalyticsComponent implements OnInit {
   }
 
   getAgeBracketColor(bracket: string): string {
-    return { '0-30 days': 'green', '31-60 days': 'blue', '61-90 days': 'orange', '90+ days': 'red' }[bracket] ?? 'default';
+    return { '0-30 days': 'gold', '31-60 days': 'gold', '61-90 days': 'orange', '90+ days': 'red' }[bracket] ?? 'default';
   }
 }

@@ -187,7 +187,7 @@ import { SalesInvoice, PaymentMethod } from '../../models/sales.model';
     .page-header h2 { margin: 0; font-size: 24px; font-weight: 600; }
     .page-header p { margin: 4px 0 0; color: rgba(0, 0, 0, 0.45); }
     .text-danger { color: #cf1322; }
-    .text-success { color: #52c41a; }
+    .text-success { color: #9a4f12; }
     .text-warning { color: #faad14; }
     .allocation-summary { max-width: 400px; margin-left: auto; margin-top: 16px; padding: 16px; background: #f0f2f5; border-radius: 4px; }
     .summary-row { display: flex; justify-content: space-between; padding: 8px 0; }

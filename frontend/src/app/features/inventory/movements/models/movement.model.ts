@@ -83,9 +83,9 @@ export interface MovementExportData {
 // Type color mapping
 export const MOVEMENT_TYPE_CONFIG = {
   [MovementType.IN]: {
-    color: '#52c41a',
-    bgColor: '#f6ffed',
-    borderColor: '#b7eb8f',
+    color: '#9a4f12',
+    bgColor: '#fff4e8',
+    borderColor: '#e6c29a',
     label: 'Stock In',
     icon: 'arrow-down'
   },
@@ -97,9 +97,9 @@ export const MOVEMENT_TYPE_CONFIG = {
     icon: 'arrow-up'
   },
   [MovementType.TRANSFER]: {
-    color: '#1890ff',
-    bgColor: '#e6f7ff',
-    borderColor: '#91d5ff',
+    color: '#c56a1a',
+    bgColor: '#fff4e8',
+    borderColor: '#e6c29a',
     label: 'Transfer',
     icon: 'swap'
   },

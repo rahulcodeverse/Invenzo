@@ -64,15 +64,15 @@ import { AccountingService } from '../services/accounting.service';
             </thead>
             <tbody>
               <tr *ngFor="let acc of table.data">
-                <td><nz-tag nzColor="cyan">{{ acc.code }}</nz-tag></td>
+                <td><nz-tag nzColor="gold">{{ acc.code }}</nz-tag></td>
                 <td><strong>{{ acc.name }}</strong></td>
                 <td><nz-tag [nzColor]="getTypeColor(acc.type)">{{ acc.type }}</nz-tag></td>
                 <td>{{ acc.group?.name || '-' }}</td>
-                <td nzAlign="right" [style.color]="Number(acc.currentBalance) >= 0 ? '#52c41a' : '#ff4d4f'">
+                <td nzAlign="right" [style.color]="Number(acc.currentBalance) >= 0 ? '#9a4f12' : '#ff4d4f'">
                   {{ acc.currentBalance | number:'1.2-2' }}
                 </td>
                 <td nzAlign="center">
-                  <nz-tag [nzColor]="acc.isActive ? 'green' : 'red'">{{ acc.isActive ? 'Active' : 'Inactive' }}</nz-tag>
+                  <nz-tag [nzColor]="acc.isActive ? 'gold' : 'red'">{{ acc.isActive ? 'Active' : 'Inactive' }}</nz-tag>
                 </td>
               </tr>
             </tbody>
@@ -98,7 +98,7 @@ import { AccountingService } from '../services/accounting.service';
                 <td>{{ g.parent?.name || '-' }}</td>
                 <td nzAlign="center">{{ g._count?.accounts ?? 0 }}</td>
                 <td nzAlign="center">
-                  <span nz-icon [nzType]="g.isSystem ? 'check-circle' : 'minus'" [style.color]="g.isSystem ? '#52c41a' : '#ccc'"></span>
+                  <span nz-icon [nzType]="g.isSystem ? 'check-circle' : 'minus'" [style.color]="g.isSystem ? '#9a4f12' : '#ccc'"></span>
                 </td>
               </tr>
             </tbody>
@@ -209,7 +209,7 @@ export class ChartOfAccountsComponent implements OnInit {
   }
 
   getTypeColor(type: string): string {
-    return { ASSET:'blue', LIABILITY:'red', EQUITY:'purple', INCOME:'green', EXPENSE:'orange' }[type] ?? 'default';
+    return { ASSET:'gold', LIABILITY:'red', EQUITY:'purple', INCOME:'gold', EXPENSE:'orange' }[type] ?? 'default';
   }
 
   initialize() {

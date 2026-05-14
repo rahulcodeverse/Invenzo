@@ -193,9 +193,9 @@ export class SalesOrderListComponent implements OnInit {
   getStatusColor(status: string): string {
     const colors: any = {
       DRAFT: 'default',
-      CONFIRMED: 'blue',
+      CONFIRMED: 'gold',
       PROCESSING: 'orange',
-      COMPLETED: 'green',
+      COMPLETED: 'gold',
       CANCELLED: 'red'
     };
     return colors[status] || 'default';

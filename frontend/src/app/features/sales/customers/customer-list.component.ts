@@ -64,13 +64,13 @@ import { debounceTime, Subject } from 'rxjs';
         </thead>
         <tbody>
           <tr *ngFor="let item of table.data">
-            <td><nz-tag nzColor="green">{{ item.code }}</nz-tag></td>
+            <td><nz-tag nzColor="gold">{{ item.code }}</nz-tag></td>
             <td><strong>{{ item.name }}</strong></td>
             <td>{{ item.phone || item.email || '-' }}</td>
             <td>{{ item.gstNumber || '-' }}</td>
             <td nzAlign="right">{{ item.creditLimit ? '₹' + item.creditLimit.toLocaleString() : '-' }}</td>
             <td nzAlign="center">
-              <nz-tag [nzColor]="item.isActive ? 'green' : 'red'">
+              <nz-tag [nzColor]="item.isActive ? 'gold' : 'red'">
                 {{ item.isActive ? 'Active' : 'Inactive' }}
               </nz-tag>
             </td>

@@ -125,7 +125,7 @@
           </div>
         </td>
         <td>
-          <nz-tag nzColor="blue">{{ product.sku }}</nz-tag>
+          <nz-tag nzColor="gold">{{ product.sku }}</nz-tag>
         </td>
         <td>
           <strong>{{ product.name }}</strong>
@@ -145,7 +145,7 @@
           <strong>{{ formatCurrency(product.sellingPrice) }}</strong>
         </td>
         <td nzAlign="center">
-          <nz-tag [nzColor]="product.isActive ? 'green' : 'red'">
+          <nz-tag [nzColor]="product.isActive ? 'gold' : 'red'">
             {{ product.isActive ? 'Active' : 'Inactive' }}
           </nz-tag>
         </td>

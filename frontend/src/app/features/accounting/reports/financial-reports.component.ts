@@ -47,14 +47,14 @@ import { AccountingService } from '../services/accounting.service';
           <div *ngIf="trialBalance && !loadingTB">
             <div nz-row [nzGutter]="16" style="margin-bottom:16px">
               <div nz-col [nzSpan]="8">
-                <nz-statistic nzTitle="Total Debit" [nzValue]="trialBalance.totalDebit" [nzValueStyle]="{'color':'#1890ff'}" nzPrefix="₹" ></nz-statistic>
+                <nz-statistic nzTitle="Total Debit" [nzValue]="trialBalance.totalDebit" [nzValueStyle]="{'color':'#c56a1a'}" nzPrefix="₹" ></nz-statistic>
               </div>
               <div nz-col [nzSpan]="8">
-                <nz-statistic nzTitle="Total Credit" [nzValue]="trialBalance.totalCredit" [nzValueStyle]="{'color':'#52c41a'}" nzPrefix="₹" ></nz-statistic>
+                <nz-statistic nzTitle="Total Credit" [nzValue]="trialBalance.totalCredit" [nzValueStyle]="{'color':'#9a4f12'}" nzPrefix="₹" ></nz-statistic>
               </div>
               <div nz-col [nzSpan]="8">
                 <nz-statistic nzTitle="Difference" [nzValue]="trialBalance.totalDebit - trialBalance.totalCredit"
-                  [nzValueStyle]="{'color': trialBalance.totalDebit === trialBalance.totalCredit ? '#52c41a' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
+                  [nzValueStyle]="{'color': trialBalance.totalDebit === trialBalance.totalCredit ? '#9a4f12' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
               </div>
             </div>
             <nz-table [nzData]="trialBalance.accounts || []" nzSize="middle" [nzShowPagination]="false">
@@ -81,14 +81,14 @@ import { AccountingService } from '../services/accounting.service';
           <div *ngIf="profitLoss && !loadingPL">
             <div nz-row [nzGutter]="16" style="margin-bottom:24px">
               <div nz-col [nzSpan]="8">
-                <nz-statistic nzTitle="Total Revenue" [nzValue]="profitLoss.totalIncome" [nzValueStyle]="{'color':'#52c41a'}" nzPrefix="₹" ></nz-statistic>
+                <nz-statistic nzTitle="Total Revenue" [nzValue]="profitLoss.totalIncome" [nzValueStyle]="{'color':'#9a4f12'}" nzPrefix="₹" ></nz-statistic>
               </div>
               <div nz-col [nzSpan]="8">
                 <nz-statistic nzTitle="Total Expenses" [nzValue]="profitLoss.totalExpense" [nzValueStyle]="{'color':'#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
               </div>
               <div nz-col [nzSpan]="8">
                 <nz-statistic nzTitle="Net Profit / (Loss)" [nzValue]="profitLoss.netProfit"
-                  [nzValueStyle]="{'color': profitLoss.netProfit >= 0 ? '#52c41a' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
+                  [nzValueStyle]="{'color': profitLoss.netProfit >= 0 ? '#9a4f12' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
               </div>
             </div>
             <div nz-row [nzGutter]="24">
@@ -98,7 +98,7 @@ import { AccountingService } from '../services/accounting.service';
                   <thead><tr><th>Account</th><th nzAlign="right">Amount</th></tr></thead>
                   <tbody>
                     <tr *ngFor="let r of profitLoss.income">
-                      <td>{{ r.name }}</td><td nzAlign="right" style="color:#52c41a">{{ r.balance | number:'1.2-2' }}</td>
+                      <td>{{ r.name }}</td><td nzAlign="right" style="color:#9a4f12">{{ r.balance | number:'1.2-2' }}</td>
                     </tr>
                   </tbody>
                 </nz-table>
@@ -163,13 +163,13 @@ import { AccountingService } from '../services/accounting.service';
           <div *ngIf="cashFlow && !loadingCF">
             <div nz-row [nzGutter]="16" style="margin-bottom:16px">
               <div nz-col [nzSpan]="8">
-                <nz-statistic nzTitle="Operating" [nzValue]="cashFlow.operatingActivities" [nzValueStyle]="{'color': cashFlow.operatingActivities >= 0 ? '#52c41a' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
+                <nz-statistic nzTitle="Operating" [nzValue]="cashFlow.operatingActivities" [nzValueStyle]="{'color': cashFlow.operatingActivities >= 0 ? '#9a4f12' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
               </div>
               <div nz-col [nzSpan]="8">
-                <nz-statistic nzTitle="Investing" [nzValue]="cashFlow.investingActivities" [nzValueStyle]="{'color': cashFlow.investingActivities >= 0 ? '#52c41a' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
+                <nz-statistic nzTitle="Investing" [nzValue]="cashFlow.investingActivities" [nzValueStyle]="{'color': cashFlow.investingActivities >= 0 ? '#9a4f12' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
               </div>
               <div nz-col [nzSpan]="8">
-                <nz-statistic nzTitle="Net Cash Flow" [nzValue]="cashFlow.netCashFlow" [nzValueStyle]="{'color': cashFlow.netCashFlow >= 0 ? '#52c41a' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
+                <nz-statistic nzTitle="Net Cash Flow" [nzValue]="cashFlow.netCashFlow" [nzValueStyle]="{'color': cashFlow.netCashFlow >= 0 ? '#9a4f12' : '#ff4d4f'}" nzPrefix="₹" ></nz-statistic>
               </div>
             </div>
           </div>

@@ -159,7 +159,7 @@ export class StockOverviewComponent implements OnInit {
     } else if (this.isLowStock(stock)) {
       return { color: 'orange', text: 'Low Stock' };
     } else {
-      return { color: 'green', text: 'In Stock' };
+      return { color: 'default', text: 'In Stock' };
     }
   }
 }

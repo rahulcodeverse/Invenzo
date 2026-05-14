@@ -27,7 +27,7 @@ import { PurchaseInvoice } from '../models/purchases.model';
     <div nz-row [nzGutter]="16" style="margin-bottom:16px">
       <div nz-col [nzSpan]="6">
         <nz-card>
-          <nz-statistic nzTitle="Total Invoices" [nzValue]="total" [nzValueStyle]="{'color': '#1890ff'}"></nz-statistic>
+          <nz-statistic nzTitle="Total Invoices" [nzValue]="total" [nzValueStyle]="{'color': '#c56a1a'}"></nz-statistic>
         </nz-card>
       </div>
       <div nz-col [nzSpan]="6">
@@ -37,7 +37,7 @@ import { PurchaseInvoice } from '../models/purchases.model';
       </div>
       <div nz-col [nzSpan]="6">
         <nz-card>
-          <nz-statistic nzTitle="Paid Amount" [nzValue]="paidAmount" [nzValueStyle]="{'color': '#52c41a'}" nzPrefix="₹" ></nz-statistic>
+          <nz-statistic nzTitle="Paid Amount" [nzValue]="paidAmount" [nzValueStyle]="{'color': '#9a4f12'}" nzPrefix="₹" ></nz-statistic>
         </nz-card>
       </div>
       <div nz-col [nzSpan]="6">
@@ -86,7 +86,7 @@ import { PurchaseInvoice } from '../models/purchases.model';
             <td>{{ inv.invoiceDate | date:'dd MMM yyyy' }}</td>
             <td [class.overdue]="isOverdue(inv)">{{ inv.dueDate | date:'dd MMM yyyy' }}</td>
             <td nzAlign="right">{{ inv.totalAmount | number:'1.2-2' }}</td>
-            <td nzAlign="right" style="color:#52c41a">{{ inv.paidAmount | number:'1.2-2' }}</td>
+            <td nzAlign="right" style="color:#9a4f12">{{ inv.paidAmount | number:'1.2-2' }}</td>
             <td nzAlign="right" style="color:#ff4d4f">{{ inv.balanceAmount | number:'1.2-2' }}</td>
             <td nzAlign="center">
               <nz-tag [nzColor]="getStatusColor(inv.status)">{{ inv.status }}</nz-tag>
@@ -147,7 +147,7 @@ export class PurchaseInvoiceListComponent implements OnInit {
   }
 
   getStatusColor(s: string): string {
-    return { PENDING: 'orange', PARTIAL: 'blue', PAID: 'green', OVERDUE: 'red' }[s] ?? 'default';
+    return { PENDING: 'orange', PARTIAL: 'gold', PAID: 'gold', OVERDUE: 'red' }[s] ?? 'default';
   }
 
   getPaymentPercent(inv: PurchaseInvoice): number {
