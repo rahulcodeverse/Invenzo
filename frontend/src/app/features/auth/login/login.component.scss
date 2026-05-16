@@ -35,38 +35,12 @@
 .brand-top {
   display: flex;
   align-items: center;
-  gap: 14px;
 
-  strong,
-  span {
+  img {
     display: block;
+    width: 176px;
+    height: auto;
   }
-
-  strong {
-    color: #fff;
-    font-size: 18px;
-    line-height: 1.2;
-  }
-
-  span {
-    margin-top: 3px;
-    color: #c8c1b8;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-}
-
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  background: #c56a1a;
-  color: #211f1c;
-  font-weight: 900;
 }
 
 .eyebrow {

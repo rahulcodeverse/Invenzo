@@ -34,29 +34,17 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   color: #211f1c;
 
   &:hover {
     color: #211f1c;
   }
-}
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: #211f1c;
-  color: #d58a3a;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.brand-name {
-  font-size: 18px;
-  font-weight: 850;
+  img {
+    display: block;
+    width: 142px;
+    height: auto;
+  }
 }
 
 .module-nav {
@@ -213,10 +201,14 @@ nz-content {
 }
 
 @media (max-width: 680px) {
-  .brand-name,
   .user-name,
   .quick-link {
     display: none;
+  }
+
+  .brand img {
+    width: 44px;
+    content: url('/assets/brand/invenzo-mark.svg');
   }
 
   nz-content {

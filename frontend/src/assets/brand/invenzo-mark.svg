@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">Invenzo mark</title>
+  <desc id="desc">A stacked inventory mark with a copper movement path.</desc>
   <rect width="96" height="96" rx="22" fill="#211F1C"/>
   <path d="M29 22h38c4.4 0 8 3.6 8 8v5H21v-5c0-4.4 3.6-8 8-8Z" fill="#D58A3A"/>
   <path d="M21 39h54v18H21z" fill="#F3F1ED"/>
