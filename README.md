@@ -201,3 +201,7 @@ Accounting Entries + Reports + Dashboards
 - Demo seed data is intended for local development and product walkthroughs.
 - If seeding fails with a database connection or TLS error, verify `DATABASE_URL`, database availability, SSL settings, and local credentials.
 - The GitHub workflow was removed earlier, so backend CI emails should not continue unless a new workflow is added.
+
+## License
+
+This project is proprietary and all rights are reserved. The source code may be viewed for reference only. Copying, modifying, redistributing, deploying, or using this project without written permission is not allowed. See [LICENSE](LICENSE) for details.
