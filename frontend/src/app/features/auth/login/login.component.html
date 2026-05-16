@@ -1,105 +1,85 @@
 <div class="login-container">
-  <section class="brand-panel">
-    <div class="brand-mark">
-      <span>IV</span>
-    </div>
-    <div class="brand-copy">
-      <p class="eyebrow">Inventory Operations</p>
-      <h1>Invenzo</h1>
-      <p>Control stock, sales, purchasing, accounting, and reports from a single operating desk.</p>
-    </div>
-
-    <div class="ops-board">
-      <div class="ops-header">
-        <span>Live Flow</span>
-        <strong>Today</strong>
-      </div>
-      <div class="pipeline">
-        <div><span></span>Quotation</div>
-        <div><span></span>Order</div>
-        <div><span></span>Dispatch</div>
-        <div><span></span>Payment</div>
-      </div>
-      <div class="metric-grid">
-        <div>
-          <strong>42</strong>
-          <span>SKUs moving</span>
+  <div class="login-shell">
+    <section class="brand-panel">
+      <div class="brand-top">
+        <div class="brand-mark">
+          <span>IV</span>
         </div>
         <div>
-          <strong>8</strong>
-          <span>Low stock</span>
-        </div>
-        <div>
-          <strong>16</strong>
-          <span>Orders open</span>
+          <strong>Invenzo</strong>
+          <span>Inventory Operations</span>
         </div>
       </div>
-    </div>
-  </section>
 
-  <div class="login-card">
-    <div class="login-header">
-      <div class="mini-mark">IV</div>
-      <h2>Welcome back</h2>
-      <p>Sign in to your Invenzo workspace</p>
-    </div>
+      <div class="brand-copy">
+        <p class="eyebrow">Operations workspace</p>
+        <h1>Run inventory, sales, purchases, and finance from one desk.</h1>
+        <p>Built for teams that need stock movement, order flow, and money visibility without jumping between tools.</p>
+      </div>
+    </section>
 
-    <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <nz-form-item>
-        <nz-form-control nzErrorTip="Please input your email!">
-          <nz-input-group nzPrefixIcon="user">
-            <input
-              type="email"
-              nz-input
-              formControlName="email"
-              placeholder="Work email"
-            />
-          </nz-input-group>
-        </nz-form-control>
-      </nz-form-item>
+    <section class="login-card">
+      <div class="login-header">
+        <p class="eyebrow">Secure access</p>
+        <h2>Welcome back</h2>
+        <p>Sign in to continue to your workspace.</p>
+      </div>
 
-      <nz-form-item>
-        <nz-form-control nzErrorTip="Please input your password!">
-          <nz-input-group nzPrefixIcon="lock">
-            <input
-              type="password"
-              nz-input
-              formControlName="password"
-              placeholder="Password"
-            />
-          </nz-input-group>
-        </nz-form-control>
-      </nz-form-item>
+      <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Please input your email!">
+            <label class="field-label">Email</label>
+            <nz-input-group nzPrefixIcon="user">
+              <input
+                type="email"
+                nz-input
+                formControlName="email"
+                placeholder="owner@invenzo.com"
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
 
-      <nz-form-item>
-        <nz-form-control>
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Please input your password!">
+            <label class="field-label">Password</label>
+            <nz-input-group nzPrefixIcon="lock">
+              <input
+                type="password"
+                nz-input
+                formControlName="password"
+                placeholder="Enter password"
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div class="form-options">
           <label nz-checkbox formControlName="remember">
             <span>Remember me</span>
           </label>
-          <a class="login-form-forgot" routerLink="/auth/forgot-password">
-            Forgot password?
-          </a>
-        </nz-form-control>
-      </nz-form-item>
+          <a routerLink="/auth/forgot-password">Forgot password?</a>
+        </div>
 
-      <button
-        nz-button
-        class="login-form-button"
-        [nzType]="'primary'"
-        [nzLoading]="loading"
-        [disabled]="!loginForm.valid"
-      >
-        Sign in
-      </button>
-    </form>
+        <button
+          nz-button
+          class="login-form-button"
+          [nzType]="'primary'"
+          [nzLoading]="loading"
+          [disabled]="!loginForm.valid"
+        >
+          Sign in
+        </button>
+      </form>
 
-    <div class="demo-credentials">
-      <div>
-        <strong>Owner demo</strong>
-        <span>owner&#64;invenzo.com</span>
+      <div class="demo-credentials">
+        <div>
+          <strong>Owner demo</strong>
+          <span>owner&#64;invenzo.com</span>
+        </div>
+        <code>password123</code>
       </div>
-      <code>password123</code>
-    </div>
+    </section>
   </div>
 </div>
 

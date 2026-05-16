@@ -7,7 +7,6 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
 
@@ -22,8 +21,7 @@ import { User } from '../../core/models/user.model';
     NzIconModule,
     NzBreadCrumbModule,
     NzDropDownModule,
-    NzAvatarModule,
-    NzBadgeModule
+    NzAvatarModule
   ],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss']
@@ -150,13 +148,21 @@ export class MainLayoutComponent implements OnInit {
     return this.activeMenuItem?.children || [];
   }
 
+  get activeChildLink(): string | null {
+    const url = this.router.url.split('?')[0];
+    const matches = this.activeChildren
+      .filter(child => url === child.link || url.startsWith(`${child.link}/`))
+      .sort((a, b) => b.link.length - a.link.length);
+
+    return matches[0]?.link || null;
+  }
+
   isTopItemActive(item: any): boolean {
     return this.activeMenuItem === item;
   }
 
   isChildActive(link: string): boolean {
-    const url = this.router.url.split('?')[0];
-    return url === link || url.startsWith(`${link}/`);
+    return this.activeChildLink === link;
   }
 
   hasRole(roles: string[]): boolean {

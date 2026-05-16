@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -31,6 +31,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private route: ActivatedRoute,
     private router: Router,
     private message: NzMessageService
   ) {
@@ -47,9 +48,10 @@ export class LoginComponent {
       const { email, password } = this.loginForm.value;
 
       this.authService.login({ email, password }).subscribe({
-        next: (response) => {
+        next: () => {
           this.message.success('Login successful!');
-          this.router.navigate(['/']);
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
+          this.router.navigateByUrl(returnUrl);
         },
         error: (error) => {
           this.loading = false;
