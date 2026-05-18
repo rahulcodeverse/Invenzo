@@ -25,6 +25,50 @@
 
         <a
           nz-dropdown
+          [nzDropdownMenu]="notificationMenu"
+          nzTrigger="click"
+          class="notification-trigger"
+          (click)="loadNotifications()"
+        >
+          <nz-badge [nzCount]="unreadCount" [nzOverflowCount]="9">
+            <span nz-icon nzType="bell"></span>
+          </nz-badge>
+        </a>
+
+        <nz-dropdown-menu #notificationMenu="nzDropdownMenu">
+          <div class="notification-panel">
+            <div class="notification-panel__header">
+              <strong>Notifications</strong>
+              <button nz-button nzType="link" nzSize="small" (click)="markAllNotificationsRead()">
+                Mark all read
+              </button>
+            </div>
+
+            <div class="notification-empty" *ngIf="!notifications.length">
+              No notifications yet
+            </div>
+
+            <button
+              *ngFor="let notification of notifications"
+              class="notification-item"
+              [class.unread]="!notification.isRead"
+              (click)="markNotificationRead(notification)"
+            >
+              <span
+                class="notification-dot"
+                [style.background]="getNotificationColor(notification.type)"
+              ></span>
+              <span class="notification-copy">
+                <strong>{{ notification.title }}</strong>
+                <span>{{ notification.message }}</span>
+                <small>{{ notification.createdAt | date:'dd MMM, h:mm a' }}</small>
+              </span>
+            </button>
+          </div>
+        </nz-dropdown-menu>
+
+        <a
+          nz-dropdown
           [nzDropdownMenu]="menu"
           nzTrigger="click"
           class="user-dropdown"

@@ -9,12 +9,14 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { OrderStatus, MovementType } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class DeliveryService {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(tenantId: string, userId: string, createDeliveryDto: CreateDeliveryNoteDto) {
@@ -336,6 +338,18 @@ export class DeliveryService {
         itemCount: createDeliveryDto.items.length,
       },
     });
+
+    await this.notificationsService.createOrderUpdate(
+      tenantId,
+      `Delivery created: ${result.delivery.deliveryNumber}`,
+      `Dispatched ${createDeliveryDto.items.length} item(s) for sales order ${so.soNumber}.`,
+      { deliveryId: result.delivery.id, salesOrderId: so.id },
+    );
+
+    await this.notificationsService.createLowStockAlerts(
+      tenantId,
+      createDeliveryDto.items.map(item => item.productId),
+    );
 
     return result;
   }

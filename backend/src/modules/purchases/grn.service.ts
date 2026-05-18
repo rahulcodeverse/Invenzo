@@ -11,6 +11,7 @@ import { SkuGenerator } from '../../common/utils/sku-generator.helper';
 import { InventoryService } from '../inventory/inventory.service';
 import { OrderStatus, MovementType } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class GrnService {
@@ -18,6 +19,7 @@ export class GrnService {
     private prisma: PrismaService,
     private inventoryService: InventoryService,
     private auditService: AuditService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(tenantId: string, userId: string, createGrnDto: CreateGrnDto) {
@@ -243,6 +245,13 @@ export class GrnService {
         itemCount: createGrnDto.items.length,
       },
     });
+
+    await this.notificationsService.createOrderUpdate(
+      tenantId,
+      `GRN created: ${result.grn.grnNumber}`,
+      `Received ${createGrnDto.items.length} item(s) against purchase order ${po.poNumber}.`,
+      { grnId: result.grn.id, purchaseOrderId: po.id },
+    );
 
     return result;
   }

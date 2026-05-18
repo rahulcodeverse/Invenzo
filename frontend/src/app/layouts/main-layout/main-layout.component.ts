@@ -7,8 +7,11 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
+import { AppNotification, NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -21,7 +24,9 @@ import { User } from '../../core/models/user.model';
     NzIconModule,
     NzBreadCrumbModule,
     NzDropDownModule,
-    NzAvatarModule
+    NzAvatarModule,
+    NzBadgeModule,
+    NzButtonModule
   ],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss']
@@ -29,6 +34,8 @@ import { User } from '../../core/models/user.model';
 export class MainLayoutComponent implements OnInit {
   isCollapsed = false;
   currentUser: User | null = null;
+  notifications: AppNotification[] = [];
+  unreadCount = 0;
 
   menuItems = [
     {
@@ -132,13 +139,61 @@ export class MainLayoutComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      if (user) {
+        this.loadNotifications();
+      }
     });
+  }
+
+  loadNotifications(): void {
+    this.notificationService.getNotifications({ page: 1, limit: 8 }).subscribe({
+      next: res => {
+        this.notifications = res.data;
+      }
+    });
+
+    this.notificationService.getUnreadCount().subscribe({
+      next: res => {
+        this.unreadCount = res.data.count;
+      }
+    });
+  }
+
+  markNotificationRead(notification: AppNotification): void {
+    if (notification.isRead) return;
+
+    this.notificationService.markRead(notification.id).subscribe({
+      next: () => {
+        notification.isRead = true;
+        this.unreadCount = Math.max(0, this.unreadCount - 1);
+      }
+    });
+  }
+
+  markAllNotificationsRead(): void {
+    this.notificationService.markAllRead().subscribe({
+      next: () => {
+        this.notifications = this.notifications.map(notification => ({ ...notification, isRead: true }));
+        this.unreadCount = 0;
+      }
+    });
+  }
+
+  getNotificationColor(type: AppNotification['type']): string {
+    return {
+      LOW_STOCK: '#c56a1a',
+      EXPIRY_ALERT: '#cf1322',
+      PAYMENT_REMINDER: '#9a4f12',
+      ORDER_UPDATE: '#20312a',
+      SYSTEM: '#6f675f'
+    }[type];
   }
 
   get filteredMenuItems() {

@@ -15,9 +15,10 @@ import { CustomerPaymentsService } from './customer-payments.service';
 import { DocumentsModule } from '../documents/documents.module';
 import { AccountingModule } from '../accounting/accounting.module';
 import { AuditModule } from '../audit/audit.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [DocumentsModule, AccountingModule, AuditModule],
+  imports: [DocumentsModule, AccountingModule, AuditModule, NotificationsModule],
   controllers: [
     CustomersController,
     QuotationsController,

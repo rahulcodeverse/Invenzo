@@ -10,6 +10,7 @@ import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { PaymentStatus } from '@prisma/client';
 import { JournalService } from '../accounting/journal.service';
 import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class CustomerPaymentsService {
@@ -17,6 +18,7 @@ export class CustomerPaymentsService {
     private prisma: PrismaService,
     private journalService: JournalService,
     private auditService: AuditService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(tenantId: string, userId: string, createPaymentDto: CreateCustomerPaymentDto) {
@@ -163,6 +165,13 @@ export class CustomerPaymentsService {
         amount: Number(result.payment.amount),
       },
     });
+
+    await this.notificationsService.createPaymentReminder(
+      tenantId,
+      `Customer payment received: ${result.payment.paymentNumber}`,
+      `${customer.name} paid ${Number(result.payment.amount).toLocaleString()} via ${result.payment.method}.`,
+      { paymentId: result.payment.id, customerId: customer.id, amount: Number(result.payment.amount) },
+    );
 
     return result;
   }

@@ -10,6 +10,7 @@ import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { PaymentStatus } from '@prisma/client';
 import { JournalService } from '../accounting/journal.service';
 import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PurchaseInvoicesService {
@@ -17,6 +18,7 @@ export class PurchaseInvoicesService {
     private prisma: PrismaService,
     private journalService: JournalService,
     private auditService: AuditService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(tenantId: string, userId: string, createInvoiceDto: CreatePurchaseInvoiceDto) {
@@ -109,6 +111,13 @@ export class PurchaseInvoicesService {
         total: Number(invoice.total),
       },
     });
+
+    await this.notificationsService.createPaymentReminder(
+      tenantId,
+      `Purchase invoice due: ${invoice.invoiceNumber}`,
+      `${po.vendor.name} has ${Number(invoice.balanceAmount).toLocaleString()} due by ${invoice.dueDate.toDateString()}.`,
+      { invoiceId: invoice.id, vendorId: invoice.vendorId, amount: Number(invoice.balanceAmount) },
+    );
 
     return invoice;
   }

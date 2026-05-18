@@ -10,12 +10,14 @@ import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { SkuGenerator } from '../../common/utils/sku-generator.helper';
 import { OrderStatus } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PurchaseOrdersService {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(tenantId: string, userId: string, createPoDto: CreatePurchaseOrderDto) {
@@ -335,6 +337,13 @@ export class PurchaseOrdersService {
       });
     }
 
+    await this.notificationsService.createOrderUpdate(
+      tenantId,
+      `Purchase order approved: ${updated.poNumber}`,
+      `${updated.vendor.name} purchase order is ready for goods receipt.`,
+      { purchaseOrderId: updated.id, poNumber: updated.poNumber },
+    );
+
     return updated;
   }
 
@@ -368,6 +377,13 @@ export class PurchaseOrdersService {
         changes: { beforeStatus: po.status, afterStatus: updated.status },
       });
     }
+
+    await this.notificationsService.createOrderUpdate(
+      tenantId,
+      `Purchase order cancelled: ${po.poNumber}`,
+      `Purchase order ${po.poNumber} was cancelled.`,
+      { purchaseOrderId: id, poNumber: po.poNumber },
+    );
 
     return updated;
   }

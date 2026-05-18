@@ -15,9 +15,10 @@ import { InventoryModule } from '../inventory/inventory.module';
 import { DocumentsModule } from '../documents/documents.module';
 import { AccountingModule } from '../accounting/accounting.module';
 import { AuditModule } from '../audit/audit.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [InventoryModule, DocumentsModule, AccountingModule, AuditModule],
+  imports: [InventoryModule, DocumentsModule, AccountingModule, AuditModule, NotificationsModule],
   controllers: [
     VendorsController,
     PurchaseOrdersController,
