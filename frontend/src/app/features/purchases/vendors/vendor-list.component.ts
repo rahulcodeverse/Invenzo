@@ -14,6 +14,8 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { MasterDataService } from '../../../core/services/master-data.service';
 import { Vendor } from '../../../core/models/master-data.model';
 import { debounceTime, Subject } from 'rxjs';
@@ -24,7 +26,7 @@ import { debounceTime, Subject } from 'rxjs';
   imports: [
     CommonModule, ReactiveFormsModule, FormsModule, NzCardModule, NzTableModule, NzButtonModule,
     NzModalModule, NzFormModule, NzInputModule, NzInputNumberModule, NzSwitchModule,
-    NzIconModule, NzTagModule, NzSpaceModule, NzGridModule
+    NzIconModule, NzTagModule, NzSpaceModule, NzGridModule, NzStatisticModule, NzTabsModule
   ],
   template: `
     <nz-card>
@@ -59,7 +61,7 @@ import { debounceTime, Subject } from 'rxjs';
             <th>GST Number</th>
             <th nzAlign="right">Credit Limit</th>
             <th nzAlign="center">Status</th>
-            <th nzAlign="center" nzWidth="120px">Actions</th>
+            <th nzAlign="center" nzWidth="190px">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -78,6 +80,10 @@ import { debounceTime, Subject } from 'rxjs';
               <nz-space>
                 <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="openEditModal(item)">
                   <span nz-icon nzType="edit"></span>
+                </button>
+                <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="openStatement(item)">
+                  <span nz-icon nzType="profile"></span>
+                  Statement
                 </button>
                 <button *nzSpaceItem nz-button nzType="default" nzDanger nzSize="small" (click)="confirmDelete(item)">
                   <span nz-icon nzType="delete"></span>
@@ -157,12 +163,80 @@ import { debounceTime, Subject } from 'rxjs';
         </form>
       </ng-container>
     </nz-modal>
+
+    <nz-modal [(nzVisible)]="statementVisible" [nzTitle]="statementTitle" (nzOnCancel)="statementVisible=false"
+              [nzFooter]="null" nzWidth="1000px">
+      <ng-container *nzModalContent>
+        <div *ngIf="statementLoading" class="statement-loading">Loading statement...</div>
+        <ng-container *ngIf="!statementLoading && statement">
+          <div nz-row [nzGutter]="16" class="statement-summary">
+            <div nz-col [nzSpan]="6">
+              <nz-statistic nzTitle="Total Purchases" [nzValue]="statement.summary?.totalPurchases || 0" nzPrefix="INR "></nz-statistic>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-statistic nzTitle="Invoiced" [nzValue]="statement.summary?.totalInvoiced || 0" nzPrefix="INR "></nz-statistic>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-statistic nzTitle="Paid" [nzValue]="statement.summary?.totalPaid || 0" nzPrefix="INR "></nz-statistic>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-statistic nzTitle="Outstanding" [nzValue]="statement.summary?.totalOutstanding || 0" nzPrefix="INR "
+                [nzValueStyle]="{ color: '#b42318' }"></nz-statistic>
+            </div>
+          </div>
+
+          <nz-tabset>
+            <nz-tab nzTitle="Ledger">
+              <nz-table [nzData]="statementLedger" nzSize="small" [nzShowPagination]="false">
+                <thead>
+                  <tr><th>Date</th><th>Type</th><th>Document</th><th nzAlign="right">Debit</th><th nzAlign="right">Credit</th><th nzAlign="right">Balance</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of statementLedger">
+                    <td>{{ row.date | date:'dd MMM yyyy' }}</td>
+                    <td><nz-tag [nzColor]="row.type === 'Payment' ? 'green' : 'orange'">{{ row.type }}</nz-tag></td>
+                    <td>{{ row.number }}</td>
+                    <td nzAlign="right">{{ row.debit ? formatCurrency(row.debit) : '-' }}</td>
+                    <td nzAlign="right">{{ row.credit ? formatCurrency(row.credit) : '-' }}</td>
+                    <td nzAlign="right"><strong>{{ formatCurrency(row.balance) }}</strong></td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </nz-tab>
+            <nz-tab nzTitle="Invoices">
+              <nz-table [nzData]="statement.invoices || []" nzSize="small" [nzShowPagination]="false">
+                <thead><tr><th>Invoice</th><th>Date</th><th>Due</th><th>Status</th><th nzAlign="right">Total</th><th nzAlign="right">Balance</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let inv of statement.invoices">
+                    <td>{{ inv.invoiceNumber }}</td><td>{{ inv.invoiceDate | date:'dd MMM yyyy' }}</td><td>{{ inv.dueDate | date:'dd MMM yyyy' }}</td>
+                    <td><nz-tag>{{ inv.status }}</nz-tag></td><td nzAlign="right">{{ formatCurrency(inv.total) }}</td><td nzAlign="right">{{ formatCurrency(inv.balanceAmount) }}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </nz-tab>
+            <nz-tab nzTitle="Payments">
+              <nz-table [nzData]="statement.payments || []" nzSize="small" [nzShowPagination]="false">
+                <thead><tr><th>Payment</th><th>Date</th><th>Method</th><th>Reference</th><th nzAlign="right">Amount</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let pay of statement.payments">
+                    <td>{{ pay.paymentNumber }}</td><td>{{ pay.paymentDate | date:'dd MMM yyyy' }}</td><td>{{ pay.method }}</td><td>{{ pay.reference || '-' }}</td>
+                    <td nzAlign="right">{{ formatCurrency(pay.amount) }}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </nz-tab>
+          </nz-tabset>
+        </ng-container>
+      </ng-container>
+    </nz-modal>
   `,
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .header-left h2 { margin: 0; font-size: 24px; font-weight: 600; }
     .header-left p { margin: 4px 0 0; color: rgba(0, 0, 0, 0.45); }
     .header-right { display: flex; align-items: center; }
+    .statement-summary { margin-bottom: 16px; }
+    .statement-loading { padding: 32px; text-align: center; color: rgba(0,0,0,.45); }
   `]
 })
 export class VendorListComponent implements OnInit {
@@ -177,6 +251,10 @@ export class VendorListComponent implements OnInit {
   isEditMode = false;
   form!: FormGroup;
   currentId: string | null = null;
+  statementVisible = false;
+  statementLoading = false;
+  statement: any = null;
+  statementTitle = 'Vendor Statement';
   private searchSubject = new Subject<string>();
 
   constructor(private fb: FormBuilder, private service: MasterDataService,
@@ -257,6 +335,51 @@ export class VendorListComponent implements OnInit {
         next: () => { this.message.success('Deleted successfully'); this.loadData(); }
       })
     });
+  }
+
+  get statementLedger(): any[] {
+    const entries = [
+      ...(this.statement?.invoices || []).map((inv: any) => ({
+        date: inv.invoiceDate,
+        type: 'Invoice',
+        number: inv.invoiceNumber,
+        debit: Number(inv.total || 0),
+        credit: 0,
+      })),
+      ...(this.statement?.payments || []).map((pay: any) => ({
+        date: pay.paymentDate,
+        type: 'Payment',
+        number: pay.paymentNumber,
+        debit: 0,
+        credit: Number(pay.amount || 0),
+      })),
+    ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    let balance = 0;
+    return entries.map(row => {
+      balance += row.debit - row.credit;
+      return { ...row, balance };
+    });
+  }
+
+  openStatement(item: Vendor): void {
+    this.statementVisible = true;
+    this.statementLoading = true;
+    this.statementTitle = `${item.name} Statement`;
+    this.service.getVendorStatement(item.id).subscribe({
+      next: (res: any) => {
+        this.statement = res.data ?? res;
+        this.statementLoading = false;
+      },
+      error: () => {
+        this.statementLoading = false;
+        this.message.error('Unable to load vendor statement');
+      }
+    });
+  }
+
+  formatCurrency(value: number): string {
+    return `INR ${Number(value || 0).toLocaleString('en-IN')}`;
   }
 }
 

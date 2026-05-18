@@ -51,6 +51,10 @@ export class MasterDataService {
     return this.http.get<ApiResponse<Customer>>(`${this.apiUrl}/customers/${id}`);
   }
 
+  getCustomerStatement(id: string): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/customers/${id}/statement`);
+  }
+
   createCustomer(customer: Partial<Customer>): Observable<ApiResponse<Customer>> {
     return this.http.post<ApiResponse<Customer>>(`${this.apiUrl}/customers`, customer);
   }
@@ -77,6 +81,10 @@ export class MasterDataService {
 
   getVendorById(id: string): Observable<ApiResponse<Vendor>> {
     return this.http.get<ApiResponse<Vendor>>(`${this.apiUrl}/vendors/${id}`);
+  }
+
+  getVendorStatement(id: string): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/vendors/${id}/statement`);
   }
 
   createVendor(vendor: Partial<Vendor>): Observable<ApiResponse<Vendor>> {
