@@ -43,6 +43,8 @@ type GstDocument = {
   discount: number;
   taxAmount: number;
   total: number;
+  paidAmount?: number;
+  balanceAmount?: number;
   notes?: string | null;
   terms?: string | null;
 };
@@ -140,6 +142,8 @@ export class DocumentsService {
       discount: Number(invoice.discount),
       taxAmount: Number(invoice.taxAmount),
       total: Number(invoice.total),
+      paidAmount: Number(invoice.paidAmount),
+      balanceAmount: Number(invoice.balanceAmount),
       notes: invoice.notes,
     });
   }
@@ -399,6 +403,8 @@ export class DocumentsService {
       discount: Number(invoice.discount),
       taxAmount: Number(invoice.taxAmount),
       total: Number(invoice.total),
+      paidAmount: Number(invoice.paidAmount),
+      balanceAmount: Number(invoice.balanceAmount),
       notes: invoice.notes,
     });
   }
@@ -537,6 +543,8 @@ export class DocumentsService {
     this.drawItems(doc, documentData.lines);
     this.drawTotals(doc, documentData);
     this.drawNotes(doc, documentData.notes, documentData.terms);
+    this.drawAmountWords(doc, documentData.total);
+    this.drawFooter(doc, companyName);
 
     doc.end();
     return bufferPromise;
@@ -593,7 +601,7 @@ export class DocumentsService {
       doc.font('Helvetica').text(receipt.notes, 40, 448, { width: 515 });
     }
 
-    doc.fontSize(9).fillColor('#66736b').text('This is a system-generated receipt.', 40, 760, { width: 515, align: 'center' });
+    this.drawFooter(doc, companyName, 'This is a system-generated receipt.');
     doc.end();
     return bufferPromise;
   }
@@ -639,7 +647,8 @@ export class DocumentsService {
     }
 
     if (documentData.status) {
-      this.drawKeyValue(doc, metaX, y, 'Status', documentData.status);
+      this.drawStatusBadge(doc, metaX + 92, y - 2, documentData.status);
+      doc.fontSize(9).font('Helvetica-Bold').fillColor('#17231f').text('Status', metaX, y, { width: 82 });
       y += 16;
     }
 
@@ -673,17 +682,21 @@ export class DocumentsService {
       { label: 'Total', x: 505, width: 50, align: 'right' as const },
     ];
 
-    doc.rect(40, startY, 515, 22).fill('#20312a');
-    doc.fontSize(8).font('Helvetica-Bold').fillColor('#ffffff');
-    columns.forEach(col => doc.text(col.label, col.x + 2, startY + 7, { width: col.width - 4, align: col.align }));
+    const drawTableHeader = (y: number) => {
+      doc.rect(40, y, 515, 22).fill('#20312a');
+      doc.fontSize(8).font('Helvetica-Bold').fillColor('#ffffff');
+      columns.forEach(col => doc.text(col.label, col.x + 2, y + 7, { width: col.width - 4, align: col.align }));
+      doc.fillColor('#17231f').font('Helvetica');
+    };
 
-    doc.fillColor('#17231f').font('Helvetica');
+    drawTableHeader(startY);
     let y = startY + 30;
 
     lines.forEach((line, index) => {
       if (y > 700) {
         doc.addPage();
-        y = 52;
+        drawTableHeader(52);
+        y = 82;
       }
 
       if (index % 2 === 0) {
@@ -729,7 +742,7 @@ export class DocumentsService {
 
   private drawTotals(doc: PDFKit.PDFDocument, documentData: GstDocument) {
     const taxSplit = this.getTaxSplit(documentData.taxAmount);
-    const y = doc.y < 610 ? 610 : doc.y + 20;
+    const y = doc.y < 590 ? 590 : doc.y + 20;
     const x = 365;
 
     this.drawKeyValue(doc, x, y, 'Subtotal', this.money(documentData.subtotal));
@@ -737,10 +750,19 @@ export class DocumentsService {
     this.drawKeyValue(doc, x, y + 36, 'CGST', this.money(taxSplit.cgst));
     this.drawKeyValue(doc, x, y + 54, 'SGST', this.money(taxSplit.sgst));
     this.drawKeyValue(doc, x, y + 72, 'IGST', this.money(taxSplit.igst));
-    doc.rect(x - 6, y + 92, 196, 26).fill('#e7a041');
+
+    let totalY = y + 92;
+    if (documentData.paidAmount != null || documentData.balanceAmount != null) {
+      this.drawKeyValue(doc, x, totalY, 'Paid', this.money(documentData.paidAmount ?? 0));
+      totalY += 18;
+      this.drawKeyValue(doc, x, totalY, 'Balance', this.money(documentData.balanceAmount ?? 0));
+      totalY += 20;
+    }
+
+    doc.rect(x - 6, totalY, 196, 26).fill('#e7a041');
     doc.fillColor('#17231f').font('Helvetica-Bold').fontSize(11);
-    doc.text('Grand Total', x, y + 100, { width: 90 });
-    doc.text(this.money(documentData.total), x + 92, y + 100, { width: 90, align: 'right' });
+    doc.text('Grand Total', x, totalY + 8, { width: 90 });
+    doc.text(this.money(documentData.total), x + 92, totalY + 8, { width: 90, align: 'right' });
     doc.fillColor('#17231f').font('Helvetica');
   }
 
@@ -761,6 +783,40 @@ export class DocumentsService {
     doc.font('Helvetica').text(value, x + 92, y, { width: 98, align: 'right' });
   }
 
+  private drawStatusBadge(doc: PDFKit.PDFDocument, x: number, y: number, status: string) {
+    const color = this.statusColor(status);
+    doc.roundedRect(x, y, 98, 14, 3).fill(color.bg);
+    doc.fontSize(8).font('Helvetica-Bold').fillColor(color.fg).text(status.replace(/_/g, ' '), x + 5, y + 4, {
+      width: 88,
+      align: 'center',
+    });
+    doc.fillColor('#17231f').font('Helvetica');
+  }
+
+  private statusColor(status: string) {
+    const normalized = status.toUpperCase();
+    if (['PAID', 'COMPLETED', 'CONFIRMED'].includes(normalized)) return { bg: '#e7f6ec', fg: '#1f6f3f' };
+    if (['PARTIAL', 'PROCESSING', 'RELEASED', 'IN_PROGRESS'].includes(normalized)) return { bg: '#fff4e8', fg: '#9a4f12' };
+    if (['OVERDUE', 'CANCELLED'].includes(normalized)) return { bg: '#fde8e8', fg: '#b42318' };
+    return { bg: '#f1ede7', fg: '#51483e' };
+  }
+
+  private drawAmountWords(doc: PDFKit.PDFDocument, amount: number) {
+    const y = doc.y < 705 ? 705 : doc.y + 10;
+    if (y > 730) return;
+    doc.fontSize(8).font('Helvetica-Bold').fillColor('#17231f').text('Amount in words', 40, y, { width: 285 });
+    doc.font('Helvetica').fillColor('#66736b').text(`${this.amountInWords(amount)} only`, 40, y + 13, { width: 285 });
+    doc.fillColor('#17231f');
+  }
+
+  private drawFooter(doc: PDFKit.PDFDocument, companyName: string, message = 'This is a system-generated document.') {
+    doc.moveTo(40, 760).lineTo(555, 760).strokeColor('#d7d0c3').stroke();
+    doc.fontSize(8).font('Helvetica').fillColor('#66736b');
+    doc.text(message, 40, 768, { width: 250 });
+    doc.text(companyName, 305, 768, { width: 250, align: 'right' });
+    doc.fillColor('#17231f');
+  }
+
   private getTaxSplit(taxAmount: number) {
     return {
       cgst: taxAmount / 2,
@@ -771,6 +827,46 @@ export class DocumentsService {
 
   private money(value: number) {
     return `INR ${Number(value || 0).toFixed(2)}`;
+  }
+
+  private amountInWords(value: number) {
+    const rupees = Math.floor(Number(value || 0));
+    if (rupees === 0) return 'Zero rupees';
+
+    const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+    const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+    const underHundred = (num: number) => {
+      if (num < 20) return ones[num];
+      return [tens[Math.floor(num / 10)], ones[num % 10]].filter(Boolean).join(' ');
+    };
+
+    const underThousand = (num: number) => {
+      const hundred = Math.floor(num / 100);
+      const rest = num % 100;
+      return [
+        hundred ? `${ones[hundred]} hundred` : '',
+        rest ? underHundred(rest) : '',
+      ].filter(Boolean).join(' ');
+    };
+
+    const parts = [
+      { value: 10000000, label: 'crore' },
+      { value: 100000, label: 'lakh' },
+      { value: 1000, label: 'thousand' },
+    ];
+
+    let remaining = rupees;
+    const words: string[] = [];
+    for (const part of parts) {
+      const count = Math.floor(remaining / part.value);
+      if (count) {
+        words.push(`${underThousand(count)} ${part.label}`);
+        remaining %= part.value;
+      }
+    }
+    if (remaining) words.push(underThousand(remaining));
+    return `${words.join(' ')} rupees`.replace(/\b\w/g, char => char.toUpperCase());
   }
 
   private formatQuantity(value: number) {
