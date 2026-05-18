@@ -87,25 +87,34 @@ export class PurchaseOrdersController {
   async update(
     @Param('id') id: string,
     @GetTenantId() tenantId: string,
+    @GetUser('id') userId: string,
     @Body() updatePoDto: UpdatePurchaseOrderDto,
   ) {
-    return this.purchaseOrdersService.update(id, tenantId, updatePoDto);
+    return this.purchaseOrdersService.update(id, tenantId, updatePoDto, userId);
   }
 
   @Post(':id/approve')
   @Roles('OWNER', 'MANAGER')
   @ApiOperation({ summary: 'Approve purchase order' })
   @ApiResponse({ status: 200, description: 'Purchase order approved successfully' })
-  async approve(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.purchaseOrdersService.approve(id, tenantId);
+  async approve(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @GetUser('id') userId: string,
+  ) {
+    return this.purchaseOrdersService.approve(id, tenantId, userId);
   }
 
   @Post(':id/cancel')
   @Roles('OWNER', 'MANAGER')
   @ApiOperation({ summary: 'Cancel purchase order' })
   @ApiResponse({ status: 200, description: 'Purchase order cancelled successfully' })
-  async cancel(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.purchaseOrdersService.cancel(id, tenantId);
+  async cancel(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @GetUser('id') userId: string,
+  ) {
+    return this.purchaseOrdersService.cancel(id, tenantId, userId);
   }
 
   @Delete(':id')

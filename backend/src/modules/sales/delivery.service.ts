@@ -8,10 +8,14 @@ import { CreateDeliveryNoteDto } from './dto/delivery-invoice.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { OrderStatus, MovementType } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class DeliveryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditService: AuditService,
+  ) {}
 
   async create(tenantId: string, userId: string, createDeliveryDto: CreateDeliveryNoteDto) {
     // Verify SO exists and belongs to tenant
@@ -144,7 +148,7 @@ export class DeliveryService {
       .padStart(4, '0')}`;
 
     // Create delivery and update stock in transaction
-    return this.prisma.$transaction(async tx => {
+    const result = await this.prisma.$transaction(async tx => {
       // Create delivery note
       const delivery = await tx.deliveryNote.create({
         data: {
@@ -320,6 +324,20 @@ export class DeliveryService {
         message: `Delivery ${deliveryNumber} created successfully. Stock updated for ${createDeliveryDto.items.length} products.`,
       };
     });
+
+    await this.auditService.record(tenantId, userId, {
+      action: 'CREATE',
+      entity: 'DeliveryNote',
+      entityId: result.delivery.id,
+      changes: {
+        deliveryNumber: result.delivery.deliveryNumber,
+        salesOrderId: result.delivery.salesOrderId,
+        warehouseId: result.delivery.warehouseId,
+        itemCount: createDeliveryDto.items.length,
+      },
+    });
+
+    return result;
   }
 
   async findAll(tenantId: string, paginationDto: PaginationDto) {

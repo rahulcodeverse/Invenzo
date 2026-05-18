@@ -10,12 +10,14 @@ import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { SkuGenerator } from '../../common/utils/sku-generator.helper';
 import { InventoryService } from '../inventory/inventory.service';
 import { OrderStatus, MovementType } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class GrnService {
   constructor(
     private prisma: PrismaService,
     private inventoryService: InventoryService,
+    private auditService: AuditService,
   ) {}
 
   async create(tenantId: string, userId: string, createGrnDto: CreateGrnDto) {
@@ -82,7 +84,7 @@ export class GrnService {
     const grnNumber = SkuGenerator.generateGrnNumber(count + 1);
 
     // Create GRN and update stock in transaction
-    return this.prisma.$transaction(async tx => {
+    const result = await this.prisma.$transaction(async tx => {
       // Create GRN
       const grn = await tx.goodsReceivedNote.create({
         data: {
@@ -229,6 +231,20 @@ export class GrnService {
         message: `GRN ${grnNumber} created successfully. Stock updated for ${createGrnDto.items.length} products.`,
       };
     });
+
+    await this.auditService.record(tenantId, userId, {
+      action: 'CREATE',
+      entity: 'GoodsReceivedNote',
+      entityId: result.grn.id,
+      changes: {
+        grnNumber: result.grn.grnNumber,
+        purchaseOrderId: result.grn.purchaseOrderId,
+        warehouseId: result.grn.warehouseId,
+        itemCount: createGrnDto.items.length,
+      },
+    });
+
+    return result;
   }
 
   async findAll(tenantId: string, paginationDto: PaginationDto) {

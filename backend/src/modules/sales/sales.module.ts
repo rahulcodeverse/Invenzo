@@ -14,9 +14,10 @@ import { SalesInvoicesService } from './sales-invoices.service';
 import { CustomerPaymentsService } from './customer-payments.service';
 import { DocumentsModule } from '../documents/documents.module';
 import { AccountingModule } from '../accounting/accounting.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [DocumentsModule, AccountingModule],
+  imports: [DocumentsModule, AccountingModule, AuditModule],
   controllers: [
     CustomersController,
     QuotationsController,

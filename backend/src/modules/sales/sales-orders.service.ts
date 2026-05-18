@@ -9,10 +9,14 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { SkuGenerator } from '../../common/utils/sku-generator.helper';
 import { OrderStatus } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class SalesOrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditService: AuditService,
+  ) {}
 
   async create(tenantId: string, userId: string, createSoDto: CreateSalesOrderDto) {
     // Verify customer exists
@@ -101,7 +105,7 @@ export class SalesOrdersService {
     const total = subtotal + taxAmount - discount;
 
     // Create SO with items in transaction
-    return this.prisma.$transaction(async tx => {
+    const salesOrder = await this.prisma.$transaction(async tx => {
       const salesOrder = await tx.salesOrder.create({
         data: {
           tenantId,
@@ -148,6 +152,19 @@ export class SalesOrdersService {
 
       return salesOrder;
     });
+
+    await this.auditService.record(tenantId, userId, {
+      action: 'CREATE',
+      entity: 'SalesOrder',
+      entityId: salesOrder.id,
+      changes: {
+        soNumber: salesOrder.soNumber,
+        customerId: salesOrder.customerId,
+        total: Number(salesOrder.total),
+      },
+    });
+
+    return salesOrder;
   }
 
   async findAll(tenantId: string, paginationDto: PaginationDto) {
@@ -254,7 +271,7 @@ export class SalesOrdersService {
     return salesOrder;
   }
 
-  async update(id: string, tenantId: string, updateSoDto: UpdateSalesOrderDto) {
+  async update(id: string, tenantId: string, updateSoDto: UpdateSalesOrderDto, userId?: string) {
     const existing = await this.findOne(id, tenantId);
 
     // Check if SO can be updated
@@ -290,7 +307,7 @@ export class SalesOrdersService {
       const discount = updateSoDto.discount !== undefined ? updateSoDto.discount : existing.discount;
       const total = subtotal + taxAmount - Number(discount);
 
-      return this.prisma.$transaction(async tx => {
+      const updated = await this.prisma.$transaction(async tx => {
         // Delete existing items
         await tx.salesOrderItem.deleteMany({
           where: { salesOrderId: id },
@@ -328,10 +345,21 @@ export class SalesOrdersService {
           },
         });
       });
+
+      if (userId) {
+        await this.auditService.record(tenantId, userId, {
+          action: 'UPDATE',
+          entity: 'SalesOrder',
+          entityId: id,
+          changes: { beforeStatus: existing.status, afterStatus: updated.status },
+        });
+      }
+
+      return updated;
     }
 
     // Simple update without items
-    return this.prisma.salesOrder.update({
+    const updated = await this.prisma.salesOrder.update({
       where: { id },
       data: {
         customerId: updateSoDto.customerId,
@@ -349,9 +377,20 @@ export class SalesOrdersService {
         },
       },
     });
+
+    if (userId) {
+      await this.auditService.record(tenantId, userId, {
+        action: 'UPDATE',
+        entity: 'SalesOrder',
+        entityId: id,
+        changes: { beforeStatus: existing.status, afterStatus: updated.status },
+      });
+    }
+
+    return updated;
   }
 
-  async confirm(id: string, tenantId: string) {
+  async confirm(id: string, tenantId: string, userId?: string) {
     const so = await this.findOne(id, tenantId);
 
     if (so.status !== OrderStatus.DRAFT) {
@@ -376,7 +415,7 @@ export class SalesOrdersService {
       }
     }
 
-    return this.prisma.salesOrder.update({
+    const updated = await this.prisma.salesOrder.update({
       where: { id },
       data: {
         status: OrderStatus.CONFIRMED,
@@ -390,9 +429,20 @@ export class SalesOrdersService {
         },
       },
     });
+
+    if (userId) {
+      await this.auditService.record(tenantId, userId, {
+        action: 'CONFIRM',
+        entity: 'SalesOrder',
+        entityId: id,
+        changes: { beforeStatus: so.status, afterStatus: updated.status },
+      });
+    }
+
+    return updated;
   }
 
-  async cancel(id: string, tenantId: string) {
+  async cancel(id: string, tenantId: string, userId?: string) {
     const so = await this.findOne(id, tenantId);
 
     if (so.status === OrderStatus.COMPLETED) {
@@ -404,12 +454,23 @@ export class SalesOrdersService {
       throw new BadRequestException('Cannot cancel sales order with deliveries');
     }
 
-    return this.prisma.salesOrder.update({
+    const updated = await this.prisma.salesOrder.update({
       where: { id },
       data: {
         status: OrderStatus.CANCELLED,
       },
     });
+
+    if (userId) {
+      await this.auditService.record(tenantId, userId, {
+        action: 'CANCEL',
+        entity: 'SalesOrder',
+        entityId: id,
+        changes: { beforeStatus: so.status, afterStatus: updated.status },
+      });
+    }
+
+    return updated;
   }
 
   async remove(id: string, tenantId: string) {

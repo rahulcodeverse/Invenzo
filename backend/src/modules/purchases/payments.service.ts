@@ -9,12 +9,14 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { PaymentStatus } from '@prisma/client';
 import { JournalService } from '../accounting/journal.service';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class VendorPaymentsService {
   constructor(
     private prisma: PrismaService,
     private journalService: JournalService,
+    private auditService: AuditService,
   ) {}
 
   async create(tenantId: string, userId: string, createPaymentDto: CreateVendorPaymentDto) {
@@ -142,6 +144,18 @@ export class VendorPaymentsService {
       amount: Number(result.payment.amount),
       vendorName: vendor.name,
       method: result.payment.method,
+    });
+
+    await this.auditService.record(tenantId, userId, {
+      action: 'CREATE',
+      entity: 'VendorPayment',
+      entityId: result.payment.id,
+      changes: {
+        paymentNumber: result.payment.paymentNumber,
+        vendorId: result.payment.vendorId,
+        invoiceId: result.payment.invoiceId,
+        amount: Number(result.payment.amount),
+      },
     });
 
     return result;

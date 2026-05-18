@@ -124,7 +124,8 @@ export class MainLayoutComponent implements OnInit {
       children: [
         { title: 'Users', link: '/settings/users' },
         { title: 'Warehouses', link: '/settings/warehouses' },
-        { title: 'Company', link: '/settings/company' }
+        { title: 'Company', link: '/settings/company' },
+        { title: 'Audit Trail', link: '/settings/audit' }
       ]
     }
   ];

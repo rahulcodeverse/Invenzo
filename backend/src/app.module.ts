@@ -15,6 +15,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { ManufacturingModule } from './modules/manufacturing/manufacturing.module';
+import { AuditModule } from './modules/audit/audit.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -52,6 +53,7 @@ import { HealthController } from './health.controller';
     NotificationsModule,
     SettingsModule,
     ManufacturingModule,
+    AuditModule,
   ],
   controllers: [HealthController],
 })

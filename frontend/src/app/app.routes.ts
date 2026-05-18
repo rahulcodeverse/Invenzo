@@ -86,6 +86,12 @@ export const routes: Routes = [
                 .then(m => m.CompanySettingsComponent)
           },
           {
+            path: 'audit',
+            loadComponent: () =>
+              import('./features/settings/audit/audit-log.component')
+                .then(m => m.AuditLogComponent)
+          },
+          {
             path: '',
             redirectTo: 'users',
             pathMatch: 'full'

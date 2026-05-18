@@ -179,25 +179,34 @@ export class SalesOrdersController {
   update(
     @Param('id') id: string,
     @GetTenantId() tenantId: string,
+    @GetUser('id') userId: string,
     @Body() updateSoDto: UpdateSalesOrderDto,
   ) {
-    return this.salesOrdersService.update(id, tenantId, updateSoDto);
+    return this.salesOrdersService.update(id, tenantId, updateSoDto, userId);
   }
 
   @Post(':id/confirm')
   @Roles('OWNER', 'MANAGER')
   @ApiOperation({ summary: 'Confirm sales order' })
   @ApiResponse({ status: 200, description: 'Sales order confirmed successfully' })
-  confirm(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.salesOrdersService.confirm(id, tenantId);
+  confirm(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @GetUser('id') userId: string,
+  ) {
+    return this.salesOrdersService.confirm(id, tenantId, userId);
   }
 
   @Post(':id/cancel')
   @Roles('OWNER', 'MANAGER')
   @ApiOperation({ summary: 'Cancel sales order' })
   @ApiResponse({ status: 200, description: 'Sales order cancelled successfully' })
-  cancel(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.salesOrdersService.cancel(id, tenantId);
+  cancel(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @GetUser('id') userId: string,
+  ) {
+    return this.salesOrdersService.cancel(id, tenantId, userId);
   }
 
   @Delete(':id')

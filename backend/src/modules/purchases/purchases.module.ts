@@ -14,9 +14,10 @@ import { VendorPaymentsService } from './payments.service';
 import { InventoryModule } from '../inventory/inventory.module';
 import { DocumentsModule } from '../documents/documents.module';
 import { AccountingModule } from '../accounting/accounting.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [InventoryModule, DocumentsModule, AccountingModule],
+  imports: [InventoryModule, DocumentsModule, AccountingModule, AuditModule],
   controllers: [
     VendorsController,
     PurchaseOrdersController,

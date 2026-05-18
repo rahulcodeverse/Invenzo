@@ -9,10 +9,14 @@ import { CreatePurchaseOrderDto, UpdatePurchaseOrderDto, PurchaseOrderQueryDto }
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { SkuGenerator } from '../../common/utils/sku-generator.helper';
 import { OrderStatus } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class PurchaseOrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditService: AuditService,
+  ) {}
 
   async create(tenantId: string, userId: string, createPoDto: CreatePurchaseOrderDto) {
     // Verify vendor exists
@@ -66,7 +70,7 @@ export class PurchaseOrdersService {
     const total = subtotal + taxAmount - discount;
 
     // Create PO with items in transaction
-    return this.prisma.$transaction(async tx => {
+    const purchaseOrder = await this.prisma.$transaction(async tx => {
       const purchaseOrder = await tx.purchaseOrder.create({
         data: {
           tenantId,
@@ -112,6 +116,19 @@ export class PurchaseOrdersService {
 
       return purchaseOrder;
     });
+
+    await this.auditService.record(tenantId, userId, {
+      action: 'CREATE',
+      entity: 'PurchaseOrder',
+      entityId: purchaseOrder.id,
+      changes: {
+        poNumber: purchaseOrder.poNumber,
+        vendorId: purchaseOrder.vendorId,
+        total: Number(purchaseOrder.total),
+      },
+    });
+
+    return purchaseOrder;
   }
 
   async findAll(tenantId: string, paginationDto: PurchaseOrderQueryDto) {
@@ -204,7 +221,7 @@ export class PurchaseOrdersService {
     return purchaseOrder;
   }
 
-  async update(id: string, tenantId: string, updatePoDto: UpdatePurchaseOrderDto) {
+  async update(id: string, tenantId: string, updatePoDto: UpdatePurchaseOrderDto, userId?: string) {
     const existing = await this.findOne(id, tenantId);
 
     // Check if PO can be updated
@@ -238,7 +255,7 @@ export class PurchaseOrdersService {
       const discount = updatePoDto.discount !== undefined ? updatePoDto.discount : existing.discount;
       const total = subtotal + taxAmount - Number(discount);
 
-      return this.prisma.$transaction(async tx => {
+      const updated = await this.prisma.$transaction(async tx => {
         // Delete existing items
         await tx.purchaseOrderItem.deleteMany({
           where: { purchaseOrderId: id },
@@ -276,10 +293,21 @@ export class PurchaseOrdersService {
           },
         });
       });
+
+      if (userId) {
+        await this.auditService.record(tenantId, userId, {
+          action: 'UPDATE',
+          entity: 'PurchaseOrder',
+          entityId: id,
+          changes: { beforeStatus: existing.status, afterStatus: updated.status },
+        });
+      }
+
+      return updated;
     }
 
     // Simple update without items
-    return this.prisma.purchaseOrder.update({
+    const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: {
         vendorId: updatePoDto.vendorId,
@@ -297,16 +325,27 @@ export class PurchaseOrdersService {
         },
       },
     });
+
+    if (userId) {
+      await this.auditService.record(tenantId, userId, {
+        action: 'UPDATE',
+        entity: 'PurchaseOrder',
+        entityId: id,
+        changes: { beforeStatus: existing.status, afterStatus: updated.status },
+      });
+    }
+
+    return updated;
   }
 
-  async approve(id: string, tenantId: string) {
+  async approve(id: string, tenantId: string, userId?: string) {
     const po = await this.findOne(id, tenantId);
 
     if (po.status !== OrderStatus.DRAFT) {
       throw new BadRequestException('Only draft purchase orders can be approved');
     }
 
-    return this.prisma.purchaseOrder.update({
+    const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: {
         status: OrderStatus.CONFIRMED,
@@ -320,9 +359,20 @@ export class PurchaseOrdersService {
         },
       },
     });
+
+    if (userId) {
+      await this.auditService.record(tenantId, userId, {
+        action: 'APPROVE',
+        entity: 'PurchaseOrder',
+        entityId: id,
+        changes: { beforeStatus: po.status, afterStatus: updated.status },
+      });
+    }
+
+    return updated;
   }
 
-  async cancel(id: string, tenantId: string) {
+  async cancel(id: string, tenantId: string, userId?: string) {
     const po = await this.findOne(id, tenantId);
 
     if (po.status === OrderStatus.COMPLETED) {
@@ -334,12 +384,23 @@ export class PurchaseOrdersService {
       throw new BadRequestException('Cannot cancel purchase order with goods received');
     }
 
-    return this.prisma.purchaseOrder.update({
+    const updated = await this.prisma.purchaseOrder.update({
       where: { id },
       data: {
         status: OrderStatus.CANCELLED,
       },
     });
+
+    if (userId) {
+      await this.auditService.record(tenantId, userId, {
+        action: 'CANCEL',
+        entity: 'PurchaseOrder',
+        entityId: id,
+        changes: { beforeStatus: po.status, afterStatus: updated.status },
+      });
+    }
+
+    return updated;
   }
 
   async remove(id: string, tenantId: string) {
