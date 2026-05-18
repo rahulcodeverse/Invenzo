@@ -60,6 +60,16 @@ export class MainLayoutComponent implements OnInit {
       ]
     },
     {
+      title: 'Manufacturing',
+      icon: 'build',
+      roles: ['OWNER', 'MANAGER', 'STAFF'],
+      children: [
+        { title: 'Production', link: '/manufacturing' },
+        { title: 'BOMs', link: '/manufacturing/boms' },
+        { title: 'Work Orders', link: '/manufacturing/work-orders' }
+      ]
+    },
+    {
       title: 'Purchases',
       icon: 'shopping-cart',
       roles: ['OWNER', 'MANAGER', 'STAFF'],

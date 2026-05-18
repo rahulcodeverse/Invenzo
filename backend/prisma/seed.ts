@@ -11,6 +11,7 @@ import {
   PrismaClient,
   UserRole,
   UserStatus,
+  WorkOrderStatus,
 } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -357,6 +358,93 @@ async function main() {
       }),
     ),
   );
+
+  const laptopBom = await prisma.billOfMaterial.create({
+    data: {
+      tenantId: tenant.id,
+      bomNumber: 'BOM-2026-0001',
+      productId: bySku['INV-LAP-14PRO'].id,
+      name: 'OpsBook 14 Pro Final Assembly',
+      version: '1.0',
+      outputQty: 1,
+      createdBy: owner.id,
+      notes: 'Demo BOM for TranZact-style production planning',
+      items: {
+        create: [
+          {
+            materialId: bySku['INV-BATT-14'].id,
+            quantity: 1,
+            wastagePercent: 2,
+            notes: 'Battery pack issued during assembly',
+          },
+          {
+            materialId: bySku['SHIP-CARTON-M'].id,
+            quantity: 1,
+            wastagePercent: 1,
+            notes: 'Finished goods packaging',
+          },
+          {
+            materialId: bySku['THERMAL-LABEL'].id,
+            quantity: 0.05,
+            wastagePercent: 0,
+            notes: 'Shipping label consumption per unit',
+          },
+        ],
+      },
+      routingSteps: {
+        create: [
+          {
+            sequence: 1,
+            processName: 'Kitting',
+            workCenter: 'Mumbai Assembly Store',
+            estimatedMinutes: 20,
+            instructions: 'Pick battery, carton, label, and finished device kit.',
+          },
+          {
+            sequence: 2,
+            processName: 'Final QA',
+            workCenter: 'Quality Bench',
+            estimatedMinutes: 35,
+            instructions: 'Run power, display, port, and packaging checklist.',
+          },
+          {
+            sequence: 3,
+            processName: 'Packing',
+            workCenter: 'Dispatch Line',
+            estimatedMinutes: 15,
+            instructions: 'Pack, label, and move finished goods to dispatch-ready stock.',
+          },
+        ],
+      },
+    },
+    include: { items: true },
+  });
+
+  await prisma.workOrder.create({
+    data: {
+      tenantId: tenant.id,
+      workOrderNumber: 'WO-2026-0001',
+      bomId: laptopBom.id,
+      productId: bySku['INV-LAP-14PRO'].id,
+      warehouseId: mainWarehouse.id,
+      plannedQty: 10,
+      producedQty: 6,
+      rejectedQty: 1,
+      status: WorkOrderStatus.IN_PROGRESS,
+      plannedStart: daysFromNow(-2),
+      dueDate: daysFromNow(4),
+      createdBy: owner.id,
+      notes: 'Demo work order showing WIP and rejection tracking',
+      materials: {
+        create: laptopBom.items.map(item => ({
+          productId: item.materialId,
+          plannedQty: Number(item.quantity) * 10 * (1 + Number(item.wastagePercent) / 100),
+          issuedQty: Number(item.quantity) * 6,
+          consumedQty: Number(item.quantity) * 5,
+        })),
+      },
+    },
+  });
 
   const [vendorA, vendorB, vendorC] = await Promise.all([
     prisma.vendor.create({

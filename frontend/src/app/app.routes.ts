@@ -286,6 +286,29 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'manufacturing',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/manufacturing/production-dashboard.component')
+                .then(m => m.ProductionDashboardComponent)
+          },
+          {
+            path: 'boms',
+            loadComponent: () =>
+              import('./features/manufacturing/bom-list.component')
+                .then(m => m.BomListComponent)
+          },
+          {
+            path: 'work-orders',
+            loadComponent: () =>
+              import('./features/manufacturing/work-order-list.component')
+                .then(m => m.WorkOrderListComponent)
+          }
+        ]
+      },
+      {
         path: 'accounting',
         children: [
           {

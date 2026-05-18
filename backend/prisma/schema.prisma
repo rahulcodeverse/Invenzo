@@ -41,6 +41,8 @@ model Tenant {
   companySettings CompanySettings?
   auditLogs      AuditLog[]
   notifications  Notification[]
+  billOfMaterials BillOfMaterial[]
+  workOrders      WorkOrder[]
 
   @@index([email])
   @@map("tenants")
@@ -116,6 +118,7 @@ model Warehouse {
   movements     StockMovement[]
   grns          GoodsReceivedNote[]
   deliveryNotes DeliveryNote[]
+  workOrders    WorkOrder[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -220,6 +223,10 @@ model Product {
   purchaseItems   PurchaseOrderItem[]
   salesItems      SalesOrderItem[]
   grnItems        GoodsReceivedItem[]
+  finishedBoms    BillOfMaterial[] @relation("BomFinishedProduct")
+  bomMaterials    BomItem[]        @relation("BomMaterial")
+  workOrders      WorkOrder[]      @relation("WorkOrderProduct")
+  workOrderMaterials WorkOrderMaterial[]
 
   @@index([tenantId])
   @@index([sku])
@@ -335,6 +342,132 @@ model StockMovement {
   @@index([productId])
   @@index([createdAt])
   @@map("stock_movements")
+}
+
+// ============================================
+// MANUFACTURING & PRODUCTION
+// ============================================
+
+enum WorkOrderStatus {
+  PLANNED
+  RELEASED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model BillOfMaterial {
+  id          String   @id @default(uuid())
+  tenantId    String
+  bomNumber   String   @unique
+  productId   String
+  name        String
+  version     String   @default("1.0")
+  outputQty   Decimal  @default(1) @db.Decimal(10, 2)
+  notes       String?
+  isActive    Boolean  @default(true)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product      Product       @relation("BomFinishedProduct", fields: [productId], references: [id])
+  items        BomItem[]
+  routingSteps RoutingStep[]
+  workOrders   WorkOrder[]
+
+  @@index([tenantId])
+  @@index([productId])
+  @@index([bomNumber])
+  @@map("bill_of_materials")
+}
+
+model BomItem {
+  id             String   @id @default(uuid())
+  bomId          String
+  materialId     String
+  quantity       Decimal  @db.Decimal(10, 3)
+  wastagePercent Decimal  @default(0) @db.Decimal(5, 2)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  bom      BillOfMaterial @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  material Product        @relation("BomMaterial", fields: [materialId], references: [id])
+
+  @@index([bomId])
+  @@index([materialId])
+  @@map("bom_items")
+}
+
+model RoutingStep {
+  id               String   @id @default(uuid())
+  bomId            String
+  sequence         Int
+  processName      String
+  workCenter       String?
+  estimatedMinutes Int?
+  instructions     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  bom BillOfMaterial @relation(fields: [bomId], references: [id], onDelete: Cascade)
+
+  @@index([bomId])
+  @@map("routing_steps")
+}
+
+model WorkOrder {
+  id              String          @id @default(uuid())
+  tenantId        String
+  workOrderNumber String          @unique
+  bomId           String
+  productId       String
+  warehouseId     String
+  salesOrderId    String?
+  plannedQty      Decimal         @db.Decimal(10, 2)
+  producedQty     Decimal         @default(0) @db.Decimal(10, 2)
+  rejectedQty     Decimal         @default(0) @db.Decimal(10, 2)
+  status          WorkOrderStatus @default(PLANNED)
+  plannedStart    DateTime?
+  dueDate         DateTime?
+  completedAt     DateTime?
+  notes           String?
+  createdBy       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  tenant    Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  bom       BillOfMaterial      @relation(fields: [bomId], references: [id])
+  product   Product             @relation("WorkOrderProduct", fields: [productId], references: [id])
+  warehouse Warehouse           @relation(fields: [warehouseId], references: [id])
+  materials WorkOrderMaterial[]
+
+  @@index([tenantId])
+  @@index([workOrderNumber])
+  @@index([bomId])
+  @@index([productId])
+  @@index([warehouseId])
+  @@index([status])
+  @@map("work_orders")
+}
+
+model WorkOrderMaterial {
+  id          String   @id @default(uuid())
+  workOrderId String
+  productId   String
+  plannedQty  Decimal  @db.Decimal(10, 3)
+  issuedQty   Decimal  @default(0) @db.Decimal(10, 3)
+  consumedQty Decimal  @default(0) @db.Decimal(10, 3)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@index([workOrderId])
+  @@index([productId])
+  @@map("work_order_materials")
 }
 
 // ============================================
