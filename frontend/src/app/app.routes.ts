@@ -307,6 +307,18 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./features/manufacturing/work-order-list.component')
                 .then(m => m.WorkOrderListComponent)
+          },
+          {
+            path: 'mrp',
+            loadComponent: () =>
+              import('./features/manufacturing/mrp-planning.component')
+                .then(m => m.MrpPlanningComponent)
+          },
+          {
+            path: 'indents',
+            loadComponent: () =>
+              import('./features/manufacturing/purchase-indent-list.component')
+                .then(m => m.PurchaseIndentListComponent)
           }
         ]
       },

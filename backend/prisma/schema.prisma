@@ -43,6 +43,7 @@ model Tenant {
   notifications  Notification[]
   billOfMaterials BillOfMaterial[]
   workOrders      WorkOrder[]
+  purchaseIndents PurchaseIndent[]
 
   @@index([email])
   @@map("tenants")
@@ -227,6 +228,7 @@ model Product {
   bomMaterials    BomItem[]        @relation("BomMaterial")
   workOrders      WorkOrder[]      @relation("WorkOrderProduct")
   workOrderMaterials WorkOrderMaterial[]
+  purchaseIndents PurchaseIndent[]
 
   @@index([tenantId])
   @@index([sku])
@@ -468,6 +470,41 @@ model WorkOrderMaterial {
   @@index([workOrderId])
   @@index([productId])
   @@map("work_order_materials")
+}
+
+enum PurchaseIndentStatus {
+  OPEN
+  APPROVED
+  CONVERTED
+  CANCELLED
+}
+
+model PurchaseIndent {
+  id               String               @id @default(uuid())
+  tenantId         String
+  indentNumber     String               @unique
+  productId        String
+  requiredQty      Decimal              @db.Decimal(10, 3)
+  availableQty     Decimal              @default(0) @db.Decimal(10, 3)
+  shortageQty      Decimal              @db.Decimal(10, 3)
+  sourceType       String
+  sourceId         String?
+  sourceReference  String?
+  requiredBy       DateTime?
+  status           PurchaseIndentStatus @default(OPEN)
+  notes            String?
+  createdBy        String
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([tenantId])
+  @@index([productId])
+  @@index([indentNumber])
+  @@index([status])
+  @@map("purchase_indents")
 }
 
 // ============================================

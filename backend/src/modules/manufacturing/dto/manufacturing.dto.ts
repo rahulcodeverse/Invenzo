@@ -13,7 +13,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { WorkOrderStatus } from '@prisma/client';
+import { PurchaseIndentStatus, WorkOrderStatus } from '@prisma/client';
 
 export class BomItemDto {
   @ApiProperty({ example: 'uuid-of-raw-material' })
@@ -190,6 +190,32 @@ export class UpdateWorkOrderDto {
   rejectedQty?: number;
 
   @ApiPropertyOptional({ example: 'Production completed with minor rejection' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+export class MrpQueryDto {
+  @ApiPropertyOptional({ example: '2026-06-15' })
+  @IsOptional()
+  @IsDateString()
+  requiredBy?: string;
+}
+
+export class CreatePurchaseIndentsDto {
+  @ApiPropertyOptional({ example: '2026-06-15' })
+  @IsOptional()
+  @IsDateString()
+  requiredBy?: string;
+}
+
+export class UpdatePurchaseIndentDto {
+  @ApiPropertyOptional({ enum: PurchaseIndentStatus })
+  @IsOptional()
+  @IsEnum(PurchaseIndentStatus)
+  status?: PurchaseIndentStatus;
+
+  @ApiPropertyOptional({ example: 'Approved for next procurement cycle' })
   @IsOptional()
   @IsString()
   notes?: string;

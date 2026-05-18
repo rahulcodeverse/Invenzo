@@ -55,6 +55,9 @@ import { ManufacturingService } from './services/manufacturing.service';
       <div nz-col [nzXs]="24" [nzMd]="6">
         <nz-card><nz-statistic nzTitle="Completed" [nzValue]="summary.completed || 0" [nzValueStyle]="{ color: '#9a4f12' }"></nz-statistic></nz-card>
       </div>
+      <div nz-col [nzXs]="24" [nzMd]="6">
+        <nz-card><nz-statistic nzTitle="Open Indents" [nzValue]="summary.openIndents || 0" [nzValueStyle]="{ color: '#c56a1a' }"></nz-statistic></nz-card>
+      </div>
     </div>
 
     <div nz-row [nzGutter]="16">

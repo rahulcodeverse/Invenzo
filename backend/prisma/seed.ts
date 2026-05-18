@@ -8,6 +8,7 @@ import {
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
+  PurchaseIndentStatus,
   PrismaClient,
   UserRole,
   UserStatus,
@@ -50,6 +51,7 @@ async function clearDemoData(tenantId: string) {
   await prisma.quotation.deleteMany({ where: { tenantId } });
   await prisma.purchaseOrderItem.deleteMany({ where: { purchaseOrder: { tenantId } } });
   await prisma.purchaseOrder.deleteMany({ where: { tenantId } });
+  await prisma.purchaseIndent.deleteMany({ where: { tenantId } });
   await prisma.workOrderMaterial.deleteMany({ where: { workOrder: { tenantId } } });
   await prisma.workOrder.deleteMany({ where: { tenantId } });
   await prisma.routingStep.deleteMany({ where: { bom: { tenantId } } });
@@ -720,6 +722,39 @@ async function main() {
     ['SHIP-CARTON-M', 100, 410],
     ['THERMAL-LABEL', 80, 250],
   ]);
+
+  await prisma.purchaseIndent.createMany({
+    data: [
+      {
+        tenantId: tenant.id,
+        indentNumber: 'IND-2026-0001',
+        productId: bySku['INV-BATT-14'].id,
+        requiredQty: 30,
+        availableQty: 7,
+        shortageQty: 23,
+        sourceType: 'MRP',
+        sourceReference: 'SO-2026-0002 / BOM-2026-0001',
+        requiredBy: daysFromNow(7),
+        status: PurchaseIndentStatus.OPEN,
+        notes: 'MRP shortage for upcoming assembly demand',
+        createdBy: owner.id,
+      },
+      {
+        tenantId: tenant.id,
+        indentNumber: 'IND-2026-0002',
+        productId: bySku['THERMAL-LABEL'].id,
+        requiredQty: 20,
+        availableQty: 12,
+        shortageQty: 8,
+        sourceType: 'MRP',
+        sourceReference: 'Packaging reorder plan',
+        requiredBy: daysFromNow(5),
+        status: PurchaseIndentStatus.APPROVED,
+        notes: 'Approved replenishment indent for packaging labels',
+        createdBy: owner.id,
+      },
+    ],
+  });
 
   const grn1 = await prisma.goodsReceivedNote.create({
     data: {

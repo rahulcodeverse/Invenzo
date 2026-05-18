@@ -65,6 +65,8 @@ export class MainLayoutComponent implements OnInit {
       roles: ['OWNER', 'MANAGER', 'STAFF'],
       children: [
         { title: 'Production', link: '/manufacturing' },
+        { title: 'MRP Planning', link: '/manufacturing/mrp' },
+        { title: 'Purchase Indents', link: '/manufacturing/indents' },
         { title: 'BOMs', link: '/manufacturing/boms' },
         { title: 'Work Orders', link: '/manufacturing/work-orders' }
       ]

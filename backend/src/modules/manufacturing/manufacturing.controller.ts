@@ -7,7 +7,15 @@ import { GetTenantId } from '../../common/decorators/get-tenant.decorator';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { ManufacturingService } from './manufacturing.service';
-import { CreateBomDto, CreateWorkOrderDto, UpdateBomDto, UpdateWorkOrderDto } from './dto/manufacturing.dto';
+import {
+  CreateBomDto,
+  CreatePurchaseIndentsDto,
+  CreateWorkOrderDto,
+  MrpQueryDto,
+  UpdateBomDto,
+  UpdatePurchaseIndentDto,
+  UpdateWorkOrderDto,
+} from './dto/manufacturing.dto';
 
 @ApiTags('manufacturing')
 @ApiBearerAuth()
@@ -20,6 +28,40 @@ export class ManufacturingController {
   @ApiOperation({ summary: 'Get production summary' })
   summary(@GetTenantId() tenantId: string) {
     return this.manufacturingService.getProductionSummary(tenantId);
+  }
+
+  @Get('mrp')
+  @ApiOperation({ summary: 'Calculate material requirements from sales orders and BOMs' })
+  calculateMrp(@GetTenantId() tenantId: string, @Query() query: MrpQueryDto) {
+    return this.manufacturingService.calculateMrp(tenantId, query.requiredBy);
+  }
+
+  @Get('indents')
+  @ApiOperation({ summary: 'List purchase indents generated from MRP' })
+  findPurchaseIndents(@GetTenantId() tenantId: string, @Query() pagination: PaginationDto) {
+    return this.manufacturingService.findPurchaseIndents(tenantId, pagination);
+  }
+
+  @Post('indents/generate')
+  @Roles('OWNER', 'MANAGER')
+  @ApiOperation({ summary: 'Generate purchase indents from current MRP shortages' })
+  generatePurchaseIndents(
+    @GetTenantId() tenantId: string,
+    @GetUser('id') userId: string,
+    @Body() dto: CreatePurchaseIndentsDto,
+  ) {
+    return this.manufacturingService.createPurchaseIndentsFromMrp(tenantId, userId, dto);
+  }
+
+  @Patch('indents/:id')
+  @Roles('OWNER', 'MANAGER')
+  @ApiOperation({ summary: 'Update purchase indent status' })
+  updatePurchaseIndent(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Body() dto: UpdatePurchaseIndentDto,
+  ) {
+    return this.manufacturingService.updatePurchaseIndent(id, tenantId, dto);
   }
 
   @Post('boms')
