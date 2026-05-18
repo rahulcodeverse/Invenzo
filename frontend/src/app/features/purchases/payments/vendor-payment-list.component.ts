@@ -46,6 +46,7 @@ import { VendorPayment } from '../models/purchases.model';
             <th nzAlign="right">Amount</th>
             <th>Method</th>
             <th>Reference</th>
+            <th nzAlign="center" nzWidth="80px">Receipt</th>
           </tr>
         </thead>
         <tbody>
@@ -56,6 +57,11 @@ import { VendorPayment } from '../models/purchases.model';
             <td nzAlign="right" style="color:#9a4f12;font-weight:600">{{ pay.amount | number:'1.2-2' }}</td>
             <td><nz-tag>{{ pay.method }}</nz-tag></td>
             <td>{{ pay.reference || '-' }}</td>
+            <td nzAlign="center">
+              <button nz-button nzSize="small" (click)="downloadReceipt(pay)">
+                <span nz-icon nzType="download"></span>
+              </button>
+            </td>
           </tr>
         </tbody>
       </nz-table>
@@ -182,5 +188,24 @@ export class VendorPaymentListComponent implements OnInit {
       next: () => { this.message.success('Payment recorded'); this.modalVisible = false; this.loadData(); this.saving = false; },
       error: (e) => { this.message.error(e.error?.message ?? 'Failed'); this.saving = false; }
     });
+  }
+
+  downloadReceipt(payment: VendorPayment): void {
+    this.service.downloadVendorPaymentPdf(payment.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `vendor-payment-${payment.paymentNumber}.pdf`);
+        this.message.success('Payment receipt downloaded');
+      },
+      error: () => this.message.error('Unable to download payment receipt')
+    });
+  }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

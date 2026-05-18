@@ -158,6 +158,10 @@ export class SalesService {
       .pipe(map(res => ({ ...res, data: this.normalizeOrder(res.data) })));
   }
 
+  downloadSalesOrderPdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/sales/orders/${id}/pdf`, { responseType: 'blob' });
+  }
+
   createSalesOrder(order: Partial<SalesOrder>): Observable<ApiResponse<SalesOrder>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/sales/orders`, {
       ...order,
@@ -252,6 +256,10 @@ export class SalesService {
       ...payment,
       method: (payment as any).method ?? (payment as any).paymentMethod
     }).pipe(map(res => ({ ...res, data: this.normalizePayment(res.data?.payment ?? res.data) })));
+  }
+
+  downloadCustomerPaymentPdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/sales/payment/${id}/pdf`, { responseType: 'blob' });
   }
 }
 

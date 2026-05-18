@@ -93,7 +93,7 @@ export class MainLayoutComponent implements OnInit {
         { title: 'Sales Orders', link: '/sales/orders' },
         { title: 'Delivery Notes', link: '/sales/delivery' },
         { title: 'Invoices', link: '/sales/invoices' },
-        { title: 'Payments', link: '/sales/payments/new' }
+        { title: 'Payments', link: '/sales/payments' }
       ]
     },
     {

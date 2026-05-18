@@ -50,7 +50,7 @@ import { GoodsReceivedNote } from '../models/purchases.model';
             <th>Warehouse</th>
             <th>Received Date</th>
             <th nzAlign="center">Items</th>
-            <th nzAlign="center" nzWidth="80px">Actions</th>
+            <th nzAlign="center" nzWidth="120px">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -62,9 +62,14 @@ import { GoodsReceivedNote } from '../models/purchases.model';
             <td>{{ grn.receivedDate | date:'dd MMM yyyy' }}</td>
             <td nzAlign="center"><nz-tag>{{ grn.items?.length || 0 }} items</nz-tag></td>
             <td nzAlign="center">
-              <button nz-button nzType="default" nzSize="small" (click)="viewGrn(grn)">
-                <span nz-icon nzType="eye"></span>
-              </button>
+              <nz-space>
+                <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="viewGrn(grn)">
+                  <span nz-icon nzType="eye"></span>
+                </button>
+                <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="downloadPdf(grn)">
+                  <span nz-icon nzType="download"></span>
+                </button>
+              </nz-space>
             </td>
           </tr>
         </tbody>
@@ -227,6 +232,16 @@ export class GrnListComponent implements OnInit {
     this.message.info(`GRN ${grn.grnNumber} - ${grn.items?.length ?? 0} items received`);
   }
 
+  downloadPdf(grn: any) {
+    this.service.downloadGrnPdf(grn.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `grn-${grn.grnNumber}.pdf`);
+        this.message.success('GRN PDF downloaded');
+      },
+      error: () => this.message.error('Unable to download GRN PDF')
+    });
+  }
+
   submitGRN() {
     if (this.grnForm.invalid) return;
     this.saving = true;
@@ -234,5 +249,14 @@ export class GrnListComponent implements OnInit {
       next: () => { this.message.success('GRN created and stock updated'); this.modalVisible = false; this.loadData(); this.saving = false; },
       error: (e) => { this.message.error(e.error?.message ?? 'Failed'); this.saving = false; }
     });
+  }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

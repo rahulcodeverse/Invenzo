@@ -31,7 +31,10 @@ import { DocumentsService } from '../documents/documents.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('purchases/grn')
 export class GrnController {
-  constructor(private readonly grnService: GrnService) {}
+  constructor(
+    private readonly grnService: GrnService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'STAFF')
@@ -50,6 +53,22 @@ export class GrnController {
   @ApiResponse({ status: 200, description: 'GRNs retrieved successfully' })
   findAll(@GetTenantId() tenantId: string, @Query() paginationDto: PaginationDto) {
     return this.grnService.findAll(tenantId, paginationDto);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download GRN PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createGrnPdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="grn-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 
   @Get(':id')
@@ -132,7 +151,10 @@ export class PurchaseInvoicesController {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('purchases/payment')
 export class VendorPaymentsController {
-  constructor(private readonly paymentsService: VendorPaymentsService) {}
+  constructor(
+    private readonly paymentsService: VendorPaymentsService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
@@ -158,6 +180,22 @@ export class VendorPaymentsController {
   @ApiResponse({ status: 200, description: 'Payment history retrieved successfully' })
   getVendorHistory(@Param('vendorId') vendorId: string, @GetTenantId() tenantId: string) {
     return this.paymentsService.getVendorPaymentHistory(vendorId, tenantId);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download vendor payment receipt PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createVendorPaymentReceiptPdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="vendor-payment-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 
   @Get(':id')

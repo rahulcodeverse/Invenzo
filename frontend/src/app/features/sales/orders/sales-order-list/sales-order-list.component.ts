@@ -106,6 +106,9 @@ import { debounceTime, Subject } from 'rxjs';
                 <button *nzSpaceItem nz-button nzSize="small" (click)="viewOrder(order)">
                   <span nz-icon nzType="eye"></span>
                 </button>
+                <button *nzSpaceItem nz-button nzSize="small" (click)="downloadPdf(order)">
+                  <span nz-icon nzType="download"></span>
+                </button>
                 <ng-container *ngIf="order.status === 'DRAFT'">
                   <button *nzSpaceItem nz-button nzSize="small" nzType="primary" (click)="confirmOrder(order)">
                     <span nz-icon nzType="check"></span> Confirm
@@ -232,6 +235,25 @@ export class SalesOrderListComponent implements OnInit {
 
   createDelivery(order: SalesOrder): void {
     this.router.navigate(['/sales/delivery/new'], { queryParams: { orderId: order.id } });
+  }
+
+  downloadPdf(order: SalesOrder): void {
+    this.salesService.downloadSalesOrderPdf(order.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `sales-order-${order.orderNumber}.pdf`);
+        this.message.success('Sales order PDF downloaded');
+      },
+      error: () => this.message.error('Unable to download sales order PDF')
+    });
+  }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }
 

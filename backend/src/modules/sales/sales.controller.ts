@@ -153,7 +153,10 @@ export class SalesInvoicesController {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('sales/payment')
 export class CustomerPaymentsController {
-  constructor(private readonly paymentsService: CustomerPaymentsService) {}
+  constructor(
+    private readonly paymentsService: CustomerPaymentsService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
@@ -179,6 +182,22 @@ export class CustomerPaymentsController {
   @ApiResponse({ status: 200, description: 'Payment history retrieved successfully' })
   getCustomerHistory(@Param('customerId') customerId: string, @GetTenantId() tenantId: string) {
     return this.paymentsService.getCustomerPaymentHistory(customerId, tenantId);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download customer payment receipt PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createCustomerPaymentReceiptPdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="customer-payment-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 
   @Get(':id')

@@ -117,6 +117,10 @@ export class PurchasesService {
     return this.http.post<ApiResponse<GoodsReceivedNote>>(`${this.apiUrl}/purchases/grn`, grn);
   }
 
+  downloadGrnPdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/purchases/grn/${id}/pdf`, { responseType: 'blob' });
+  }
+
   // ==================== PURCHASE INVOICES ====================
 
   getPurchaseInvoices(params?: {
@@ -163,6 +167,10 @@ export class PurchasesService {
 
   createVendorPayment(payment: Partial<VendorPayment>): Observable<ApiResponse<VendorPayment>> {
     return this.http.post<ApiResponse<VendorPayment>>(`${this.apiUrl}/purchases/payment`, payment);
+  }
+
+  downloadVendorPaymentPdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/purchases/payment/${id}/pdf`, { responseType: 'blob' });
   }
 }
 

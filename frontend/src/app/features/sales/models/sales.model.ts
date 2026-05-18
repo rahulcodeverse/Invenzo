@@ -154,6 +154,7 @@ export interface CustomerPayment {
   paymentNumber: string;
   customerId: string;
   customer?: any;
+  invoice?: any;
   paymentDate: string;
   amount: number;
   paymentMethod: PaymentMethod;

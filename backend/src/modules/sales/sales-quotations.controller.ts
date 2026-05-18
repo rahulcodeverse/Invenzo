@@ -118,7 +118,10 @@ export class QuotationsController {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('sales/orders')
 export class SalesOrdersController {
-  constructor(private readonly salesOrdersService: SalesOrdersService) {}
+  constructor(
+    private readonly salesOrdersService: SalesOrdersService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'STAFF')
@@ -144,6 +147,22 @@ export class SalesOrdersController {
   @ApiResponse({ status: 200, description: 'Pending SOs retrieved successfully' })
   getPending(@GetTenantId() tenantId: string) {
     return this.salesOrdersService.getPendingSos(tenantId);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download sales order PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createSalesOrderPdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="sales-order-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 
   @Get(':id')

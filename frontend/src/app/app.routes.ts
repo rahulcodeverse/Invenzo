@@ -219,6 +219,12 @@ export const routes: Routes = [
             path: 'payments',
             children: [
               {
+                path: '',
+                loadComponent: () =>
+                  import('./features/sales/payments/payment-list/payment-list.component')
+                    .then(m => m.PaymentListComponent)
+              },
+              {
                 path: 'new',
                 loadComponent: () =>
                   import('./features/sales/payments/payment-form/payment-form.component')
