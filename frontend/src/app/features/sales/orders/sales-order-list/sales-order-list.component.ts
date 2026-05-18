@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -154,6 +154,7 @@ export class SalesOrderListComponent implements OnInit {
     private salesService: SalesService,
     private masterDataService: MasterDataService,
     private router: Router,
+    private route: ActivatedRoute,
     private modal: NzModalService,
     private message: NzMessageService
   ) {
@@ -161,7 +162,11 @@ export class SalesOrderListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadOrders();
+    this.route.queryParamMap.subscribe(params => {
+      this.selectedStatus = params.get('status');
+      this.pageIndex = 1;
+      this.loadOrders();
+    });
     this.loadCustomers();
   }
 

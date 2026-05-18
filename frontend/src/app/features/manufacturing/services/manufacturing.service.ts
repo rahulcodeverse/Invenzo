@@ -21,6 +21,10 @@ export class ManufacturingService {
     return this.http.get(`${this.apiUrl}/work-orders`);
   }
 
+  updateWorkOrder(id: string, payload: { status?: string; producedQty?: number; rejectedQty?: number; notes?: string }): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/work-orders/${id}`, payload);
+  }
+
   getMrp(requiredBy?: string): Observable<any> {
     const query = requiredBy ? `?requiredBy=${encodeURIComponent(requiredBy)}` : '';
     return this.http.get(`${this.apiUrl}/mrp${query}`);

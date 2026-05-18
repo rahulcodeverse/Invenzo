@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -123,11 +123,20 @@ export class PoListComponent implements OnInit {
   statusFilter = '';
   private search$ = new Subject<string>();
 
-  constructor(private service: PurchasesService, private message: NzMessageService, private modal: NzModalService) {}
+  constructor(
+    private service: PurchasesService,
+    private message: NzMessageService,
+    private modal: NzModalService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
     this.search$.pipe(debounceTime(300)).subscribe(() => { this.page = 1; this.loadData(); });
-    this.loadData();
+    this.route.queryParamMap.subscribe(params => {
+      this.statusFilter = params.get('status') ?? '';
+      this.page = 1;
+      this.loadData();
+    });
   }
 
   onSearch(v: string) { this.search$.next(v); }

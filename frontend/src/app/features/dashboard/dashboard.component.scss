@@ -52,6 +52,58 @@
   margin-bottom: 16px;
 }
 
+.approval-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.approval-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #ddd6cc;
+  border-radius: 8px;
+  background: #fffaf5;
+  color: #211f1c;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: #c56a1a;
+    color: #211f1c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(33, 31, 28, 0.08);
+  }
+
+  strong {
+    display: block;
+    color: #9a4f12;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  small {
+    display: block;
+    margin-top: 4px;
+    color: #6f675f;
+    font-weight: 700;
+  }
+}
+
+.approval-card__icon {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  background: #f5eadc;
+  color: #9a4f12;
+  font-size: 18px;
+}
+
 .charts-row {
   margin-bottom: 16px;
 }
@@ -131,6 +183,10 @@
   .workflow-actions {
     grid-template-columns: 1fr;
     min-width: 0;
+  }
+
+  .approval-strip {
+    grid-template-columns: 1fr;
   }
 
   .quick-stats {
