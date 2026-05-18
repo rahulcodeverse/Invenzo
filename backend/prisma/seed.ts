@@ -50,11 +50,18 @@ async function clearDemoData(tenantId: string) {
   await prisma.quotation.deleteMany({ where: { tenantId } });
   await prisma.purchaseOrderItem.deleteMany({ where: { purchaseOrder: { tenantId } } });
   await prisma.purchaseOrder.deleteMany({ where: { tenantId } });
+  await prisma.workOrderMaterial.deleteMany({ where: { workOrder: { tenantId } } });
+  await prisma.workOrder.deleteMany({ where: { tenantId } });
+  await prisma.routingStep.deleteMany({ where: { bom: { tenantId } } });
+  await prisma.bomItem.deleteMany({ where: { bom: { tenantId } } });
+  await prisma.billOfMaterial.deleteMany({ where: { tenantId } });
   await prisma.journalLine.deleteMany({ where: { journal: { tenantId } } });
   await prisma.journalEntry.deleteMany({ where: { tenantId } });
   await prisma.ledgerAccount.deleteMany({ where: { tenantId } });
   await prisma.accountGroup.deleteMany({ where: { tenantId } });
   await prisma.stockMovement.deleteMany({ where: { user: { tenantId } } });
+  await prisma.auditLog.deleteMany({ where: { tenantId } });
+  await prisma.notification.deleteMany({ where: { tenantId } });
   await prisma.batch.deleteMany({ where: { stock: { product: { tenantId } } } });
   await prisma.serial.deleteMany({ where: { stock: { product: { tenantId } } } });
   await prisma.stock.deleteMany({ where: { product: { tenantId } } });
@@ -67,8 +74,7 @@ async function clearDemoData(tenantId: string) {
   await prisma.unit.deleteMany({ where: { tenantId } });
   await prisma.warehouse.deleteMany({ where: { tenantId } });
   await prisma.companySettings.deleteMany({ where: { tenantId } });
-  await prisma.notification.deleteMany({ where: { tenantId } });
-  await prisma.auditLog.deleteMany({ where: { tenantId } });
+  await prisma.user.deleteMany({ where: { tenantId } });
 }
 
 async function main() {
@@ -446,6 +452,105 @@ async function main() {
     },
   });
 
+  const dockBom = await prisma.billOfMaterial.create({
+    data: {
+      tenantId: tenant.id,
+      bomNumber: 'BOM-2026-0002',
+      productId: bySku['INV-DOCK-C'].id,
+      name: 'USB-C Dock Packing Kit',
+      version: '1.1',
+      outputQty: 1,
+      createdBy: owner.id,
+      notes: 'Accessory packing BOM for dispatch-ready dock kits',
+      items: {
+        create: [
+          {
+            materialId: bySku['SHIP-CARTON-M'].id,
+            quantity: 0.5,
+            wastagePercent: 1,
+            notes: 'Shared carton capacity for two dock units',
+          },
+          {
+            materialId: bySku['THERMAL-LABEL'].id,
+            quantity: 0.03,
+            wastagePercent: 0,
+            notes: 'Serialized dispatch label',
+          },
+        ],
+      },
+      routingSteps: {
+        create: [
+          {
+            sequence: 1,
+            processName: 'Accessory Kitting',
+            workCenter: 'Mumbai Accessories Cell',
+            estimatedMinutes: 12,
+            instructions: 'Verify cable, dock, and carton availability.',
+          },
+          {
+            sequence: 2,
+            processName: 'Dispatch Labeling',
+            workCenter: 'Dispatch Line',
+            estimatedMinutes: 8,
+            instructions: 'Apply labels and scan into finished goods staging.',
+          },
+        ],
+      },
+    },
+    include: { items: true },
+  });
+
+  await prisma.workOrder.create({
+    data: {
+      tenantId: tenant.id,
+      workOrderNumber: 'WO-2026-0002',
+      bomId: dockBom.id,
+      productId: bySku['INV-DOCK-C'].id,
+      warehouseId: mainWarehouse.id,
+      plannedQty: 24,
+      producedQty: 0,
+      rejectedQty: 0,
+      status: WorkOrderStatus.PLANNED,
+      plannedStart: daysFromNow(1),
+      dueDate: daysFromNow(6),
+      createdBy: owner.id,
+      notes: 'Planned dock kit production for upcoming sales orders',
+      materials: {
+        create: dockBom.items.map(item => ({
+          productId: item.materialId,
+          plannedQty: Number(item.quantity) * 24 * (1 + Number(item.wastagePercent) / 100),
+        })),
+      },
+    },
+  });
+
+  await prisma.workOrder.create({
+    data: {
+      tenantId: tenant.id,
+      workOrderNumber: 'WO-2026-0003',
+      bomId: laptopBom.id,
+      productId: bySku['INV-LAP-14PRO'].id,
+      warehouseId: mainWarehouse.id,
+      plannedQty: 8,
+      producedQty: 8,
+      rejectedQty: 0,
+      status: WorkOrderStatus.COMPLETED,
+      plannedStart: daysFromNow(-12),
+      dueDate: daysFromNow(-6),
+      completedAt: daysFromNow(-6),
+      createdBy: owner.id,
+      notes: 'Completed laptop assembly order for production history',
+      materials: {
+        create: laptopBom.items.map(item => ({
+          productId: item.materialId,
+          plannedQty: Number(item.quantity) * 8 * (1 + Number(item.wastagePercent) / 100),
+          issuedQty: Number(item.quantity) * 8,
+          consumedQty: Number(item.quantity) * 8,
+        })),
+      },
+    },
+  });
+
   const [vendorA, vendorB, vendorC] = await Promise.all([
     prisma.vendor.create({
       data: {
@@ -667,6 +772,61 @@ async function main() {
     },
   });
 
+  const grn2 = await prisma.goodsReceivedNote.create({
+    data: {
+      grnNumber: 'GRN-2026-0002',
+      purchaseOrderId: po2.id,
+      warehouseId: mainWarehouse.id,
+      receivedBy: owner.id,
+      receivedDate: daysFromNow(-4),
+      notes: 'Partial receipt for accessories and service parts',
+      items: {
+        create: po2.items.map(item => ({
+          productId: item.productId,
+          quantity: Math.max(1, Math.floor(item.quantity / 2)),
+          batchNumber: `PART-${item.id.slice(0, 6).toUpperCase()}`,
+        })),
+      },
+    },
+  });
+
+  const partialPurchaseInvoiceTotal = Number(po2.total);
+  const partialPurchasePaid = 50000;
+  const partialPurchaseInvoice = await prisma.purchaseInvoice.create({
+    data: {
+      tenantId: tenant.id,
+      invoiceNumber: 'PINV-2026-0002',
+      purchaseOrderId: po2.id,
+      grnId: grn2.id,
+      vendorId: vendorB.id,
+      invoiceDate: daysFromNow(-3),
+      dueDate: daysFromNow(18),
+      status: PaymentStatus.PARTIAL,
+      subtotal: po2.subtotal,
+      taxAmount: po2.taxAmount,
+      total: po2.total,
+      paidAmount: partialPurchasePaid,
+      balanceAmount: partialPurchaseInvoiceTotal - partialPurchasePaid,
+      createdBy: owner.id,
+      notes: 'Partially paid purchase invoice for payable ageing and payment flow',
+    },
+  });
+
+  await prisma.vendorPayment.create({
+    data: {
+      tenantId: tenant.id,
+      vendorId: vendorB.id,
+      invoiceId: partialPurchaseInvoice.id,
+      paymentNumber: 'VPAY-2026-0002',
+      paymentDate: daysFromNow(-2),
+      amount: partialPurchasePaid,
+      method: PaymentMethod.BANK_TRANSFER,
+      reference: 'UTR-DEMO-002',
+      notes: 'Advance payment against partial vendor invoice',
+      createdBy: owner.id,
+    },
+  });
+
   const createQuotation = async (quotationNumber: string, customerId: string, rows: Array<[string, number]>) => {
     const subtotal = rows.reduce((sum, [sku, quantity]) => sum + quantity * Number(bySku[sku].sellingPrice), 0);
     const taxAmount = Number((subtotal * 0.18).toFixed(2));
@@ -756,7 +916,7 @@ async function main() {
     ['INV-DOCK-C', 3],
   ], 244572);
 
-  await createSalesOrder('SO-2026-0002', customerB.id, OrderStatus.CONFIRMED, PaymentStatus.PARTIAL, [
+  const so2 = await createSalesOrder('SO-2026-0002', customerB.id, OrderStatus.CONFIRMED, PaymentStatus.PARTIAL, [
     ['LOGI-MXKEYS', 10],
     ['LOGI-MXMOUSE', 10],
   ], 75000);
@@ -812,6 +972,42 @@ async function main() {
       amount: salesInvoice.total,
       method: PaymentMethod.UPI,
       reference: 'UPI-DEMO-001',
+      createdBy: owner.id,
+    },
+  });
+
+  const partialSalesInvoiceTotal = Number(so2.total);
+  const partialSalesPaid = 75000;
+  const partialSalesInvoice = await prisma.salesInvoice.create({
+    data: {
+      tenantId: tenant.id,
+      invoiceNumber: 'SINV-2026-0002',
+      salesOrderId: so2.id,
+      customerId: customerB.id,
+      invoiceDate: daysFromNow(-1),
+      dueDate: daysFromNow(10),
+      status: PaymentStatus.PARTIAL,
+      subtotal: so2.subtotal,
+      taxAmount: so2.taxAmount,
+      total: so2.total,
+      paidAmount: partialSalesPaid,
+      balanceAmount: partialSalesInvoiceTotal - partialSalesPaid,
+      createdBy: owner.id,
+      notes: 'Partially paid sales invoice for receivable ageing and payment flow',
+    },
+  });
+
+  await prisma.customerPayment.create({
+    data: {
+      tenantId: tenant.id,
+      customerId: customerB.id,
+      invoiceId: partialSalesInvoice.id,
+      paymentNumber: 'CPAY-2026-0002',
+      paymentDate: daysFromNow(0),
+      amount: partialSalesPaid,
+      method: PaymentMethod.BANK_TRANSFER,
+      reference: 'NEFT-DEMO-002',
+      notes: 'Partial collection against confirmed sales order',
       createdBy: owner.id,
     },
   });

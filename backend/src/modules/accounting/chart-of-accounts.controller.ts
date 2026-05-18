@@ -86,13 +86,6 @@ export class ChartOfAccountsController {
     return this.chartService.findAllAccounts(tenantId, paginationDto);
   }
 
-  @Get('accounts/:id')
-  @ApiOperation({ summary: 'Get ledger account by ID' })
-  @ApiResponse({ status: 200, description: 'Ledger account retrieved successfully' })
-  async findAccount(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.chartService.findAccount(id, tenantId);
-  }
-
   @Get('accounts/:id/balance')
   @ApiOperation({ summary: 'Get account balance' })
   @ApiResponse({ status: 200, description: 'Account balance retrieved successfully' })
@@ -112,6 +105,13 @@ export class ChartOfAccountsController {
     const from = fromDate ? new Date(fromDate) : undefined;
     const to = toDate ? new Date(toDate) : undefined;
     return this.chartService.getAccountStatement(id, tenantId, from, to);
+  }
+
+  @Get('accounts/:id')
+  @ApiOperation({ summary: 'Get ledger account by ID' })
+  @ApiResponse({ status: 200, description: 'Ledger account retrieved successfully' })
+  async findAccount(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.chartService.findAccount(id, tenantId);
   }
 
   @Patch('accounts/:id')
