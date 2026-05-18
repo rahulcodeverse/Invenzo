@@ -4,6 +4,7 @@ import {
   IsUUID,
   IsDateString,
   IsArray,
+  ArrayMinSize,
   ValidateNested,
   IsNumber,
   Min,
@@ -70,6 +71,7 @@ export class CreateQuotationDto {
 
   @ApiProperty({ type: [QuotationItemDto] })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => QuotationItemDto)
   items: QuotationItemDto[];
@@ -101,6 +103,7 @@ export class UpdateQuotationDto {
   @ApiPropertyOptional({ type: [QuotationItemDto] })
   @IsOptional()
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => QuotationItemDto)
   items?: QuotationItemDto[];
@@ -178,6 +181,7 @@ export class CreateSalesOrderDto {
 
   @ApiProperty({ type: [SalesOrderItemDto] })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => SalesOrderItemDto)
   items: SalesOrderItemDto[];
@@ -209,6 +213,7 @@ export class UpdateSalesOrderDto {
   @ApiPropertyOptional({ type: [SalesOrderItemDto] })
   @IsOptional()
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => SalesOrderItemDto)
   items?: SalesOrderItemDto[];

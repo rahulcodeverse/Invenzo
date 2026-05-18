@@ -57,13 +57,6 @@ export class PurchaseOrdersController {
     return this.purchaseOrdersService.getPendingPos(tenantId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get purchase order by ID' })
-  @ApiResponse({ status: 200, description: 'Purchase order retrieved successfully' })
-  async findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.purchaseOrdersService.findOne(id, tenantId);
-  }
-
   @Get(':id/pdf')
   @ApiOperation({ summary: 'Download purchase order PDF' })
   async downloadPdf(
@@ -78,6 +71,13 @@ export class PurchaseOrdersController {
       'Content-Length': pdf.length,
     });
     res.end(pdf);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get purchase order by ID' })
+  @ApiResponse({ status: 200, description: 'Purchase order retrieved successfully' })
+  async findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.purchaseOrdersService.findOne(id, tenantId);
   }
 
   @Patch(':id')

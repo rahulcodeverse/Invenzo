@@ -103,13 +103,6 @@ export class PurchaseInvoicesController {
     return this.invoicesService.getVendorWiseOutstanding(tenantId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get invoice by ID' })
-  @ApiResponse({ status: 200, description: 'Invoice retrieved successfully' })
-  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.invoicesService.findOne(id, tenantId);
-  }
-
   @Get(':id/pdf')
   @ApiOperation({ summary: 'Download purchase invoice PDF' })
   async downloadPdf(
@@ -124,6 +117,13 @@ export class PurchaseInvoicesController {
       'Content-Length': pdf.length,
     });
     res.end(pdf);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get invoice by ID' })
+  @ApiResponse({ status: 200, description: 'Invoice retrieved successfully' })
+  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.invoicesService.findOne(id, tenantId);
   }
 }
 

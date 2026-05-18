@@ -40,18 +40,18 @@ export class VendorsController {
     return this.vendorsService.findAll(tenantId, paginationDto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get vendor by ID' })
-  @ApiResponse({ status: 200, description: 'Vendor retrieved successfully' })
-  async findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.vendorsService.findOne(id, tenantId);
-  }
-
   @Get(':id/statement')
   @ApiOperation({ summary: 'Get vendor statement' })
   @ApiResponse({ status: 200, description: 'Vendor statement retrieved successfully' })
   async getStatement(@Param('id') id: string, @GetTenantId() tenantId: string) {
     return this.vendorsService.getVendorStatement(id, tenantId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get vendor by ID' })
+  @ApiResponse({ status: 200, description: 'Vendor retrieved successfully' })
+  async findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.vendorsService.findOne(id, tenantId);
   }
 
   @Patch(':id')

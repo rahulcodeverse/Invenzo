@@ -23,7 +23,7 @@
         <nz-form-item>
           <nz-form-control nzErrorTip="Please input your email!">
             <label class="field-label">Email</label>
-            <nz-input-group nzPrefixIcon="user">
+            <nz-input-group [nzPrefix]="userPrefix">
               <input
                 type="email"
                 nz-input
@@ -31,13 +31,16 @@
                 placeholder="owner@invenzo.com"
               />
             </nz-input-group>
+            <ng-template #userPrefix>
+              <span nz-icon nzType="user"></span>
+            </ng-template>
           </nz-form-control>
         </nz-form-item>
 
         <nz-form-item>
           <nz-form-control nzErrorTip="Please input your password!">
             <label class="field-label">Password</label>
-            <nz-input-group nzPrefixIcon="lock">
+            <nz-input-group [nzPrefix]="lockPrefix">
               <input
                 type="password"
                 nz-input
@@ -45,6 +48,9 @@
                 placeholder="Enter password"
               />
             </nz-input-group>
+            <ng-template #lockPrefix>
+              <span nz-icon nzType="lock"></span>
+            </ng-template>
           </nz-form-control>
         </nz-form-item>
 

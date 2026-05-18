@@ -10,6 +10,7 @@ export interface PurchaseOrder {
     phone?: string;
   };
   orderDate: string;
+  expectedDate?: string;
   expectedDeliveryDate?: string;
   status: PurchaseOrderStatus;
   subtotal: number;
@@ -24,10 +25,10 @@ export interface PurchaseOrder {
 
 export enum PurchaseOrderStatus {
   DRAFT = 'DRAFT',
-  SENT = 'SENT',
-  APPROVED = 'APPROVED',
-  RECEIVED = 'RECEIVED',
-  CLOSED = 'CLOSED',
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED'
 }
 

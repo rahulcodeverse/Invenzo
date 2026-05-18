@@ -52,7 +52,16 @@ import {
   HistoryOutline,
   SaveOutline,
   FileTextOutline,
-  StopOutline
+  StopOutline,
+  ApartmentOutline,
+  ToolOutline,
+  RollbackOutline,
+  CloseCircleOutline,
+  ArrowLeftOutline,
+  LockOutline,
+  MailOutline,
+  ReloadOutline,
+  DownloadOutline
 } from '@ant-design/icons-angular/icons';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -105,7 +114,16 @@ const icons = [
   HistoryOutline,
   SaveOutline,
   FileTextOutline,
-  StopOutline
+  StopOutline,
+  ApartmentOutline,
+  ToolOutline,
+  RollbackOutline,
+  CloseCircleOutline,
+  ArrowLeftOutline,
+  LockOutline,
+  MailOutline,
+  ReloadOutline,
+  DownloadOutline
 ];
 
 export const appConfig: ApplicationConfig = {

@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  ArrayMinSize,
   IsDateString,
   IsEnum,
   IsInt,
@@ -95,6 +96,7 @@ export class CreateBomDto {
 
   @ApiProperty({ type: [BomItemDto] })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => BomItemDto)
   items: BomItemDto[];

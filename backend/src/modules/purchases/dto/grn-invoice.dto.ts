@@ -4,6 +4,7 @@ import {
   IsUUID,
   IsDateString,
   IsArray,
+  ArrayMinSize,
   ValidateNested,
   IsNumber,
   Min,
@@ -46,6 +47,7 @@ export class CreateGrnDto {
 
   @ApiProperty({ type: [GrnItemDto] })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => GrnItemDto)
   items: GrnItemDto[];

@@ -43,10 +43,10 @@ import { debounceTime, Subject } from 'rxjs';
         </nz-input-group>
         <nz-select [(ngModel)]="statusFilter" (ngModelChange)="loadData()" nzPlaceHolder="Filter by status" style="width:160px" nzAllowClear>
           <nz-option nzValue="DRAFT" nzLabel="Draft"></nz-option>
-          <nz-option nzValue="SENT" nzLabel="Sent"></nz-option>
-          <nz-option nzValue="APPROVED" nzLabel="Approved"></nz-option>
-          <nz-option nzValue="RECEIVED" nzLabel="Received"></nz-option>
-          <nz-option nzValue="CLOSED" nzLabel="Closed"></nz-option>
+          <nz-option nzValue="PENDING" nzLabel="Pending"></nz-option>
+          <nz-option nzValue="CONFIRMED" nzLabel="Confirmed"></nz-option>
+          <nz-option nzValue="PROCESSING" nzLabel="Processing"></nz-option>
+          <nz-option nzValue="COMPLETED" nzLabel="Completed"></nz-option>
           <nz-option nzValue="CANCELLED" nzLabel="Cancelled"></nz-option>
         </nz-select>
         <ng-template #searchIcon><span nz-icon nzType="search"></span></ng-template>
@@ -89,12 +89,12 @@ import { debounceTime, Subject } from 'rxjs';
                     <span nz-icon nzType="check"></span>
                   </button>
                 </ng-container>
-                <ng-container *ngIf="po.status === 'APPROVED'">
+                <ng-container *ngIf="po.status === 'CONFIRMED' || po.status === 'PROCESSING'">
                   <a *nzSpaceItem nz-button nzType="primary" nzSize="small" [routerLink]="['/purchases/grn']" [queryParams]="{ poId: po.id }">
                     <span nz-icon nzType="inbox"></span> Receive
                   </a>
                 </ng-container>
-                <ng-container *ngIf="po.status !== 'CANCELLED' && po.status !== 'CLOSED'">
+                <ng-container *ngIf="po.status !== 'CANCELLED' && po.status !== 'COMPLETED'">
                   <button *nzSpaceItem nz-button nzDanger nzSize="small" (click)="cancel(po)">
                     <span nz-icon nzType="stop"></span>
                   </button>
@@ -146,7 +146,7 @@ export class PoListComponent implements OnInit {
   }
 
   getStatusColor(s: string) {
-    return { DRAFT:'default', SENT:'gold', APPROVED:'orange', RECEIVED:'orange', CLOSED:'gold', CANCELLED:'red' }[s] ?? 'default';
+    return { DRAFT:'default', PENDING:'gold', CONFIRMED:'orange', PROCESSING:'orange', COMPLETED:'green', CANCELLED:'red' }[s] ?? 'default';
   }
 
   approve(po: PurchaseOrder) {

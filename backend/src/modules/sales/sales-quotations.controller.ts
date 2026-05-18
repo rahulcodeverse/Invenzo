@@ -57,13 +57,6 @@ export class QuotationsController {
     return this.quotationsService.findAll(tenantId, queryDto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get quotation by ID' })
-  @ApiResponse({ status: 200, description: 'Quotation retrieved successfully' })
-  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.quotationsService.findOne(id, tenantId);
-  }
-
   @Get(':id/pdf')
   @ApiOperation({ summary: 'Download quotation PDF' })
   async downloadPdf(
@@ -78,6 +71,13 @@ export class QuotationsController {
       'Content-Length': pdf.length,
     });
     res.end(pdf);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get quotation by ID' })
+  @ApiResponse({ status: 200, description: 'Quotation retrieved successfully' })
+  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.quotationsService.findOne(id, tenantId);
   }
 
   @Patch(':id')

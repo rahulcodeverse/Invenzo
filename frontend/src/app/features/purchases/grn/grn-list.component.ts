@@ -178,7 +178,7 @@ export class GrnListComponent implements OnInit {
   }
 
   loadDropdowns() {
-    this.service.getPurchaseOrders({ limit: 100, status: 'APPROVED' }).subscribe((res: any) => {
+    this.service.getPurchaseOrders({ limit: 100, status: 'CONFIRMED' }).subscribe((res: any) => {
       const data = res.data?.data ?? res.data ?? res;
       this.purchaseOrders = Array.isArray(data) ? data : data.data ?? [];
       const poId = this.route.snapshot.queryParamMap.get('poId');

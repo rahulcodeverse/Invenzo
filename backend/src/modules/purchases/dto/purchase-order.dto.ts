@@ -4,6 +4,7 @@ import {
   IsUUID,
   IsDateString,
   IsArray,
+  ArrayMinSize,
   ValidateNested,
   IsNumber,
   Min,
@@ -63,6 +64,7 @@ export class CreatePurchaseOrderDto {
 
   @ApiProperty({ type: [PurchaseOrderItemDto] })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => PurchaseOrderItemDto)
   items: PurchaseOrderItemDto[];
@@ -94,6 +96,7 @@ export class UpdatePurchaseOrderDto {
   @ApiPropertyOptional({ type: [PurchaseOrderItemDto] })
   @IsOptional()
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => PurchaseOrderItemDto)
   items?: PurchaseOrderItemDto[];

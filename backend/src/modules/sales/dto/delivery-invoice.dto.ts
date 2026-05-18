@@ -4,6 +4,7 @@ import {
   IsUUID,
   IsDateString,
   IsArray,
+  ArrayMinSize,
   ValidateNested,
   IsNumber,
   Min,
@@ -75,6 +76,7 @@ export class CreateDeliveryNoteDto {
 
   @ApiProperty({ type: [DeliveryItemDto] })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => DeliveryItemDto)
   items: DeliveryItemDto[];

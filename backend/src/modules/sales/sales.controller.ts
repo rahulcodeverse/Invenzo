@@ -57,13 +57,6 @@ export class DeliveryController {
     return this.deliveryService.findAll(tenantId, queryDto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get delivery note by ID' })
-  @ApiResponse({ status: 200, description: 'Delivery note retrieved successfully' })
-  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.deliveryService.findOne(id, tenantId);
-  }
-
   @Get(':id/pdf')
   @ApiOperation({ summary: 'Download delivery challan PDF' })
   async downloadPdf(
@@ -78,6 +71,13 @@ export class DeliveryController {
       'Content-Length': pdf.length,
     });
     res.end(pdf);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get delivery note by ID' })
+  @ApiResponse({ status: 200, description: 'Delivery note retrieved successfully' })
+  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.deliveryService.findOne(id, tenantId);
   }
 }
 
@@ -124,13 +124,6 @@ export class SalesInvoicesController {
     return this.invoicesService.getCustomerWiseOutstanding(tenantId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get invoice by ID' })
-  @ApiResponse({ status: 200, description: 'Invoice retrieved successfully' })
-  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.invoicesService.findOne(id, tenantId);
-  }
-
   @Get(':id/pdf')
   @ApiOperation({ summary: 'Download GST sales invoice PDF' })
   async downloadPdf(
@@ -145,6 +138,13 @@ export class SalesInvoicesController {
       'Content-Length': pdf.length,
     });
     res.end(pdf);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get invoice by ID' })
+  @ApiResponse({ status: 200, description: 'Invoice retrieved successfully' })
+  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.invoicesService.findOne(id, tenantId);
   }
 }
 

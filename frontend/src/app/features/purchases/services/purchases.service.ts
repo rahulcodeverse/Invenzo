@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { PaginatedResponse, ApiResponse } from '../../../core/models/user.model';
 import { PurchaseOrder, GoodsReceivedNote, PurchaseInvoice, VendorPayment } from '../models/purchases.model';
@@ -12,6 +13,47 @@ export class PurchasesService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
+
+  private normalizePurchaseOrder(order: any): PurchaseOrder {
+    return {
+      ...order,
+      expectedDeliveryDate: order.expectedDeliveryDate ?? order.expectedDate,
+      totalAmount: Number(order.totalAmount ?? order.total ?? 0),
+      subtotal: Number(order.subtotal ?? 0),
+      taxAmount: Number(order.taxAmount ?? 0),
+      discount: Number(order.discount ?? 0),
+      paidAmount: Number(order.paidAmount ?? 0),
+      items: (order.items ?? []).map((item: any) => ({
+        ...item,
+        unitPrice: Number(item.unitPrice ?? 0),
+        taxRate: Number(item.taxRate ?? 0),
+        taxAmount: Number(item.taxAmount ?? 0),
+        total: Number(item.total ?? 0),
+      })),
+    };
+  }
+
+  private normalizePurchaseInvoice(invoice: any): PurchaseInvoice {
+    const vendor = invoice.vendor ?? invoice.grn?.purchaseOrder?.vendor;
+    return {
+      ...invoice,
+      vendor,
+      totalAmount: Number(invoice.totalAmount ?? invoice.total ?? 0),
+      subtotal: Number(invoice.subtotal ?? 0),
+      taxAmount: Number(invoice.taxAmount ?? 0),
+      discount: Number(invoice.discount ?? 0),
+      paidAmount: Number(invoice.paidAmount ?? 0),
+      balanceAmount: Number(invoice.balanceAmount ?? 0),
+      items: (invoice.items ?? invoice.grn?.purchaseOrder?.items ?? []).map((item: any) => ({
+        ...item,
+        unitPrice: Number(item.unitPrice ?? 0),
+        discount: Number(item.discount ?? 0),
+        taxRate: Number(item.taxRate ?? 0),
+        taxAmount: Number(item.taxAmount ?? 0),
+        total: Number(item.total ?? 0),
+      })),
+    };
+  }
 
   // ==================== PURCHASE ORDERS ====================
 
@@ -30,11 +72,13 @@ export class PurchasesService {
       if (params.vendorId) httpParams = httpParams.set('vendorId', params.vendorId);
       if (params.status) httpParams = httpParams.set('status', params.status);
     }
-    return this.http.get<PaginatedResponse<PurchaseOrder>>(`${this.apiUrl}/purchases/po`, { params: httpParams });
+    return this.http.get<PaginatedResponse<any>>(`${this.apiUrl}/purchases/po`, { params: httpParams })
+      .pipe(map(res => ({ ...res, data: (res.data ?? []).map(order => this.normalizePurchaseOrder(order)) })));
   }
 
   getPurchaseOrderById(id: string): Observable<ApiResponse<PurchaseOrder>> {
-    return this.http.get<ApiResponse<PurchaseOrder>>(`${this.apiUrl}/purchases/po/${id}`);
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/purchases/po/${id}`)
+      .pipe(map(res => ({ ...res, data: this.normalizePurchaseOrder(res.data) })));
   }
 
   downloadPurchaseOrderPdf(id: string): Observable<Blob> {
@@ -88,11 +132,13 @@ export class PurchasesService {
       if (params.vendorId) httpParams = httpParams.set('vendorId', params.vendorId);
       if (params.status) httpParams = httpParams.set('status', params.status);
     }
-    return this.http.get<PaginatedResponse<PurchaseInvoice>>(`${this.apiUrl}/purchases/invoice`, { params: httpParams });
+    return this.http.get<PaginatedResponse<any>>(`${this.apiUrl}/purchases/invoice`, { params: httpParams })
+      .pipe(map(res => ({ ...res, data: (res.data ?? []).map(invoice => this.normalizePurchaseInvoice(invoice)) })));
   }
 
   getPurchaseInvoiceById(id: string): Observable<ApiResponse<PurchaseInvoice>> {
-    return this.http.get<ApiResponse<PurchaseInvoice>>(`${this.apiUrl}/purchases/invoice/${id}`);
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/purchases/invoice/${id}`)
+      .pipe(map(res => ({ ...res, data: this.normalizePurchaseInvoice(res.data) })));
   }
 
   downloadPurchaseInvoicePdf(id: string): Observable<Blob> {

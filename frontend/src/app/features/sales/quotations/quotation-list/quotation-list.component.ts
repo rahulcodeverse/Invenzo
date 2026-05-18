@@ -52,9 +52,11 @@ import { debounceTime, Subject } from 'rxjs';
           <nz-select *nzSpaceItem nzAllowClear nzPlaceHolder="Status" [(ngModel)]="selectedStatus"
                      (ngModelChange)="onFilterChange()" style="width: 150px;">
             <nz-option nzLabel="Draft" nzValue="DRAFT"></nz-option>
-            <nz-option nzLabel="Sent" nzValue="SENT"></nz-option>
-            <nz-option nzLabel="Approved" nzValue="APPROVED"></nz-option>
-            <nz-option nzLabel="Converted" nzValue="CONVERTED"></nz-option>
+            <nz-option nzLabel="Pending" nzValue="PENDING"></nz-option>
+            <nz-option nzLabel="Confirmed" nzValue="CONFIRMED"></nz-option>
+            <nz-option nzLabel="Processing" nzValue="PROCESSING"></nz-option>
+            <nz-option nzLabel="Completed" nzValue="COMPLETED"></nz-option>
+            <nz-option nzLabel="Cancelled" nzValue="CANCELLED"></nz-option>
           </nz-select>
 
           <nz-select *nzSpaceItem nzShowSearch nzAllowClear nzPlaceHolder="Customer"
@@ -101,7 +103,7 @@ import { debounceTime, Subject } from 'rxjs';
                 <button *nzSpaceItem nz-button nzSize="small" (click)="downloadPdf(item)">
                   <span nz-icon nzType="download"></span>
                 </button>
-                <ng-container *ngIf="item.status === 'APPROVED'">
+                <ng-container *ngIf="item.status === 'CONFIRMED'">
                   <button *nzSpaceItem nz-button nzSize="small" nzType="primary" (click)="convertToOrder(item)">
                     <span nz-icon nzType="swap"></span> Convert
                   </button>
@@ -178,7 +180,14 @@ export class QuotationListComponent implements OnInit {
   navigateToNew(): void { this.router.navigate(['/sales/quotations/new']); }
 
   getStatusColor(status: string): string {
-    const colors: any = { DRAFT: 'default', SENT: 'gold', APPROVED: 'gold', REJECTED: 'red', CONVERTED: 'purple' };
+    const colors: any = {
+      DRAFT: 'default',
+      PENDING: 'gold',
+      CONFIRMED: 'gold',
+      PROCESSING: 'orange',
+      COMPLETED: 'green',
+      CANCELLED: 'red'
+    };
     return colors[status] || 'default';
   }
 

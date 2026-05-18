@@ -40,18 +40,18 @@ export class CustomersController {
     return this.customersService.findAll(tenantId, paginationDto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get customer by ID' })
-  @ApiResponse({ status: 200, description: 'Customer retrieved successfully' })
-  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
-    return this.customersService.findOne(id, tenantId);
-  }
-
   @Get(':id/statement')
   @ApiOperation({ summary: 'Get customer statement' })
   @ApiResponse({ status: 200, description: 'Customer statement retrieved successfully' })
   getStatement(@Param('id') id: string, @GetTenantId() tenantId: string) {
     return this.customersService.getCustomerStatement(id, tenantId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get customer by ID' })
+  @ApiResponse({ status: 200, description: 'Customer retrieved successfully' })
+  findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
+    return this.customersService.findOne(id, tenantId);
   }
 
   @Patch(':id')

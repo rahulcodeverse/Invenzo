@@ -25,10 +25,11 @@ export interface Quotation {
 
 export enum QuotationStatus {
   DRAFT = 'DRAFT',
-  SENT = 'SENT',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  CONVERTED = 'CONVERTED'
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED'
 }
 
 export interface QuotationItem {
