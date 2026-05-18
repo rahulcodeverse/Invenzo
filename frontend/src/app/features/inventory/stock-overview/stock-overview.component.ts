@@ -53,6 +53,7 @@ export class StockOverviewComponent implements OnInit {
   selectedWarehouse: string | null = null;
   selectedProduct: string | null = null;
   showLowStockOnly = false;
+  activeStockFilter: 'all' | 'low' | 'reserved' | 'out' = 'all';
 
   constructor(
     private inventoryService: InventoryService,
@@ -90,7 +91,7 @@ export class StockOverviewComponent implements OnInit {
   }
 
   get totalStock(): number {
-    return this.stocks.reduce((sum, s) => sum + (s.total || 0), 0);
+    return this.stocks.reduce((sum, s) => sum + this.getTotalStock(s), 0);
   }
 
   get totalAvailable(): number {
@@ -99,6 +100,18 @@ export class StockOverviewComponent implements OnInit {
 
   get totalReserved(): number {
     return this.stocks.reduce((sum, s) => sum + (s.reserved || 0), 0);
+  }
+
+  get lowStockCount(): number {
+    return this.stocks.filter(stock => this.isLowStock(stock)).length;
+  }
+
+  get reservedStockCount(): number {
+    return this.stocks.filter(stock => (stock.reserved || 0) > 0).length;
+  }
+
+  get outOfStockCount(): number {
+    return this.stocks.filter(stock => (stock.available || 0) === 0).length;
   }
 
   loadStock(): void {
@@ -112,7 +125,8 @@ export class StockOverviewComponent implements OnInit {
       lowStock: this.showLowStockOnly || undefined
     }).subscribe({
       next: (response) => {
-        this.stocks = Array.isArray(response.data) ? response.data : [];
+        const rows = Array.isArray(response.data) ? response.data : [];
+        this.stocks = rows.map(stock => this.normalizeStock(stock));
         this.total = response.meta?.total || 0;
         this.loading = false;
       },
@@ -146,11 +160,13 @@ export class StockOverviewComponent implements OnInit {
     this.selectedProduct = null;
     this.showLowStockOnly = false;
     this.pageIndex = 1;
+    this.activeStockFilter = 'all';
     this.loadStock();
   }
 
   isLowStock(stock: Stock): boolean {
-    return stock.reorderPoint ? stock.available <= stock.reorderPoint : false;
+    const reorderPoint = this.getReorderPoint(stock);
+    return reorderPoint > 0 ? stock.available <= reorderPoint : false;
   }
 
   getStockStatus(stock: Stock): { color: string; text: string } {
@@ -161,6 +177,52 @@ export class StockOverviewComponent implements OnInit {
     } else {
       return { color: 'default', text: 'In Stock' };
     }
+  }
+
+  setStockFilter(filter: 'all' | 'low' | 'reserved' | 'out'): void {
+    this.activeStockFilter = filter;
+    this.showLowStockOnly = filter === 'low';
+    this.loadStock();
+  }
+
+  get displayedStocks(): Stock[] {
+    if (this.activeStockFilter === 'reserved') {
+      return this.stocks.filter(stock => (stock.reserved || 0) > 0);
+    }
+    if (this.activeStockFilter === 'out') {
+      return this.stocks.filter(stock => (stock.available || 0) === 0);
+    }
+    return this.stocks;
+  }
+
+  getReorderPoint(stock: Stock): number {
+    return Number(stock.reorderPoint ?? stock.product?.minStockLevel ?? 0);
+  }
+
+  getSuggestedOrderQty(stock: Stock): number {
+    const maxStock = Number(stock.product?.maxStockLevel ?? 0);
+    const reorderPoint = this.getReorderPoint(stock);
+    const target = maxStock > 0 ? maxStock : reorderPoint * 2;
+    return Math.max(target - (stock.available || 0), 0);
+  }
+
+  getTotalStock(stock: Stock): number {
+    return Number(stock.total ?? stock.quantity ?? 0);
+  }
+
+  getReservationPercent(stock: Stock): number {
+    const total = this.getTotalStock(stock);
+    return total > 0 ? Math.round(((stock.reserved || 0) / total) * 100) : 0;
+  }
+
+  private normalizeStock(stock: any): Stock {
+    return {
+      ...stock,
+      total: Number(stock.total ?? stock.quantity ?? 0),
+      available: Number(stock.available ?? 0),
+      reserved: Number(stock.reserved ?? 0),
+      reorderPoint: Number(stock.reorderPoint ?? stock.product?.minStockLevel ?? 0),
+    };
   }
 }
 

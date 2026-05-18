@@ -141,9 +141,10 @@ export class MovementListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkPermissions();
-    this.loadInitialData();
     this.setupSearch();
     this.loadFiltersFromURL();
+    this.loadProducts();
+    this.loadWarehouses();
   }
 
   ngOnDestroy(): void {
@@ -466,12 +467,17 @@ export class MovementListComponent implements OnInit, OnDestroy {
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
+        this.filters = { page: this.pageIndex, limit: this.pageSize };
         if (params['page']) this.pageIndex = +params['page'];
         if (params['limit']) this.pageSize = +params['limit'];
         if (params['productId']) this.filters.productId = params['productId'];
         if (params['warehouseId']) this.filters.warehouseId = params['warehouseId'];
         if (params['type']) this.filters.type = params['type'];
         if (params['search']) this.searchText = params['search'];
+        this.filters.page = this.pageIndex;
+        this.filters.limit = this.pageSize;
+        this.loadMovements();
+        this.loadSummary();
       });
   }
 

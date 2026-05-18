@@ -16,6 +16,21 @@
     </div>
   </div>
 
+  <div class="stock-control-strip">
+    <button nz-button [nzType]="activeStockFilter === 'all' ? 'primary' : 'default'" (click)="setStockFilter('all')">
+      All Stock {{ total }}
+    </button>
+    <button nz-button [nzType]="activeStockFilter === 'low' ? 'primary' : 'default'" (click)="setStockFilter('low')">
+      Low Stock {{ lowStockCount }}
+    </button>
+    <button nz-button [nzType]="activeStockFilter === 'reserved' ? 'primary' : 'default'" (click)="setStockFilter('reserved')">
+      Reserved {{ reservedStockCount }}
+    </button>
+    <button nz-button [nzType]="activeStockFilter === 'out' ? 'primary' : 'default'" nzDanger (click)="setStockFilter('out')">
+      Out of Stock {{ outOfStockCount }}
+    </button>
+  </div>
+
   <!-- Filters -->
   <div class="filters-section">
     <nz-space [nzSize]="'middle'" style="width: 100%; flex-wrap: wrap;">
@@ -71,7 +86,7 @@
   <!-- Stock Table -->
   <nz-table
     #stockTable
-    [nzData]="stocks"
+    [nzData]="displayedStocks"
     [nzLoading]="loading"
     [nzTotal]="total"
     [nzPageSize]="pageSize"
@@ -91,17 +106,21 @@
         <th nzAlign="right">Available</th>
         <th nzAlign="right">Reserved</th>
         <th nzAlign="right">Total</th>
+        <th nzAlign="center">Reservation</th>
         <th>Unit</th>
         <th nzAlign="center">Status</th>
-        <th nzAlign="center" nzWidth="120px">Actions</th>
+        <th nzAlign="center" nzWidth="220px">Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let stock of stockTable.data" [class.low-stock-row]="isLowStock(stock)">
         <td>
           <strong>{{ stock.product.name }}</strong>
-          <div class="reorder-info" *ngIf="stock.reorderPoint">
-            <small>Reorder Point: {{ stock.reorderPoint }}</small>
+          <div class="reorder-info" *ngIf="getReorderPoint(stock)">
+            <small>Reorder Point: {{ getReorderPoint(stock) }}</small>
+          </div>
+          <div class="reorder-info" *ngIf="isLowStock(stock)">
+            <small>Suggested PO Qty: {{ getSuggestedOrderQty(stock) }}</small>
           </div>
         </td>
         <td>
@@ -118,7 +137,12 @@
         </td>
         <td nzAlign="right">{{ stock.reserved }}</td>
         <td nzAlign="right">
-          <strong>{{ stock.total }}</strong>
+          <strong>{{ getTotalStock(stock) }}</strong>
+        </td>
+        <td nzAlign="center">
+          <nz-tag [nzColor]="stock.reserved > 0 ? 'orange' : 'default'">
+            {{ getReservationPercent(stock) }}%
+          </nz-tag>
         </td>
         <td>{{ stock.product.unit.symbol }}</td>
         <td nzAlign="center">
@@ -140,6 +164,18 @@
               <span nz-icon nzType="history"></span>
               History
             </button>
+            <ng-container *nzSpaceItem>
+              <a
+                nz-button
+                nzType="link"
+                nzSize="small"
+                [routerLink]="['/purchases/orders/new']"
+                *ngIf="isLowStock(stock)"
+              >
+                <span nz-icon nzType="shopping-cart"></span>
+                Buy
+              </a>
+            </ng-container>
           </nz-space>
         </td>
       </tr>
@@ -147,11 +183,11 @@
   </nz-table>
 
   <!-- Summary Section -->
-  <div class="summary-section" *ngIf="stocks.length > 0">
+  <div class="summary-section" *ngIf="displayedStocks.length > 0">
     <nz-space [nzSize]="'large'">
       <div *nzSpaceItem class="summary-item">
         <div class="summary-label">Total Products</div>
-        <div class="summary-value">{{ stocks.length }}</div>
+        <div class="summary-value">{{ displayedStocks.length }}</div>
       </div>
       <div *nzSpaceItem class="summary-item">
         <div class="summary-label">Total Stock</div>

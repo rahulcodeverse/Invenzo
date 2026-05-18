@@ -30,13 +30,20 @@
   border-radius: 4px;
 }
 
+.stock-control-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
 .low-stock-row {
   background-color: #fff7e6;
 }
 
 .reorder-info {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: #6f675f;
   margin-top: 4px;
 }
 

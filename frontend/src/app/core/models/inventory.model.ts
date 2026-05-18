@@ -4,12 +4,15 @@ export interface Stock {
   warehouseId: string;
   available: number;
   reserved: number;
+  quantity?: number;
   total: number;
   reorderPoint?: number;
   product: {
     id: string;
     name: string;
     sku: string;
+    minStockLevel?: number;
+    maxStockLevel?: number;
     unit: { name: string; symbol: string };
   };
   warehouse: {
