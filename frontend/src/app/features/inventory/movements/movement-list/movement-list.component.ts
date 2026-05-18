@@ -84,6 +84,8 @@ export class MovementListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   warehouses: Warehouse[] = [];
   summary: MovementSummary | null = null;
+  selectedMovement: StockMovement | null = null;
+  detailsVisible = false;
 
   // Pagination
   pageIndex = 1;
@@ -374,9 +376,8 @@ export class MovementListComponent implements OnInit, OnDestroy {
    * View movement details (will open modal)
    */
   viewDetails(movement: StockMovement): void {
-    // Will implement modal in next phase
-    console.log('View details:', movement);
-    this.message.info('Details modal coming in next phase');
+    this.selectedMovement = movement;
+    this.detailsVisible = true;
   }
 
   /**

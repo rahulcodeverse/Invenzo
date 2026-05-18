@@ -370,4 +370,55 @@
       </button>
     </ng-template>
   </nz-empty>
+
+  <nz-modal
+    [(nzVisible)]="detailsVisible"
+    nzTitle="Movement Details"
+    [nzFooter]="null"
+    (nzOnCancel)="detailsVisible = false"
+    nzWidth="720px"
+  >
+    <ng-container *nzModalContent>
+      <div *ngIf="selectedMovement" class="movement-detail-grid">
+        <div>
+          <span>Product</span>
+          <strong>{{ selectedMovement.product?.name || '-' }}</strong>
+          <small>{{ selectedMovement.product?.sku || '-' }}</small>
+        </div>
+        <div>
+          <span>Warehouse</span>
+          <strong>{{ selectedMovement.warehouse?.name || '-' }}</strong>
+        </div>
+        <div>
+          <span>Movement Type</span>
+          <strong>{{ getTypeConfig(selectedMovement.type).label }}</strong>
+        </div>
+        <div>
+          <span>Quantity</span>
+          <strong [ngClass]="getQuantityClass(selectedMovement.quantity)">
+            {{ formatQuantity(selectedMovement.quantity) }}
+          </strong>
+        </div>
+        <div>
+          <span>Date & Time</span>
+          <strong>{{ formatDate(selectedMovement.createdAt) }}</strong>
+        </div>
+        <div>
+          <span>Reference</span>
+          <strong>{{ selectedMovement.reference || '-' }}</strong>
+        </div>
+        <div class="span-2">
+          <span>Notes</span>
+          <strong>{{ selectedMovement.notes || '-' }}</strong>
+        </div>
+        <div class="span-2">
+          <span>Recorded By</span>
+          <strong *ngIf="selectedMovement.user">
+            {{ selectedMovement.user.firstName }} {{ selectedMovement.user.lastName }}
+          </strong>
+          <strong *ngIf="!selectedMovement.user">-</strong>
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
 </nz-card>
