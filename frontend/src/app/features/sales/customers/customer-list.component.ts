@@ -185,7 +185,7 @@ import { debounceTime, Subject } from 'rxjs';
     </nz-modal>
 
     <nz-modal [(nzVisible)]="statementVisible" [nzTitle]="statementTitle" (nzOnCancel)="statementVisible=false"
-              [nzFooter]="null" nzWidth="1000px">
+              [nzFooter]="statementFooter" nzWidth="1000px">
       <ng-container *nzModalContent>
         <div *ngIf="statementLoading" class="statement-loading">Loading statement...</div>
         <ng-container *ngIf="!statementLoading && statement">
@@ -249,6 +249,13 @@ import { debounceTime, Subject } from 'rxjs';
         </ng-container>
       </ng-container>
     </nz-modal>
+    <ng-template #statementFooter>
+      <button nz-button (click)="exportStatementCsv()" [disabled]="!statement">
+        <span nz-icon nzType="download"></span>
+        Export CSV
+      </button>
+      <button nz-button nzType="primary" (click)="statementVisible=false">Close</button>
+    </ng-template>
   `,
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
@@ -402,6 +409,74 @@ export class CustomerListComponent implements OnInit {
 
   formatCurrency(value: number): string {
     return `INR ${Number(value || 0).toLocaleString('en-IN')}`;
+  }
+
+  exportStatementCsv(): void {
+    if (!this.statement) return;
+    const rows = [
+      ['Customer Statement', this.statement.customer?.name || ''],
+      ['Code', this.statement.customer?.code || ''],
+      [],
+      ['Summary'],
+      ['Total Sales', 'Total Invoiced', 'Total Paid', 'Outstanding'],
+      [
+        this.statement.summary?.totalSales || 0,
+        this.statement.summary?.totalInvoiced || 0,
+        this.statement.summary?.totalPaid || 0,
+        this.statement.summary?.totalOutstanding || 0,
+      ],
+      [],
+      ['Ledger'],
+      ['Date', 'Type', 'Document', 'Debit', 'Credit', 'Balance'],
+      ...this.statementLedger.map(row => [
+        new Date(row.date).toISOString().split('T')[0],
+        row.type,
+        row.number,
+        row.debit || 0,
+        row.credit || 0,
+        row.balance || 0,
+      ]),
+      [],
+      ['Invoices'],
+      ['Invoice', 'Date', 'Due Date', 'Status', 'Total', 'Paid', 'Balance'],
+      ...(this.statement.invoices || []).map((inv: any) => [
+        inv.invoiceNumber,
+        new Date(inv.invoiceDate).toISOString().split('T')[0],
+        new Date(inv.dueDate).toISOString().split('T')[0],
+        inv.status,
+        inv.total || 0,
+        inv.paidAmount || 0,
+        inv.balanceAmount || 0,
+      ]),
+      [],
+      ['Payments'],
+      ['Payment', 'Date', 'Method', 'Reference', 'Amount'],
+      ...(this.statement.payments || []).map((pay: any) => [
+        pay.paymentNumber,
+        new Date(pay.paymentDate).toISOString().split('T')[0],
+        pay.method,
+        pay.reference || '',
+        pay.amount || 0,
+      ]),
+    ];
+
+    this.downloadRows(rows, `customer-statement-${this.statement.customer?.code || 'export'}.csv`);
+  }
+
+  private downloadRows(rows: unknown[][], fileName: string): void {
+    const csv = rows.map(row => row.map(cell => this.csvCell(cell)).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private csvCell(value: unknown): string {
+    const text = String(value ?? '');
+    return `"${text.replace(/"/g, '""')}"`;
   }
 }
 
