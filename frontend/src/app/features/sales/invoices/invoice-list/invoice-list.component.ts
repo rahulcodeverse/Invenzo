@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -15,7 +15,7 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { SalesService } from '../../services/sales.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
-import { SalesInvoice, InvoiceStatus } from '../../models/sales.model';
+import { SalesInvoice } from '../../models/sales.model';
 import { Customer } from '../../../../core/models/master-data.model';
 import { debounceTime, Subject } from 'rxjs';
 
@@ -25,14 +25,14 @@ import { debounceTime, Subject } from 'rxjs';
   imports: [
     CommonModule, FormsModule, NzTableModule, NzButtonModule, NzInputModule,
     NzSelectModule, NzTagModule, NzModalModule, NzIconModule, NzSpaceModule,
-    NzCardModule, NzBadgeModule
+    NzCardModule, NzBadgeModule,
   ],
   template: `
     <nz-card>
       <div class="page-header">
         <div class="header-left">
           <h2>Sales Invoices</h2>
-          <p>Manage customer invoices</p>
+          <p>Manage receivables, overdue invoices, and customer payments</p>
         </div>
         <div class="header-right">
           <button nz-button nzType="primary" (click)="navigateToNew()">
@@ -40,6 +40,13 @@ import { debounceTime, Subject } from 'rxjs';
             New Invoice
           </button>
         </div>
+      </div>
+
+      <div class="aging-strip">
+        <button nz-button [nzType]="selectedStatus === null ? 'primary' : 'default'" (click)="setStatus(null)">All {{ total }}</button>
+        <button nz-button [nzType]="selectedStatus === 'PENDING' ? 'primary' : 'default'" (click)="setStatus('PENDING')">Pending {{ countByStatus('PENDING') }}</button>
+        <button nz-button [nzType]="selectedStatus === 'PARTIAL' ? 'primary' : 'default'" (click)="setStatus('PARTIAL')">Partial {{ countByStatus('PARTIAL') }}</button>
+        <button nz-button [nzType]="selectedStatus === 'OVERDUE' ? 'primary' : 'default'" nzDanger (click)="setStatus('OVERDUE')">Overdue {{ overdueCount }}</button>
       </div>
 
       <div class="filters-section">
@@ -65,7 +72,8 @@ import { debounceTime, Subject } from 'rxjs';
           </nz-select>
 
           <button *nzSpaceItem nz-button (click)="resetFilters()">
-            <span nz-icon nzType="redo"></span> Reset
+            <span nz-icon nzType="redo"></span>
+            Reset
           </button>
         </nz-space>
       </div>
@@ -88,17 +96,18 @@ import { debounceTime, Subject } from 'rxjs';
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let invoice of table.data" [class.overdue-row]="invoice.status === 'OVERDUE'">
-            <td><nz-tag nzColor="orange">{{ invoice.invoiceNumber }}</nz-tag></td>
+          <tr *ngFor="let invoice of table.data" [class.overdue-row]="isOverdue(invoice)">
+            <td>
+              <nz-tag nzColor="orange">{{ invoice.invoiceNumber }}</nz-tag>
+              <small class="due-note" *ngIf="invoice.balanceAmount > 0">{{ getDueLabel(invoice) }}</small>
+            </td>
             <td><strong>{{ invoice.customer?.name || '-' }}</strong></td>
             <td>{{ invoice.invoiceDate | date:'dd/MM/yyyy' }}</td>
             <td>{{ invoice.dueDate | date:'dd/MM/yyyy' }}</td>
-            <td nzAlign="right"><strong>₹{{ invoice.totalAmount.toLocaleString() }}</strong></td>
-            <td nzAlign="right">₹{{ invoice.paidAmount.toLocaleString() }}</td>
+            <td nzAlign="right"><strong>{{ formatCurrency(invoice.totalAmount) }}</strong></td>
+            <td nzAlign="right">{{ formatCurrency(invoice.paidAmount) }}</td>
             <td nzAlign="right">
-              <strong [class.text-danger]="invoice.balanceAmount > 0">
-                ₹{{ invoice.balanceAmount.toLocaleString() }}
-              </strong>
+              <strong [class.text-danger]="invoice.balanceAmount > 0">{{ formatCurrency(invoice.balanceAmount) }}</strong>
             </td>
             <td nzAlign="center">
               <nz-badge [nzStatus]="getStatusBadge(invoice.status)" [nzText]="invoice.status"></nz-badge>
@@ -111,9 +120,10 @@ import { debounceTime, Subject } from 'rxjs';
                 <button *nzSpaceItem nz-button nzSize="small" (click)="downloadPdf(invoice)">
                   <span nz-icon nzType="download"></span>
                 </button>
-                <ng-container *ngIf="invoice.balanceAmount > 0">
-                  <button *nzSpaceItem nz-button nzSize="small" nzType="primary" (click)="recordPayment(invoice)">
-                    <span nz-icon nzType="dollar"></span> Pay
+                <ng-container *nzSpaceItem>
+                  <button nz-button nzSize="small" nzType="primary" *ngIf="invoice.balanceAmount > 0" (click)="recordPayment(invoice)">
+                    <span nz-icon nzType="dollar"></span>
+                    Pay
                   </button>
                 </ng-container>
               </nz-space>
@@ -126,15 +136,15 @@ import { debounceTime, Subject } from 'rxjs';
         <nz-space [nzSize]="'large'">
           <div *nzSpaceItem class="summary-item">
             <div class="summary-label">Total Invoiced</div>
-            <div class="summary-value">₹{{ getTotalInvoiced().toLocaleString() }}</div>
+            <div class="summary-value">{{ formatCurrency(getTotalInvoiced()) }}</div>
           </div>
           <div *nzSpaceItem class="summary-item">
             <div class="summary-label">Total Paid</div>
-            <div class="summary-value text-success">₹{{ getTotalPaid().toLocaleString() }}</div>
+            <div class="summary-value text-success">{{ formatCurrency(getTotalPaid()) }}</div>
           </div>
           <div *nzSpaceItem class="summary-item">
             <div class="summary-label">Outstanding</div>
-            <div class="summary-value text-danger">₹{{ getTotalOutstanding().toLocaleString() }}</div>
+            <div class="summary-value text-danger">{{ formatCurrency(getTotalOutstanding()) }}</div>
           </div>
         </nz-space>
       </div>
@@ -144,15 +154,20 @@ import { debounceTime, Subject } from 'rxjs';
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .header-left h2 { margin: 0; font-size: 24px; font-weight: 600; }
     .header-left p { margin: 4px 0 0; color: rgba(0, 0, 0, 0.45); }
+    .aging-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
     .filters-section { margin-bottom: 16px; padding: 16px; background: #fafafa; border-radius: 4px; }
     .overdue-row { background-color: #fff1f0; }
+    .due-note { display: block; margin-top: 4px; color: #6f675f; }
     .text-danger { color: #cf1322; }
     .text-success { color: #9a4f12; }
     .summary-section { margin-top: 24px; padding: 16px; background: #f0f2f5; border-radius: 4px; }
     .summary-item { text-align: center; }
     .summary-label { font-size: 12px; color: rgba(0, 0, 0, 0.45); margin-bottom: 4px; }
     .summary-value { font-size: 24px; font-weight: 600; }
-  `]
+    @media (max-width: 680px) {
+      .page-header { align-items: flex-start; flex-direction: column; }
+    }
+  `],
 })
 export class InvoiceListComponent implements OnInit {
   invoices: SalesInvoice[] = [];
@@ -164,19 +179,25 @@ export class InvoiceListComponent implements OnInit {
   searchText = '';
   selectedStatus: string | null = null;
   selectedCustomer: string | null = null;
+  overdueCount = 0;
   private searchSubject = new Subject<string>();
 
   constructor(
     private salesService: SalesService,
     private masterDataService: MasterDataService,
     private router: Router,
-    private message: NzMessageService
+    private route: ActivatedRoute,
+    private message: NzMessageService,
   ) {
     this.searchSubject.pipe(debounceTime(500)).subscribe(() => this.loadInvoices());
   }
 
   ngOnInit(): void {
-    this.loadInvoices();
+    this.route.queryParamMap.subscribe(params => {
+      this.selectedStatus = params.get('status');
+      this.pageIndex = 1;
+      this.loadInvoices();
+    });
     this.loadCustomers();
   }
 
@@ -186,16 +207,23 @@ export class InvoiceListComponent implements OnInit {
       page: this.pageIndex,
       limit: this.pageSize,
       customerId: this.selectedCustomer || undefined,
-      status: this.selectedStatus || undefined
+      status: this.selectedStatus || undefined,
     }).subscribe({
-      next: (res) => { this.invoices = res.data; this.total = res.meta.total; this.loading = false; },
-      error: () => { this.loading = false; }
+      next: res => {
+        this.invoices = res.data;
+        this.total = res.meta.total;
+        this.overdueCount = this.invoices.filter(invoice => this.isOverdue(invoice)).length;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
     });
   }
 
   loadCustomers(): void {
     this.masterDataService.getCustomers({ limit: 200 }).subscribe({
-      next: (res) => { this.customers = res.data; }
+      next: res => { this.customers = res.data; },
     });
   }
 
@@ -203,6 +231,7 @@ export class InvoiceListComponent implements OnInit {
   onPageChange(page: number): void { this.pageIndex = page; this.loadInvoices(); }
   onPageSizeChange(size: number): void { this.pageSize = size; this.pageIndex = 1; this.loadInvoices(); }
   onFilterChange(): void { this.pageIndex = 1; this.loadInvoices(); }
+  setStatus(status: string | null): void { this.selectedStatus = status; this.onFilterChange(); }
   resetFilters(): void { this.searchText = ''; this.selectedStatus = null; this.selectedCustomer = null; this.loadInvoices(); }
   navigateToNew(): void { this.router.navigate(['/sales/invoices/new']); }
   viewInvoice(invoice: SalesInvoice): void { this.router.navigate(['/sales/invoices', invoice.id]); }
@@ -222,13 +251,32 @@ export class InvoiceListComponent implements OnInit {
         this.savePdf(blob, `sales-invoice-${invoice.invoiceNumber}.pdf`);
         this.message.success('Invoice PDF downloaded');
       },
-      error: () => this.message.error('Unable to download invoice PDF')
+      error: () => this.message.error('Unable to download invoice PDF'),
     });
+  }
+
+  countByStatus(status: string): number {
+    return this.invoices.filter(invoice => invoice.status === status).length;
+  }
+
+  isOverdue(invoice: SalesInvoice): boolean {
+    return invoice.status !== 'PAID' && new Date(invoice.dueDate) < new Date();
+  }
+
+  getDueLabel(invoice: SalesInvoice): string {
+    const diff = Math.ceil((new Date(invoice.dueDate).getTime() - Date.now()) / 86400000);
+    if (diff < 0) return `${Math.abs(diff)} days overdue`;
+    if (diff === 0) return 'Due today';
+    return `Due in ${diff} days`;
   }
 
   getTotalInvoiced(): number { return this.invoices.reduce((sum, inv) => sum + inv.totalAmount, 0); }
   getTotalPaid(): number { return this.invoices.reduce((sum, inv) => sum + inv.paidAmount, 0); }
   getTotalOutstanding(): number { return this.invoices.reduce((sum, inv) => sum + inv.balanceAmount, 0); }
+
+  formatCurrency(value: number): string {
+    return `INR ${Number(value || 0).toLocaleString('en-IN')}`;
+  }
 
   private savePdf(blob: Blob, fileName: string): void {
     const url = URL.createObjectURL(blob);
@@ -239,4 +287,3 @@ export class InvoiceListComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 }
-

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -148,12 +149,14 @@ export class VendorPaymentListComponent implements OnInit {
     private service: PurchasesService,
     private masterData: MasterDataService,
     private fb: FormBuilder,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
     this.form = this.fb.group({
       vendorId: [null, Validators.required],
+      invoiceId: [null],
       paymentDate: [new Date(), Validators.required],
       amount: [null, [Validators.required, Validators.min(0.01)]],
       method: ['BANK_TRANSFER', Validators.required],
@@ -164,6 +167,12 @@ export class VendorPaymentListComponent implements OnInit {
     this.masterData.getVendors().subscribe((res: any) => {
       const data = res.data?.data ?? res.data ?? res;
       this.vendors = Array.isArray(data) ? data : [];
+    });
+    this.route.queryParamMap.subscribe(params => {
+      const invoiceId = params.get('invoiceId');
+      if (invoiceId) {
+        this.openForInvoice(invoiceId);
+      }
     });
   }
 
@@ -179,7 +188,26 @@ export class VendorPaymentListComponent implements OnInit {
     });
   }
 
-  openModal() { this.form.reset({ paymentDate: new Date(), method: 'BANK_TRANSFER' }); this.modalVisible = true; }
+  openModal() { this.form.reset({ paymentDate: new Date(), method: 'BANK_TRANSFER', invoiceId: null }); this.modalVisible = true; }
+
+  openForInvoice(invoiceId: string): void {
+    this.service.getPurchaseInvoiceById(invoiceId).subscribe({
+      next: res => {
+        const invoice = res.data;
+        this.form.patchValue({
+          vendorId: invoice.vendorId,
+          invoiceId: invoice.id,
+          amount: invoice.balanceAmount,
+          paymentDate: new Date(),
+          method: 'BANK_TRANSFER',
+          reference: '',
+          notes: `Payment for ${invoice.invoiceNumber}`,
+        });
+        this.modalVisible = true;
+      },
+      error: () => this.message.error('Unable to load purchase invoice for payment'),
+    });
+  }
 
   submit() {
     if (this.form.invalid) return;
