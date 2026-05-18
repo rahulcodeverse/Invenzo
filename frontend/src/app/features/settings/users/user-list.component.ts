@@ -94,39 +94,24 @@ export class UserListComponent implements OnInit {
 
   loadUsers(): void {
     this.loading = true;
-    console.log('Loading users from:', `${environment.apiUrl}/users`);
 
     this.http.get<any>(`${environment.apiUrl}/users`).subscribe({
       next: (response) => {
-        console.log('Users API response:', response);
-
-        // Handle nested response structure: response.data.data contains the array
         let data;
         if (response.data && response.data.data) {
-          // Paginated response: { success, data: { data: [...], meta: {...} } }
           data = response.data.data;
         } else if (response.data) {
-          // Simple response: { success, data: [...] }
           data = response.data;
         } else {
-          // Direct array: [...]
           data = response;
         }
 
-        console.log('Extracted data:', data);
-
         this.users = Array.isArray(data) ? data : [];
-        console.log('Final users array:', this.users, 'Length:', this.users.length);
-
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading users:', error);
-        console.error('Error status:', error.status);
-        console.error('Error message:', error.message);
-
         this.message.error('Failed to load users: ' + (error.error?.message || error.message));
-        this.users = []; // Set to empty array on error
+        this.users = [];
         this.loading = false;
       }
     });
@@ -165,13 +150,10 @@ export class UserListComponent implements OnInit {
     if (this.userForm.valid) {
       const formData = { ...this.userForm.value };
 
-      // Remove password if in edit mode and not changed
       if (this.isEditMode && !formData.password) {
         delete formData.password;
       }
 
-      // Remove isActive for create - backend doesn't support it in CreateUserDto
-      // Users are active by default
       if (!this.isEditMode) {
         delete formData.isActive;
       }
@@ -190,7 +172,6 @@ export class UserListComponent implements OnInit {
           this.loadUsers();
         },
         error: (error) => {
-          console.error('Error saving user:', error);
           this.message.error(error.error?.message || 'Failed to save user');
         }
       });
@@ -213,8 +194,7 @@ export class UserListComponent implements OnInit {
         user.isActive = newStatus;
         this.message.success(`User ${newStatus ? 'activated' : 'deactivated'} successfully`);
       },
-      error: (error) => {
-        console.error('Error updating user status:', error);
+      error: () => {
         this.message.error('Failed to update user status');
       }
     });
@@ -226,8 +206,7 @@ export class UserListComponent implements OnInit {
         this.message.success('User deleted successfully');
         this.loadUsers();
       },
-      error: (error) => {
-        console.error('Error deleting user:', error);
+      error: () => {
         this.message.error('Failed to delete user');
       }
     });

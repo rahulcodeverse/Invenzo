@@ -99,8 +99,6 @@ export class ProductListComponent implements OnInit {
   loadFilters(): void {
     this.productApi.getCategories().subscribe({
       next: (response: any) => {
-        console.log('Categories response:', response);
-        // Handle different response structures
         if (Array.isArray(response)) {
           this.categories = response;
         } else if (response.data) {
@@ -115,16 +113,13 @@ export class ProductListComponent implements OnInit {
           this.categories = [];
         }
       },
-      error: (err) => {
-        console.error('Error loading categories:', err);
+      error: () => {
         this.categories = [];
       }
     });
 
     this.productApi.getBrands().subscribe({
       next: (response: any) => {
-        console.log('Brands response:', response);
-        // Handle different response structures
         if (Array.isArray(response)) {
           this.brands = response;
         } else if (response.data) {
@@ -139,8 +134,7 @@ export class ProductListComponent implements OnInit {
           this.brands = [];
         }
       },
-      error: (err) => {
-        console.error('Error loading brands:', err);
+      error: () => {
         this.brands = [];
       }
     });

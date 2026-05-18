@@ -159,10 +159,6 @@ export class AuthService {
       },
     });
 
-    // TODO: Send email with reset link
-    // For now, just return the token (in production, this should be sent via email)
-    console.log(`Reset token for ${user.email}: ${resetToken}`);
-
     return { message: 'If the email exists, a reset link has been sent' };
   }
 

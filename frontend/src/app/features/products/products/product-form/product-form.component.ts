@@ -97,42 +97,30 @@ export class ProductFormComponent implements OnInit {
   loadMasterData(): void {
     this.productApi.getCategories().subscribe({
       next: (response: any) => {
-        console.log('Categories response:', response);
-        // Handle both response formats: { data: { data: [], meta: {} } } or { data: [] }
         const dataArray = response?.data?.data || response?.data;
         this.categories = Array.isArray(dataArray) ? dataArray : [];
-        console.log('Final categories:', this.categories);
       },
-      error: (error) => {
-        console.error('Error loading categories:', error);
+      error: () => {
         this.categories = [];
       }
     });
 
     this.productApi.getBrands().subscribe({
       next: (response: any) => {
-        console.log('Brands response:', response);
-        // Handle both response formats: { data: { data: [], meta: {} } } or { data: [] }
         const dataArray = response?.data?.data || response?.data;
         this.brands = Array.isArray(dataArray) ? dataArray : [];
-        console.log('Final brands:', this.brands);
       },
-      error: (error) => {
-        console.error('Error loading brands:', error);
+      error: () => {
         this.brands = [];
       }
     });
 
     this.productApi.getUnits().subscribe({
       next: (response: any) => {
-        console.log('Units response:', response);
-        // Handle both response formats: { data: { data: [], meta: {} } } or { data: [] }
         const dataArray = response?.data?.data || response?.data;
         this.units = Array.isArray(dataArray) ? dataArray : [];
-        console.log('Final units:', this.units);
       },
-      error: (error) => {
-        console.error('Error loading units:', error);
+      error: () => {
         this.units = [];
       }
     });
@@ -239,8 +227,6 @@ export class ProductFormComponent implements OnInit {
         }
       }
 
-      console.log('Submitting product payload:', payload);
-
       const request = this.isEditMode
         ? this.productApi.updateProduct(this.productId!, payload)
         : this.productApi.createProduct(payload);
@@ -253,7 +239,6 @@ export class ProductFormComponent implements OnInit {
           this.router.navigate(['/products']);
         },
         error: (error) => {
-          console.error('Save error:', error);
           const errorMsg = error?.error?.message || 'Failed to save product';
           this.message.error(Array.isArray(errorMsg) ? errorMsg.join(', ') : errorMsg);
           this.saving = false;
@@ -270,12 +255,6 @@ export class ProductFormComponent implements OnInit {
           control.updateValueAndValidity({ onlySelf: true });
         }
       });
-
-      // Log which fields are invalid for debugging
-      const invalidFields = Object.keys(this.productForm.controls).filter(
-        key => this.productForm.get(key)?.invalid
-      );
-      console.log('Invalid fields:', invalidFields);
 
       this.message.warning('Please fill in all required fields');
     }
