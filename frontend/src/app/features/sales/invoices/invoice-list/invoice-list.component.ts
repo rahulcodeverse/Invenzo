@@ -84,7 +84,7 @@ import { debounceTime, Subject } from 'rxjs';
             <th nzAlign="right">Paid</th>
             <th nzAlign="right">Balance</th>
             <th nzAlign="center">Status</th>
-            <th nzAlign="center" nzWidth="150px">Actions</th>
+            <th nzAlign="center" nzWidth="190px">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -107,6 +107,9 @@ import { debounceTime, Subject } from 'rxjs';
               <nz-space>
                 <button *nzSpaceItem nz-button nzSize="small" (click)="viewInvoice(invoice)">
                   <span nz-icon nzType="eye"></span>
+                </button>
+                <button *nzSpaceItem nz-button nzSize="small" (click)="downloadPdf(invoice)">
+                  <span nz-icon nzType="download"></span>
                 </button>
                 <ng-container *ngIf="invoice.balanceAmount > 0">
                   <button *nzSpaceItem nz-button nzSize="small" nzType="primary" (click)="recordPayment(invoice)">
@@ -213,8 +216,27 @@ export class InvoiceListComponent implements OnInit {
     this.router.navigate(['/sales/payments/new'], { queryParams: { invoiceId: invoice.id } });
   }
 
+  downloadPdf(invoice: SalesInvoice): void {
+    this.salesService.downloadSalesInvoicePdf(invoice.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `sales-invoice-${invoice.invoiceNumber}.pdf`);
+        this.message.success('Invoice PDF downloaded');
+      },
+      error: () => this.message.error('Unable to download invoice PDF')
+    });
+  }
+
   getTotalInvoiced(): number { return this.invoices.reduce((sum, inv) => sum + inv.totalAmount, 0); }
   getTotalPaid(): number { return this.invoices.reduce((sum, inv) => sum + inv.paidAmount, 0); }
   getTotalOutstanding(): number { return this.invoices.reduce((sum, inv) => sum + inv.balanceAmount, 0); }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
 }
 

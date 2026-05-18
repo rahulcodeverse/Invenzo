@@ -109,6 +109,10 @@ export class SalesService {
       .pipe(map(res => ({ ...res, data: this.normalizeQuotation(res.data) })));
   }
 
+  downloadQuotationPdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/sales/quotations/${id}/pdf`, { responseType: 'blob' });
+  }
+
   createQuotation(quotation: Partial<Quotation>): Observable<ApiResponse<Quotation>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/sales/quotations`, quotation)
       .pipe(map(res => ({ ...res, data: this.normalizeQuotation(res.data) })));
@@ -189,6 +193,10 @@ export class SalesService {
     return this.http.get<PaginatedResponse<DeliveryNote>>(`${this.apiUrl}/sales/delivery`, { params: httpParams });
   }
 
+  downloadDeliveryChallanPdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/sales/delivery/${id}/pdf`, { responseType: 'blob' });
+  }
+
   createDeliveryNote(delivery: Partial<DeliveryNote>): Observable<ApiResponse<DeliveryNote>> {
     return this.http.post<ApiResponse<DeliveryNote>>(`${this.apiUrl}/sales/delivery`, delivery);
   }
@@ -215,6 +223,10 @@ export class SalesService {
   getSalesInvoiceById(id: string): Observable<ApiResponse<SalesInvoice>> {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/sales/invoice/${id}`)
       .pipe(map(res => ({ ...res, data: this.normalizeInvoice(res.data) })));
+  }
+
+  downloadSalesInvoicePdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/sales/invoice/${id}/pdf`, { responseType: 'blob' });
   }
 
   createSalesInvoice(invoice: Partial<SalesInvoice>): Observable<ApiResponse<SalesInvoice>> {

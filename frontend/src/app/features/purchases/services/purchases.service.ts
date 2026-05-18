@@ -37,6 +37,10 @@ export class PurchasesService {
     return this.http.get<ApiResponse<PurchaseOrder>>(`${this.apiUrl}/purchases/po/${id}`);
   }
 
+  downloadPurchaseOrderPdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/purchases/po/${id}/pdf`, { responseType: 'blob' });
+  }
+
   createPurchaseOrder(po: Partial<PurchaseOrder>): Observable<ApiResponse<PurchaseOrder>> {
     return this.http.post<ApiResponse<PurchaseOrder>>(`${this.apiUrl}/purchases/po`, po);
   }

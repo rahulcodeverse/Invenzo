@@ -6,6 +6,7 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { SalesService } from '../../services/sales.service';
 import { DeliveryNote } from '../../models/sales.model';
 
@@ -37,6 +38,7 @@ import { DeliveryNote } from '../../models/sales.model';
             <th>Date</th>
             <th nzAlign="right">Items</th>
             <th>Warehouse</th>
+            <th nzAlign="center" nzWidth="80px">PDF</th>
           </tr>
         </thead>
         <tbody>
@@ -47,6 +49,11 @@ import { DeliveryNote } from '../../models/sales.model';
             <td>{{ delivery.deliveryDate | date:'dd/MM/yyyy' }}</td>
             <td nzAlign="right">{{ delivery.items.length }}</td>
             <td>{{ delivery.warehouse?.name || '-' }}</td>
+            <td nzAlign="center">
+              <button nz-button nzSize="small" (click)="downloadPdf(delivery)">
+                <span nz-icon nzType="download"></span>
+              </button>
+            </td>
           </tr>
         </tbody>
       </nz-table>
@@ -65,7 +72,11 @@ export class DeliveryListComponent implements OnInit {
   pageIndex = 1;
   pageSize = 20;
 
-  constructor(private salesService: SalesService, private router: Router) {}
+  constructor(
+    private salesService: SalesService,
+    private router: Router,
+    private message: NzMessageService
+  ) {}
 
   ngOnInit(): void {
     this.loadDeliveries();
@@ -90,5 +101,24 @@ export class DeliveryListComponent implements OnInit {
 
   createDelivery(): void {
     this.router.navigate(['/sales/delivery/new']);
+  }
+
+  downloadPdf(delivery: DeliveryNote): void {
+    this.salesService.downloadDeliveryChallanPdf(delivery.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `delivery-challan-${delivery.deliveryNumber}.pdf`);
+        this.message.success('Delivery challan downloaded');
+      },
+      error: () => this.message.error('Unable to download delivery challan')
+    });
+  }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

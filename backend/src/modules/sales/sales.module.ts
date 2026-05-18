@@ -12,8 +12,10 @@ import {
 import { DeliveryService } from './delivery.service';
 import { SalesInvoicesService } from './sales-invoices.service';
 import { CustomerPaymentsService } from './customer-payments.service';
+import { DocumentsModule } from '../documents/documents.module';
 
 @Module({
+  imports: [DocumentsModule],
   controllers: [
     CustomersController,
     QuotationsController,

@@ -12,9 +12,10 @@ import { GrnService } from './grn.service';
 import { PurchaseInvoicesService } from './invoices.service';
 import { VendorPaymentsService } from './payments.service';
 import { InventoryModule } from '../inventory/inventory.module';
+import { DocumentsModule } from '../documents/documents.module';
 
 @Module({
-  imports: [InventoryModule],
+  imports: [InventoryModule, DocumentsModule],
   controllers: [
     VendorsController,
     PurchaseOrdersController,

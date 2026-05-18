@@ -80,7 +80,7 @@ import { debounceTime, Subject } from 'rxjs';
             <th>Valid Until</th>
             <th nzAlign="right">Amount</th>
             <th nzAlign="center">Status</th>
-            <th nzAlign="center" nzWidth="180px">Actions</th>
+            <th nzAlign="center" nzWidth="220px">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -97,6 +97,9 @@ import { debounceTime, Subject } from 'rxjs';
               <nz-space>
                 <button *nzSpaceItem nz-button nzSize="small" [routerLink]="['/sales/quotations', item.id, 'edit']">
                   <span nz-icon nzType="edit"></span>
+                </button>
+                <button *nzSpaceItem nz-button nzSize="small" (click)="downloadPdf(item)">
+                  <span nz-icon nzType="download"></span>
                 </button>
                 <ng-container *ngIf="item.status === 'APPROVED'">
                   <button *nzSpaceItem nz-button nzSize="small" nzType="primary" (click)="convertToOrder(item)">
@@ -192,6 +195,16 @@ export class QuotationListComponent implements OnInit {
     });
   }
 
+  downloadPdf(quotation: Quotation): void {
+    this.salesService.downloadQuotationPdf(quotation.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `quotation-${quotation.quotationNumber}.pdf`);
+        this.message.success('Quotation PDF downloaded');
+      },
+      error: () => this.message.error('Unable to download quotation PDF')
+    });
+  }
+
   confirmDelete(item: Quotation): void {
     this.modal.confirm({
       nzTitle: 'Delete Quotation',
@@ -201,6 +214,15 @@ export class QuotationListComponent implements OnInit {
         next: () => { this.message.success('Deleted'); this.loadQuotations(); }
       })
     });
+  }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }
 

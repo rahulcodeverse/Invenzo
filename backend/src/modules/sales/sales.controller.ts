@@ -6,7 +6,9 @@ import {
   Param,
   Query,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { DeliveryService } from './delivery.service';
 import { SalesInvoicesService } from './sales-invoices.service';
@@ -24,13 +26,17 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { GetTenantId } from '../../common/decorators/get-tenant.decorator';
 import { GetUser } from '../../common/decorators/get-user.decorator';
+import { DocumentsService } from '../documents/documents.service';
 
 @ApiTags('delivery-notes')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('sales/delivery')
 export class DeliveryController {
-  constructor(private readonly deliveryService: DeliveryService) {}
+  constructor(
+    private readonly deliveryService: DeliveryService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'STAFF')
@@ -57,6 +63,22 @@ export class DeliveryController {
   findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
     return this.deliveryService.findOne(id, tenantId);
   }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download delivery challan PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createDeliveryChallanPdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="delivery-challan-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
+  }
 }
 
 @ApiTags('sales-invoices')
@@ -64,7 +86,10 @@ export class DeliveryController {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('sales/invoice')
 export class SalesInvoicesController {
-  constructor(private readonly invoicesService: SalesInvoicesService) {}
+  constructor(
+    private readonly invoicesService: SalesInvoicesService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
@@ -104,6 +129,22 @@ export class SalesInvoicesController {
   @ApiResponse({ status: 200, description: 'Invoice retrieved successfully' })
   findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
     return this.invoicesService.findOne(id, tenantId);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download GST sales invoice PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createSalesInvoicePdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="sales-invoice-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 }
 

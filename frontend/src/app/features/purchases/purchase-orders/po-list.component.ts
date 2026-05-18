@@ -63,7 +63,7 @@ import { debounceTime, Subject } from 'rxjs';
             <th>Expected Date</th>
             <th nzAlign="right">Total</th>
             <th nzAlign="center">Status</th>
-            <th nzAlign="center" nzWidth="140px">Actions</th>
+            <th nzAlign="center" nzWidth="180px">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -81,6 +81,9 @@ import { debounceTime, Subject } from 'rxjs';
                 <a *nzSpaceItem nz-button nzType="default" nzSize="small" [routerLink]="['/purchases/orders', po.id]">
                   <span nz-icon nzType="eye"></span>
                 </a>
+                <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="downloadPdf(po)">
+                  <span nz-icon nzType="download"></span>
+                </button>
                 <ng-container *ngIf="po.status === 'DRAFT'">
                   <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="approve(po)">
                     <span nz-icon nzType="check"></span>
@@ -169,5 +172,24 @@ export class PoListComponent implements OnInit {
         error: (e) => this.message.error(e.error?.message ?? 'Failed')
       })
     });
+  }
+
+  downloadPdf(po: PurchaseOrder) {
+    this.service.downloadPurchaseOrderPdf(po.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `purchase-order-${po.poNumber}.pdf`);
+        this.message.success('Purchase order PDF downloaded');
+      },
+      error: () => this.message.error('Unable to download purchase order PDF')
+    });
+  }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

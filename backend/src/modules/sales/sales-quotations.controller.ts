@@ -8,7 +8,9 @@ import {
   Delete,
   Query,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { QuotationsService } from './quotations.service';
 import { SalesOrdersService } from './sales-orders.service';
@@ -24,13 +26,17 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { GetTenantId } from '../../common/decorators/get-tenant.decorator';
 import { GetUser } from '../../common/decorators/get-user.decorator';
+import { DocumentsService } from '../documents/documents.service';
 
 @ApiTags('quotations')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('sales/quotations')
 export class QuotationsController {
-  constructor(private readonly quotationsService: QuotationsService) {}
+  constructor(
+    private readonly quotationsService: QuotationsService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'STAFF')
@@ -56,6 +62,22 @@ export class QuotationsController {
   @ApiResponse({ status: 200, description: 'Quotation retrieved successfully' })
   findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
     return this.quotationsService.findOne(id, tenantId);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download quotation PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createQuotationPdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="quotation-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 
   @Patch(':id')

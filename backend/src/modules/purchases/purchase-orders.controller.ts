@@ -8,7 +8,9 @@ import {
   Delete,
   Query,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { PurchaseOrdersService } from './purchase-orders.service';
 import { CreatePurchaseOrderDto, UpdatePurchaseOrderDto, PurchaseOrderQueryDto } from './dto/purchase-order.dto';
@@ -17,13 +19,17 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { GetTenantId } from '../../common/decorators/get-tenant.decorator';
 import { GetUser } from '../../common/decorators/get-user.decorator';
+import { DocumentsService } from '../documents/documents.service';
 
 @ApiTags('purchase-orders')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('purchases/po')
 export class PurchaseOrdersController {
-  constructor(private readonly purchaseOrdersService: PurchaseOrdersService) {}
+  constructor(
+    private readonly purchaseOrdersService: PurchaseOrdersService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'STAFF')
@@ -56,6 +62,22 @@ export class PurchaseOrdersController {
   @ApiResponse({ status: 200, description: 'Purchase order retrieved successfully' })
   async findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
     return this.purchaseOrdersService.findOne(id, tenantId);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download purchase order PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createPurchaseOrderPdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="purchase-order-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 
   @Patch(':id')
