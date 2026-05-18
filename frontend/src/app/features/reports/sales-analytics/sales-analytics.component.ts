@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -19,6 +20,7 @@ import { ReportsService } from '../services/reports.service';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     NzCardModule,
     NzGridModule,
     NzTableModule,
@@ -44,6 +46,10 @@ import { ReportsService } from '../services/reports.service';
             <nz-option nzValue="week" nzLabel="Weekly"></nz-option>
             <nz-option nzValue="month" nzLabel="Monthly"></nz-option>
           </nz-select>
+          <button nz-button (click)="exportCsv()">
+            <span nz-icon nzType="download"></span>
+            Export CSV
+          </button>
         </div>
       </div>
 
@@ -101,7 +107,14 @@ import { ReportsService } from '../services/reports.service';
             </thead>
             <tbody>
               <tr *ngFor="let product of productSales">
-                <td><strong>{{ product.product?.name || product.productName || product.name || '-' }}</strong></td>
+                <td>
+                  <a *ngIf="product.product?.id; else productName" [routerLink]="['/products', product.product.id, 'edit']">
+                    <strong>{{ product.product?.name || product.productName || product.name || '-' }}</strong>
+                  </a>
+                  <ng-template #productName>
+                    <strong>{{ product.product?.name || product.productName || product.name || '-' }}</strong>
+                  </ng-template>
+                </td>
                 <td>{{ product.product?.sku || product.sku || '-' }}</td>
                 <td nzAlign="right">{{ product.quantitySold || product.totalQuantity || 0 | number }}</td>
                 <td nzAlign="right" class="money">INR {{ product.revenue || product.totalRevenue || 0 | number:'1.2-2' }}</td>
@@ -143,7 +156,11 @@ import { ReportsService } from '../services/reports.service';
             </thead>
             <tbody>
               <tr *ngFor="let customer of customerSales">
-                <td><strong>{{ customer.customer?.name || customer.customerName || customer.name || '-' }}</strong></td>
+                <td>
+                  <a routerLink="/customers">
+                    <strong>{{ customer.customer?.name || customer.customerName || customer.name || '-' }}</strong>
+                  </a>
+                </td>
                 <td nzAlign="right">{{ customer.invoiceCount || customer.totalOrders || 0 | number }}</td>
                 <td nzAlign="right">INR {{ customer.paid || customer.totalPaid || 0 | number:'1.2-2' }}</td>
                 <td nzAlign="right" class="money">INR {{ customer.revenue || customer.totalRevenue || 0 | number:'1.2-2' }}</td>
@@ -266,5 +283,57 @@ export class SalesAnalyticsComponent implements OnInit {
   private extractArray(res: any): any[] {
     const data = res?.data ?? res ?? [];
     return Array.isArray(data) ? data : [];
+  }
+
+  exportCsv(): void {
+    const rows = [
+      ['Sales Trend'],
+      ['Period', 'Revenue'],
+      ...this.trend.map(item => [item.date || item.period || '-', item.total || item.revenue || 0]),
+      [],
+      ['Product Sales'],
+      ['Product', 'SKU', 'Quantity Sold', 'Revenue'],
+      ...this.productSales.map(item => [
+        item.product?.name || item.productName || item.name || '-',
+        item.product?.sku || item.sku || '-',
+        item.quantitySold || item.totalQuantity || 0,
+        item.revenue || item.totalRevenue || 0,
+      ]),
+      [],
+      ['Category Sales'],
+      ['Category', 'Quantity Sold', 'Revenue'],
+      ...this.categorySales.map(item => [
+        item.name || item.categoryName || '-',
+        item.quantity || item.totalQuantity || 0,
+        item.revenue || item.totalRevenue || 0,
+      ]),
+      [],
+      ['Customer Sales'],
+      ['Customer', 'Invoices', 'Paid', 'Revenue'],
+      ...this.customerSales.map(item => [
+        item.customer?.name || item.customerName || item.name || '-',
+        item.invoiceCount || item.totalOrders || 0,
+        item.paid || item.totalPaid || 0,
+        item.revenue || item.totalRevenue || 0,
+      ]),
+    ];
+
+    this.downloadRows(rows, `sales-analytics-${this.fromDate}-to-${this.toDate}.csv`);
+  }
+
+  private downloadRows(rows: unknown[][], fileName: string): void {
+    const csv = rows.map(row => row.map(cell => this.csvCell(cell)).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private csvCell(value: unknown): string {
+    const text = String(value ?? '');
+    return `"${text.replace(/"/g, '""')}"`;
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -17,6 +18,7 @@ import { ReportsService } from '../services/reports.service';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     NzCardModule,
     NzTableModule,
     NzTagModule,
@@ -33,10 +35,16 @@ import { ReportsService } from '../services/reports.service';
           <h2>Inventory Analytics</h2>
           <p>Stock ageing, dead stock, reorder alerts, and expiry tracking</p>
         </div>
-        <button nz-button nzType="primary" (click)="loadAll()" [nzLoading]="loading">
-          <span nz-icon nzType="reload"></span>
-          Refresh
-        </button>
+        <div class="actions">
+          <button nz-button (click)="exportCsv()">
+            <span nz-icon nzType="download"></span>
+            Export CSV
+          </button>
+          <button nz-button nzType="primary" (click)="loadAll()" [nzLoading]="loading">
+            <span nz-icon nzType="reload"></span>
+            Refresh
+          </button>
+        </div>
       </div>
 
       <nz-tabset>
@@ -54,17 +62,24 @@ import { ReportsService } from '../services/reports.service';
                 <th nzAlign="right">Reorder Level</th>
                 <th nzAlign="right">Suggested Qty</th>
                 <th nzAlign="right">Estimated Cost</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let item of reorderItems">
-                <td><strong>{{ item.product?.name || item.productName || '-' }}</strong></td>
+                <td>
+                  <a *ngIf="item.product?.id; else reorderProduct" [routerLink]="['/products', item.product.id, 'edit']">
+                    <strong>{{ item.product?.name || item.productName || '-' }}</strong>
+                  </a>
+                  <ng-template #reorderProduct><strong>{{ item.product?.name || item.productName || '-' }}</strong></ng-template>
+                </td>
                 <td>{{ item.product?.sku || item.sku || '-' }}</td>
                 <td>{{ item.warehouse?.name || item.warehouseName || '-' }}</td>
                 <td nzAlign="right" class="danger">{{ item.currentStock || item.quantity || 0 | number }}</td>
                 <td nzAlign="right">{{ item.reorderLevel || item.product?.reorderLevel || 0 | number }}</td>
                 <td nzAlign="right" class="warning">{{ item.suggestedOrderQty || item.reorderQuantity || 0 | number }}</td>
                 <td nzAlign="right">INR {{ item.estimatedCost || 0 | number:'1.2-2' }}</td>
+                <td><a routerLink="/purchases/orders/new">Create PO</a></td>
               </tr>
             </tbody>
           </nz-table>
@@ -84,7 +99,12 @@ import { ReportsService } from '../services/reports.service';
             </thead>
             <tbody>
               <tr *ngFor="let item of ageing">
-                <td><strong>{{ item.product?.name || item.productName || '-' }}</strong></td>
+                <td>
+                  <a *ngIf="item.product?.id; else ageingProduct" [routerLink]="['/products', item.product.id, 'edit']">
+                    <strong>{{ item.product?.name || item.productName || '-' }}</strong>
+                  </a>
+                  <ng-template #ageingProduct><strong>{{ item.product?.name || item.productName || '-' }}</strong></ng-template>
+                </td>
                 <td>{{ item.warehouse?.name || item.warehouseName || '-' }}</td>
                 <td nzAlign="right">{{ item.quantity || 0 | number }}</td>
                 <td nzAlign="right">INR {{ item.value || 0 | number:'1.2-2' }}</td>
@@ -112,7 +132,12 @@ import { ReportsService } from '../services/reports.service';
             </thead>
             <tbody>
               <tr *ngFor="let item of deadStock">
-                <td><strong>{{ item.product?.name || item.productName || '-' }}</strong></td>
+                <td>
+                  <a *ngIf="item.product?.id; else deadProduct" [routerLink]="['/products', item.product.id, 'edit']">
+                    <strong>{{ item.product?.name || item.productName || '-' }}</strong>
+                  </a>
+                  <ng-template #deadProduct><strong>{{ item.product?.name || item.productName || '-' }}</strong></ng-template>
+                </td>
                 <td>{{ item.warehouse?.name || item.warehouseName || '-' }}</td>
                 <td nzAlign="right">{{ item.quantity || 0 | number }}</td>
                 <td nzAlign="right" class="danger">{{ item.daysSinceMovement || item.daysSinceLastMovement || 0 | number }}</td>
@@ -139,7 +164,12 @@ import { ReportsService } from '../services/reports.service';
             </thead>
             <tbody>
               <tr *ngFor="let item of expiryItems">
-                <td><strong>{{ item.product?.name || item.productName || '-' }}</strong></td>
+                <td>
+                  <a *ngIf="item.product?.id; else expiryProduct" [routerLink]="['/products', item.product.id, 'edit']">
+                    <strong>{{ item.product?.name || item.productName || '-' }}</strong>
+                  </a>
+                  <ng-template #expiryProduct><strong>{{ item.product?.name || item.productName || '-' }}</strong></ng-template>
+                </td>
                 <td>{{ item.batchNumber || '-' }}</td>
                 <td>{{ item.warehouse?.name || item.warehouseName || '-' }}</td>
                 <td nzAlign="right">{{ item.quantity || 0 | number }}</td>
@@ -179,12 +209,14 @@ import { ReportsService } from '../services/reports.service';
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 16px; }
     .header-left h2 { margin: 0; font-size: 24px; font-weight: 700; }
     .header-left p { margin: 4px 0 0; color: rgba(0,0,0,.45); }
+    .actions { display: flex; align-items: center; gap: 8px; }
     .tab-alert { margin-bottom: 16px; }
     .money { color: #c56a1a; font-weight: 700; }
     .warning { color: #c56a1a; font-weight: 700; }
     .danger { color: #b42318; font-weight: 700; }
     @media (max-width: 680px) {
       .page-header { align-items: flex-start; flex-direction: column; }
+      .actions { width: 100%; flex-direction: column; align-items: stretch; }
     }
   `],
 })
@@ -234,5 +266,80 @@ export class InventoryAnalyticsComponent implements OnInit {
   private extractArray(res: any): any[] {
     const data = res?.data ?? res ?? [];
     return Array.isArray(data) ? data : [];
+  }
+
+  exportCsv(): void {
+    const rows = [
+      ['Reorder Alerts'],
+      ['Product', 'SKU', 'Warehouse', 'Current Stock', 'Reorder Level', 'Suggested Qty', 'Estimated Cost'],
+      ...this.reorderItems.map(item => [
+        item.product?.name || item.productName || '-',
+        item.product?.sku || item.sku || '-',
+        item.warehouse?.name || item.warehouseName || '-',
+        item.currentStock || item.quantity || 0,
+        item.reorderLevel || item.product?.reorderLevel || 0,
+        item.suggestedOrderQty || item.reorderQuantity || 0,
+        item.estimatedCost || 0,
+      ]),
+      [],
+      ['Stock Ageing'],
+      ['Product', 'Warehouse', 'Quantity', 'Value', 'Days in Stock', 'Age Bracket'],
+      ...this.ageing.map(item => [
+        item.product?.name || item.productName || '-',
+        item.warehouse?.name || item.warehouseName || '-',
+        item.quantity || 0,
+        item.value || 0,
+        item.daysInStock || 0,
+        item.ageingBucket || item.ageBracket || '-',
+      ]),
+      [],
+      ['Dead Stock'],
+      ['Product', 'Warehouse', 'Quantity', 'Days Since Movement', 'Value'],
+      ...this.deadStock.map(item => [
+        item.product?.name || item.productName || '-',
+        item.warehouse?.name || item.warehouseName || '-',
+        item.quantity || 0,
+        item.daysSinceMovement || item.daysSinceLastMovement || 0,
+        item.value || item.stockValue || 0,
+      ]),
+      [],
+      ['Expiry Alerts'],
+      ['Product', 'Batch', 'Warehouse', 'Quantity', 'Expiry Date', 'Days Left'],
+      ...this.expiryItems.map(item => [
+        item.product?.name || item.productName || '-',
+        item.batchNumber || '-',
+        item.warehouse?.name || item.warehouseName || '-',
+        item.quantity || 0,
+        item.expiryDate ? new Date(item.expiryDate).toISOString().split('T')[0] : '-',
+        item.daysUntilExpiry || 0,
+      ]),
+      [],
+      ['Warehouse Stock'],
+      ['Warehouse', 'Products', 'Total Qty', 'Total Value'],
+      ...this.warehouseStock.map(item => [
+        item.warehouse?.name || item.warehouseName || '-',
+        item.totalItems || item.productCount || 0,
+        item.totalQuantity || 0,
+        item.totalCostValue || item.totalValue || 0,
+      ]),
+    ];
+
+    this.downloadRows(rows, `inventory-analytics-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  private downloadRows(rows: unknown[][], fileName: string): void {
+    const csv = rows.map(row => row.map(cell => this.csvCell(cell)).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private csvCell(value: unknown): string {
+    const text = String(value ?? '');
+    return `"${text.replace(/"/g, '""')}"`;
   }
 }

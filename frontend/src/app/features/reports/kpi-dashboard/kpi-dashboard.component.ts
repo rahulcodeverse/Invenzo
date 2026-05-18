@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
@@ -18,6 +19,7 @@ import { ReportsService } from '../services/reports.service';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     NzCardModule,
     NzGridModule,
     NzStatisticModule,
@@ -30,8 +32,14 @@ import { ReportsService } from '../services/reports.service';
   ],
   template: `
     <div class="page-header">
-      <h2>KPI Dashboard</h2>
-      <p>Key performance indicators across revenue, working capital, and stock health</p>
+      <div>
+        <h2>KPI Dashboard</h2>
+        <p>Key performance indicators across revenue, working capital, and stock health</p>
+      </div>
+      <button nz-button (click)="exportCsv()" [disabled]="loading">
+        <span nz-icon nzType="download"></span>
+        Export CSV
+      </button>
     </div>
 
     <div *ngIf="loading" class="loading">
@@ -84,7 +92,12 @@ import { ReportsService } from '../services/reports.service';
               </thead>
               <tbody>
                 <tr *ngFor="let product of topProducts">
-                  <td>{{ product.product?.name || product.productName || product.name || '-' }}</td>
+                  <td>
+                    <a *ngIf="product.product?.id; else productName" [routerLink]="['/products', product.product.id, 'edit']">
+                      {{ product.product?.name || product.productName || product.name || '-' }}
+                    </a>
+                    <ng-template #productName>{{ product.product?.name || product.productName || product.name || '-' }}</ng-template>
+                  </td>
                   <td>{{ product.product?.sku || product.sku || '-' }}</td>
                   <td nzAlign="right">{{ product.quantitySold || product.totalQuantity || 0 | number }}</td>
                   <td nzAlign="right" class="money">INR {{ product.revenue || product.totalRevenue || 0 | number:'1.2-2' }}</td>
@@ -106,7 +119,9 @@ import { ReportsService } from '../services/reports.service';
               </thead>
               <tbody>
                 <tr *ngFor="let customer of topCustomers">
-                  <td>{{ customer.customer?.name || customer.customerName || customer.name || '-' }}</td>
+                  <td>
+                    <a routerLink="/customers">{{ customer.customer?.name || customer.customerName || customer.name || '-' }}</a>
+                  </td>
                   <td nzAlign="right">{{ customer.invoiceCount || customer.totalOrders || 0 | number }}</td>
                   <td nzAlign="right" class="money">INR {{ customer.totalRevenue || customer.revenue || 0 | number:'1.2-2' }}</td>
                 </tr>
@@ -118,12 +133,15 @@ import { ReportsService } from '../services/reports.service';
     </div>
   `,
   styles: [`
-    .page-header { margin-bottom: 24px; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
     .page-header h2 { margin: 0; font-size: 24px; font-weight: 700; }
     .page-header p { margin: 4px 0 0; color: rgba(0,0,0,.45); }
     .loading { display: flex; justify-content: center; padding: 60px; }
     .summary-grid { margin-bottom: 16px; }
     .money { color: #9a4f12; font-weight: 700; }
+    @media (max-width: 680px) {
+      .page-header { flex-direction: column; }
+    }
   `],
 })
 export class KpiDashboardComponent implements OnInit {
@@ -152,5 +170,51 @@ export class KpiDashboardComponent implements OnInit {
   private extractArray(res: any): any[] {
     const data = res?.data ?? res ?? [];
     return Array.isArray(data) ? data : [];
+  }
+
+  exportCsv(): void {
+    const rows = [
+      ['KPI Summary'],
+      ['Revenue', 'Profit', 'Receivables', 'Payables', 'Products', 'Low Stock Items'],
+      [
+        this.summary.revenue || 0,
+        this.summary.profit || 0,
+        this.summary.receivables || 0,
+        this.summary.payables || 0,
+        this.summary.totalProducts || 0,
+        this.summary.lowStockCount || 0,
+      ],
+      [],
+      ['Top Products'],
+      ['Product', 'SKU', 'Quantity Sold', 'Revenue'],
+      ...this.topProducts.map(item => [
+        item.product?.name || item.productName || item.name || '-',
+        item.product?.sku || item.sku || '-',
+        item.quantitySold || item.totalQuantity || 0,
+        item.revenue || item.totalRevenue || 0,
+      ]),
+      [],
+      ['Top Customers'],
+      ['Customer', 'Invoices', 'Revenue'],
+      ...this.topCustomers.map(item => [
+        item.customer?.name || item.customerName || item.name || '-',
+        item.invoiceCount || item.totalOrders || 0,
+        item.totalRevenue || item.revenue || 0,
+      ]),
+    ];
+
+    const csv = rows.map(row => row.map(cell => this.csvCell(cell)).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `kpi-dashboard-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private csvCell(value: unknown): string {
+    const text = String(value ?? '');
+    return `"${text.replace(/"/g, '""')}"`;
   }
 }
