@@ -353,6 +353,12 @@ export const routes: Routes = [
               import('./features/reports/kpi-dashboard/kpi-dashboard.component')
                 .then(m => m.KpiDashboardComponent)
           },
+          {
+            path: 'gst',
+            loadComponent: () =>
+              import('./features/reports/gst-report/gst-report.component')
+                .then(m => m.GstReportComponent)
+          },
           { path: '', redirectTo: 'kpi', pathMatch: 'full' }
         ]
       },

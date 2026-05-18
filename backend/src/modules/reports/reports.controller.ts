@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagg
 import { KpiService } from './kpi.service';
 import { SalesAnalyticsService } from './sales-analytics.service';
 import { InventoryAnalyticsService } from './inventory-analytics.service';
+import { GstReportService } from './gst-report.service';
 import {
   DateRangeDto,
   TrendQueryDto,
@@ -175,6 +176,54 @@ export class InventoryAnalyticsController {
     const fromDate = dateRange.fromDate ? new Date(dateRange.fromDate) : new Date(new Date().getFullYear(), 0, 1);
     const toDate = dateRange.toDate ? new Date(dateRange.toDate) : new Date();
     return this.inventoryService.getStockTurnoverRatio(tenantId, fromDate, toDate);
+  }
+}
+
+@ApiTags('gst-reports')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('reports/gst')
+export class GstReportController {
+  constructor(private readonly gstReportService: GstReportService) {}
+
+  @Get('summary')
+  @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
+  @ApiOperation({ summary: 'Get GST tax summary' })
+  @ApiResponse({ status: 200, description: 'GST summary retrieved successfully' })
+  getSummary(@GetTenantId() tenantId: string, @Query() dateRange: DateRangeDto) {
+    const fromDate = this.getFromDate(dateRange);
+    const toDate = this.getToDate(dateRange);
+    return this.gstReportService.getSummary(tenantId, fromDate, toDate);
+  }
+
+  @Get('gstr-1')
+  @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
+  @ApiOperation({ summary: 'Get GSTR-1 sales register' })
+  @ApiResponse({ status: 200, description: 'GSTR-1 sales register retrieved successfully' })
+  getGstr1(@GetTenantId() tenantId: string, @Query() dateRange: DateRangeDto) {
+    const fromDate = this.getFromDate(dateRange);
+    const toDate = this.getToDate(dateRange);
+    return this.gstReportService.getGstr1(tenantId, fromDate, toDate);
+  }
+
+  @Get('gstr-2')
+  @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
+  @ApiOperation({ summary: 'Get GSTR-2 purchase register' })
+  @ApiResponse({ status: 200, description: 'GSTR-2 purchase register retrieved successfully' })
+  getGstr2(@GetTenantId() tenantId: string, @Query() dateRange: DateRangeDto) {
+    const fromDate = this.getFromDate(dateRange);
+    const toDate = this.getToDate(dateRange);
+    return this.gstReportService.getGstr2(tenantId, fromDate, toDate);
+  }
+
+  private getFromDate(dateRange: DateRangeDto) {
+    return dateRange.fromDate ? new Date(dateRange.fromDate) : new Date(new Date().getFullYear(), 0, 1);
+  }
+
+  private getToDate(dateRange: DateRangeDto) {
+    const date = dateRange.toDate ? new Date(dateRange.toDate) : new Date();
+    date.setHours(23, 59, 59, 999);
+    return date;
   }
 }
 

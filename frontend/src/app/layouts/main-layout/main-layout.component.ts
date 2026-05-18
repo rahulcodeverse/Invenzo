@@ -111,6 +111,7 @@ export class MainLayoutComponent implements OnInit {
       children: [
         { title: 'Sales Analytics', link: '/reports/sales' },
         { title: 'Inventory Analytics', link: '/reports/inventory' },
+        { title: 'GST Reports', link: '/reports/gst' },
         { title: 'KPIs', link: '/reports/kpi' }
       ]
     },

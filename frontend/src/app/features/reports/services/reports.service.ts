@@ -70,6 +70,19 @@ export class ReportsService {
     return this.http.get<any>(`${this.apiUrl}/reports/sales/growth`);
   }
 
+  // GST Reports
+  getGstSummary(fromDate?: string, toDate?: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reports/gst/summary`, { params: this.dateParams(fromDate, toDate) });
+  }
+
+  getGstr1(fromDate?: string, toDate?: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reports/gst/gstr-1`, { params: this.dateParams(fromDate, toDate) });
+  }
+
+  getGstr2(fromDate?: string, toDate?: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reports/gst/gstr-2`, { params: this.dateParams(fromDate, toDate) });
+  }
+
   // Inventory Analytics
   getStockAgeing(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/reports/inventory/ageing`);
@@ -96,5 +109,12 @@ export class ReportsService {
     if (fromDate) params = params.set('fromDate', fromDate);
     if (toDate) params = params.set('toDate', toDate);
     return this.http.get<any>(`${this.apiUrl}/reports/inventory/turnover`, { params });
+  }
+
+  private dateParams(fromDate?: string, toDate?: string): HttpParams {
+    let params = new HttpParams();
+    if (fromDate) params = params.set('fromDate', fromDate);
+    if (toDate) params = params.set('toDate', toDate);
+    return params;
   }
 }
