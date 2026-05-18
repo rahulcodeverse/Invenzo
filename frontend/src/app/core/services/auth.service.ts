@@ -32,11 +32,15 @@ export class AuthService {
   }
 
   logout(): void {
+    this.clearSession();
+    this.router.navigate(['/auth/login']);
+  }
+
+  clearSession(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('current_user');
     this.currentUserSubject.next(null);
-    this.router.navigate(['/auth/login']);
   }
 
   refreshToken(): Observable<ApiResponse<{ accessToken: string }>> {
@@ -112,7 +116,25 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getAccessToken();
+    const token = this.getAccessToken();
+    if (!token) return false;
+
+    if (this.isTokenExpired(token)) {
+      this.clearSession();
+      return false;
+    }
+
+    return true;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp) return false;
+      return payload.exp * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
   }
 
   getCurrentUser(): User | null {
