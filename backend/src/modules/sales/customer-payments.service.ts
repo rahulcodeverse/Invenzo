@@ -8,10 +8,14 @@ import { CreateCustomerPaymentDto } from './dto/delivery-invoice.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { PaymentStatus } from '@prisma/client';
+import { JournalService } from '../accounting/journal.service';
 
 @Injectable()
 export class CustomerPaymentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private journalService: JournalService,
+  ) {}
 
   async create(tenantId: string, userId: string, createPaymentDto: CreateCustomerPaymentDto) {
     // Verify customer
@@ -56,7 +60,7 @@ export class CustomerPaymentsService {
       .padStart(4, '0')}`;
 
     // Create payment and update invoice in transaction
-    return this.prisma.$transaction(async tx => {
+    const result = await this.prisma.$transaction(async tx => {
       const payment = await tx.customerPayment.create({
         data: {
           tenantId,
@@ -139,6 +143,14 @@ export class CustomerPaymentsService {
         message: `Payment ${paymentNumber} recorded successfully`,
       };
     });
+
+    await this.journalService.postCustomerPayment(tenantId, result.payment.id, {
+      amount: Number(result.payment.amount),
+      customerName: customer.name,
+      method: result.payment.method,
+    });
+
+    return result;
   }
 
   async findAll(tenantId: string, paginationDto: PaginationDto) {

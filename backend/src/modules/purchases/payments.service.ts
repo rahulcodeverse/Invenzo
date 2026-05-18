@@ -8,10 +8,14 @@ import { CreateVendorPaymentDto } from './dto/grn-invoice.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { PaymentStatus } from '@prisma/client';
+import { JournalService } from '../accounting/journal.service';
 
 @Injectable()
 export class VendorPaymentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private journalService: JournalService,
+  ) {}
 
   async create(tenantId: string, userId: string, createPaymentDto: CreateVendorPaymentDto) {
     // Verify vendor
@@ -56,7 +60,7 @@ export class VendorPaymentsService {
       .padStart(4, '0')}`;
 
     // Create payment and update invoice in transaction
-    return this.prisma.$transaction(async tx => {
+    const result = await this.prisma.$transaction(async tx => {
       const payment = await tx.vendorPayment.create({
         data: {
           tenantId,
@@ -133,6 +137,14 @@ export class VendorPaymentsService {
         message: `Payment ${paymentNumber} recorded successfully`,
       };
     });
+
+    await this.journalService.postVendorPayment(tenantId, result.payment.id, {
+      amount: Number(result.payment.amount),
+      vendorName: vendor.name,
+      method: result.payment.method,
+    });
+
+    return result;
   }
 
   async findAll(tenantId: string, paginationDto: PaginationDto) {

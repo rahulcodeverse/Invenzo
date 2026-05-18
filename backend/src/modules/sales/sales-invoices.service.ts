@@ -8,10 +8,14 @@ import { CreateSalesInvoiceDto } from './dto/delivery-invoice.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PaginationHelper } from '../../common/utils/pagination.helper';
 import { PaymentStatus } from '@prisma/client';
+import { JournalService } from '../accounting/journal.service';
 
 @Injectable()
 export class SalesInvoicesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private journalService: JournalService,
+  ) {}
 
   async create(tenantId: string, userId: string, createInvoiceDto: CreateSalesInvoiceDto) {
     // Verify SO
@@ -60,7 +64,7 @@ export class SalesInvoicesService {
       (createInvoiceDto.discount || 0);
 
     // Create invoice
-    return this.prisma.salesInvoice.create({
+    const invoice = await this.prisma.salesInvoice.create({
       data: {
         tenantId,
         invoiceNumber,
@@ -92,6 +96,15 @@ export class SalesInvoicesService {
         },
       },
     });
+
+    await this.journalService.postSalesInvoice(tenantId, invoice.id, {
+      subtotal: Number(invoice.subtotal),
+      taxAmount: Number(invoice.taxAmount),
+      total: Number(invoice.total),
+      customerName: so.customer.name,
+    });
+
+    return invoice;
   }
 
   async findAll(tenantId: string, paginationDto: PaginationDto) {

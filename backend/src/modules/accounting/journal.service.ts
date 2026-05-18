@@ -245,6 +245,9 @@ export class JournalService {
       vendorName: string;
     },
   ) {
+    const existing = await this.findPostedJournal(tenantId, JournalType.PURCHASE_INVOICE, invoiceId);
+    if (existing) return existing;
+
     // Get system accounts
     const [purchaseAccount, taxInputAccount, payableAccount] = await Promise.all([
       this.getSystemAccount(tenantId, '5102'), // Purchase Expense
@@ -280,6 +283,7 @@ export class JournalService {
     return this.createJournal(tenantId, 'SYSTEM', {
       type: JournalType.PURCHASE_INVOICE,
       narration: `Purchase invoice for ${data.vendorName}`,
+      reference: `Purchase invoice`,
       referenceId: invoiceId,
       lines,
     });
@@ -294,6 +298,9 @@ export class JournalService {
       method: string;
     },
   ) {
+    const existing = await this.findPostedJournal(tenantId, JournalType.PURCHASE_PAYMENT, paymentId);
+    if (existing) return existing;
+
     const [payableAccount, cashAccount] = await Promise.all([
       this.getSystemAccount(tenantId, '2101'), // Accounts Payable
       this.getSystemAccount(tenantId, data.method === 'CASH' ? '1101' : '1102'), // Cash or Bank
@@ -302,6 +309,7 @@ export class JournalService {
     return this.createJournal(tenantId, 'SYSTEM', {
       type: JournalType.PURCHASE_PAYMENT,
       narration: `Payment to ${data.vendorName}`,
+      reference: `Vendor payment`,
       referenceId: paymentId,
       lines: [
         {
@@ -330,6 +338,9 @@ export class JournalService {
       customerName: string;
     },
   ) {
+    const existing = await this.findPostedJournal(tenantId, JournalType.SALES_INVOICE, invoiceId);
+    if (existing) return existing;
+
     const [receivableAccount, salesAccount, taxOutputAccount] = await Promise.all([
       this.getSystemAccount(tenantId, '1103'), // Accounts Receivable
       this.getSystemAccount(tenantId, '4101'), // Sales Revenue
@@ -363,6 +374,7 @@ export class JournalService {
     return this.createJournal(tenantId, 'SYSTEM', {
       type: JournalType.SALES_INVOICE,
       narration: `Sales invoice for ${data.customerName}`,
+      reference: `Sales invoice`,
       referenceId: invoiceId,
       lines,
     });
@@ -377,6 +389,9 @@ export class JournalService {
       method: string;
     },
   ) {
+    const existing = await this.findPostedJournal(tenantId, JournalType.SALES_PAYMENT, paymentId);
+    if (existing) return existing;
+
     const [cashAccount, receivableAccount] = await Promise.all([
       this.getSystemAccount(tenantId, data.method === 'CASH' ? '1101' : '1102'), // Cash or Bank
       this.getSystemAccount(tenantId, '1103'), // Accounts Receivable
@@ -385,6 +400,7 @@ export class JournalService {
     return this.createJournal(tenantId, 'SYSTEM', {
       type: JournalType.SALES_PAYMENT,
       narration: `Payment from ${data.customerName}`,
+      reference: `Customer payment`,
       referenceId: paymentId,
       lines: [
         {
@@ -404,10 +420,24 @@ export class JournalService {
   }
 
   private async getSystemAccount(tenantId: string, code: string) {
-    const account = await this.prisma.ledgerAccount.findUnique({
+    const aliases: Record<string, string[]> = {
+      '1101': ['1101', '1001'],
+      '1102': ['1102', '1001'],
+      '1103': ['1103', '1002'],
+      '2101': ['2101', '2001'],
+      '4101': ['4101', '4001'],
+      '4102': ['4102', '4001'],
+      '5102': ['5102', '5001'],
+      '5103': ['5103', '5001'],
+    };
+    const codes = aliases[code] ?? [code];
+
+    const account = await this.prisma.ledgerAccount.findFirst({
       where: {
-        tenantId_code: { tenantId, code },
+        tenantId,
+        code: { in: codes },
       },
+      orderBy: { code: 'asc' },
     });
 
     if (!account) {
@@ -415,6 +445,31 @@ export class JournalService {
     }
 
     return account;
+  }
+
+  private async findPostedJournal(tenantId: string, type: JournalType, referenceId: string) {
+    return this.prisma.journalEntry.findFirst({
+      where: {
+        tenantId,
+        type,
+        referenceId,
+        isReversed: false,
+      },
+      include: {
+        lines: {
+          include: {
+            account: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+                type: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }
 
