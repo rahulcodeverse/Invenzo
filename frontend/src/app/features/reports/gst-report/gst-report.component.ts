@@ -11,6 +11,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { ReportsService } from '../services/reports.service';
 
 @Component({
@@ -42,6 +43,14 @@ import { ReportsService } from '../services/reports.service';
           <button nz-button nzType="primary" (click)="loadAll()">
             <span nz-icon nzType="reload"></span>
             Refresh
+          </button>
+          <button nz-button (click)="downloadCsv('gstr1')">
+            <span nz-icon nzType="download"></span>
+            GSTR-1 CSV
+          </button>
+          <button nz-button (click)="downloadCsv('gstr2')">
+            <span nz-icon nzType="download"></span>
+            GSTR-2 CSV
           </button>
         </div>
       </div>
@@ -175,7 +184,10 @@ export class GstReportComponent implements OnInit {
   gstr1: any = { rows: [], totals: {} };
   gstr2: any = { rows: [], totals: {} };
 
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(
+    private readonly reportsService: ReportsService,
+    private readonly message: NzMessageService
+  ) {}
 
   ngOnInit(): void {
     this.loadAll();
@@ -245,5 +257,28 @@ export class GstReportComponent implements OnInit {
       PENDING: 'gold',
       OVERDUE: 'red',
     }[status] ?? 'default';
+  }
+
+  downloadCsv(type: 'gstr1' | 'gstr2'): void {
+    const request = type === 'gstr1'
+      ? this.reportsService.downloadGstr1Csv(this.fromDate, this.toDate)
+      : this.reportsService.downloadGstr2Csv(this.fromDate, this.toDate);
+
+    request.subscribe({
+      next: blob => {
+        this.saveFile(blob, `${type}-${this.fromDate}-to-${this.toDate}.csv`);
+        this.message.success('CSV export downloaded');
+      },
+      error: () => this.message.error('Unable to export GST CSV')
+    });
+  }
+
+  private saveFile(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

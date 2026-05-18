@@ -233,6 +233,60 @@ export class DocumentsService {
     });
   }
 
+  async createPurchaseInvoicePdf(id: string, tenantId: string): Promise<Buffer> {
+    const invoice = await this.prisma.purchaseInvoice.findFirst({
+      where: { id, tenantId },
+      include: {
+        grn: true,
+      },
+    });
+
+    if (!invoice) {
+      throw new NotFoundException('Purchase invoice not found');
+    }
+
+    const purchaseOrder = await this.prisma.purchaseOrder.findFirst({
+      where: {
+        id: invoice.purchaseOrderId,
+        tenantId,
+      },
+      include: {
+        vendor: true,
+        items: {
+          include: {
+            product: {
+              include: { unit: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!purchaseOrder) {
+      throw new NotFoundException('Purchase order not found for invoice');
+    }
+
+    return this.renderPdf(tenantId, {
+      title: 'Purchase Invoice',
+      number: invoice.invoiceNumber,
+      dateLabel: 'Invoice Date',
+      date: invoice.invoiceDate,
+      dueLabel: 'Due Date',
+      dueDate: invoice.dueDate,
+      status: invoice.status,
+      partyLabel: 'Vendor',
+      party: purchaseOrder.vendor,
+      referenceLabel: invoice.grn ? 'GRN' : 'Purchase Order',
+      reference: invoice.grn?.grnNumber ?? purchaseOrder.poNumber,
+      lines: purchaseOrder.items.map(item => this.toLine(item, item.product)),
+      subtotal: Number(invoice.subtotal),
+      discount: Number(invoice.discount),
+      taxAmount: Number(invoice.taxAmount),
+      total: Number(invoice.total),
+      notes: invoice.notes,
+    });
+  }
+
   private async findProductsForTenant(tenantId: string, productIds: string[]) {
     const products = await this.prisma.product.findMany({
       where: {

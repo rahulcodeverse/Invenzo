@@ -6,7 +6,9 @@ import {
   Param,
   Query,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { GrnService } from './grn.service';
 import { PurchaseInvoicesService } from './invoices.service';
@@ -22,6 +24,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { GetTenantId } from '../../common/decorators/get-tenant.decorator';
 import { GetUser } from '../../common/decorators/get-user.decorator';
+import { DocumentsService } from '../documents/documents.service';
 
 @ApiTags('goods-received-notes')
 @ApiBearerAuth()
@@ -62,7 +65,10 @@ export class GrnController {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('purchases/invoice')
 export class PurchaseInvoicesController {
-  constructor(private readonly invoicesService: PurchaseInvoicesService) {}
+  constructor(
+    private readonly invoicesService: PurchaseInvoicesService,
+    private readonly documentsService: DocumentsService,
+  ) {}
 
   @Post()
   @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
@@ -102,6 +108,22 @@ export class PurchaseInvoicesController {
   @ApiResponse({ status: 200, description: 'Invoice retrieved successfully' })
   findOne(@Param('id') id: string, @GetTenantId() tenantId: string) {
     return this.invoicesService.findOne(id, tenantId);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download purchase invoice PDF' })
+  async downloadPdf(
+    @Param('id') id: string,
+    @GetTenantId() tenantId: string,
+    @Res() res: Response,
+  ) {
+    const pdf = await this.documentsService.createPurchaseInvoicePdf(id, tenantId);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="purchase-invoice-${id}.pdf"`,
+      'Content-Length': pdf.length,
+    });
+    res.end(pdf);
   }
 }
 

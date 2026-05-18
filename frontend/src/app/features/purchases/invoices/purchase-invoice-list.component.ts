@@ -12,6 +12,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { PurchasesService } from '../services/purchases.service';
 import { PurchaseInvoice } from '../models/purchases.model';
 
@@ -77,6 +78,7 @@ import { PurchaseInvoice } from '../models/purchases.model';
             <th nzAlign="right">Balance</th>
             <th nzAlign="center">Status</th>
             <th nzAlign="center">Payment</th>
+            <th nzAlign="center" nzWidth="80px">PDF</th>
           </tr>
         </thead>
         <tbody>
@@ -93,6 +95,11 @@ import { PurchaseInvoice } from '../models/purchases.model';
             </td>
             <td nzAlign="center" style="min-width:100px">
               <nz-progress [nzPercent]="getPaymentPercent(inv)" [nzShowInfo]="false" nzSize="small"></nz-progress>
+            </td>
+            <td nzAlign="center">
+              <button nz-button nzSize="small" (click)="downloadPdf(inv)">
+                <span nz-icon nzType="download"></span>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -118,7 +125,10 @@ export class PurchaseInvoiceListComponent implements OnInit {
   paidAmount = 0;
   overdueCount = 0;
 
-  constructor(private service: PurchasesService) {}
+  constructor(
+    private service: PurchasesService,
+    private message: NzMessageService
+  ) {}
 
   ngOnInit() { this.loadData(); }
 
@@ -153,5 +163,24 @@ export class PurchaseInvoiceListComponent implements OnInit {
   getPaymentPercent(inv: PurchaseInvoice): number {
     const total = Number(inv.totalAmount ?? 0);
     return total > 0 ? Math.round((Number(inv.paidAmount ?? 0) / total) * 100) : 0;
+  }
+
+  downloadPdf(inv: PurchaseInvoice): void {
+    this.service.downloadPurchaseInvoicePdf(inv.id).subscribe({
+      next: blob => {
+        this.savePdf(blob, `purchase-invoice-${inv.invoiceNumber}.pdf`);
+        this.message.success('Purchase invoice PDF downloaded');
+      },
+      error: () => this.message.error('Unable to download purchase invoice PDF')
+    });
+  }
+
+  private savePdf(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

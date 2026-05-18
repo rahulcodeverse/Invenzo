@@ -95,6 +95,10 @@ export class PurchasesService {
     return this.http.get<ApiResponse<PurchaseInvoice>>(`${this.apiUrl}/purchases/invoice/${id}`);
   }
 
+  downloadPurchaseInvoicePdf(id: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/purchases/invoice/${id}/pdf`, { responseType: 'blob' });
+  }
+
   createPurchaseInvoice(invoice: Partial<PurchaseInvoice>): Observable<ApiResponse<PurchaseInvoice>> {
     return this.http.post<ApiResponse<PurchaseInvoice>>(`${this.apiUrl}/purchases/invoice`, invoice);
   }

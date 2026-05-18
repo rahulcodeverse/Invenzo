@@ -83,6 +83,20 @@ export class ReportsService {
     return this.http.get<any>(`${this.apiUrl}/reports/gst/gstr-2`, { params: this.dateParams(fromDate, toDate) });
   }
 
+  downloadGstr1Csv(fromDate?: string, toDate?: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/reports/gst/gstr-1.csv`, {
+      params: this.dateParams(fromDate, toDate),
+      responseType: 'blob',
+    });
+  }
+
+  downloadGstr2Csv(fromDate?: string, toDate?: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/reports/gst/gstr-2.csv`, {
+      params: this.dateParams(fromDate, toDate),
+      responseType: 'blob',
+    });
+  }
+
   // Inventory Analytics
   getStockAgeing(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/reports/inventory/ageing`);

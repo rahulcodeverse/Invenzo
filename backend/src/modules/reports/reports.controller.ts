@@ -1,4 +1,5 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { KpiService } from './kpi.service';
 import { SalesAnalyticsService } from './sales-analytics.service';
@@ -206,6 +207,20 @@ export class GstReportController {
     return this.gstReportService.getGstr1(tenantId, fromDate, toDate);
   }
 
+  @Get('gstr-1.csv')
+  @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
+  @ApiOperation({ summary: 'Download GSTR-1 sales register CSV' })
+  async downloadGstr1Csv(
+    @GetTenantId() tenantId: string,
+    @Query() dateRange: DateRangeDto,
+    @Res() res: Response,
+  ) {
+    const fromDate = this.getFromDate(dateRange);
+    const toDate = this.getToDate(dateRange);
+    const register = await this.gstReportService.getGstr1(tenantId, fromDate, toDate);
+    this.sendCsv(res, 'gstr-1-sales-register.csv', register.rows);
+  }
+
   @Get('gstr-2')
   @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
   @ApiOperation({ summary: 'Get GSTR-2 purchase register' })
@@ -216,6 +231,20 @@ export class GstReportController {
     return this.gstReportService.getGstr2(tenantId, fromDate, toDate);
   }
 
+  @Get('gstr-2.csv')
+  @Roles('OWNER', 'MANAGER', 'ACCOUNTANT')
+  @ApiOperation({ summary: 'Download GSTR-2 purchase register CSV' })
+  async downloadGstr2Csv(
+    @GetTenantId() tenantId: string,
+    @Query() dateRange: DateRangeDto,
+    @Res() res: Response,
+  ) {
+    const fromDate = this.getFromDate(dateRange);
+    const toDate = this.getToDate(dateRange);
+    const register = await this.gstReportService.getGstr2(tenantId, fromDate, toDate);
+    this.sendCsv(res, 'gstr-2-purchase-register.csv', register.rows);
+  }
+
   private getFromDate(dateRange: DateRangeDto) {
     return dateRange.fromDate ? new Date(dateRange.fromDate) : new Date(new Date().getFullYear(), 0, 1);
   }
@@ -224,6 +253,56 @@ export class GstReportController {
     const date = dateRange.toDate ? new Date(dateRange.toDate) : new Date();
     date.setHours(23, 59, 59, 999);
     return date;
+  }
+
+  private sendCsv(res: Response, fileName: string, rows: any[]) {
+    const headers = [
+      'Document Number',
+      'Document Date',
+      'Party Name',
+      'GSTIN',
+      'Taxable Amount',
+      'CGST',
+      'SGST',
+      'IGST',
+      'Total Tax',
+      'Total Amount',
+      'Status',
+    ];
+
+    const csv = [
+      headers.join(','),
+      ...rows.map(row => [
+        row.documentNumber,
+        this.formatCsvDate(row.documentDate),
+        row.partyName,
+        row.gstNumber ?? '',
+        row.taxableAmount,
+        row.cgst,
+        row.sgst,
+        row.igst,
+        row.totalTax,
+        row.totalAmount,
+        row.status,
+      ].map(value => this.csvCell(value)).join(',')),
+    ].join('\n');
+
+    const body = Buffer.from(csv, 'utf8');
+    res.set({
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Length': body.length,
+    });
+    res.end(body);
+  }
+
+  private csvCell(value: unknown) {
+    const text = String(value ?? '');
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+
+  private formatCsvDate(value: Date | string) {
+    return new Date(value).toISOString().split('T')[0];
   }
 }
 
