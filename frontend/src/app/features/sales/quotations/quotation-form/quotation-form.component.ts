@@ -18,6 +18,7 @@ import { SalesService } from '../../services/sales.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
 import { ProductApiService, Product } from '../../../products/services/product-api.service';
 import { Customer } from '../../../../core/models/master-data.model';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-quotation-form',
@@ -25,13 +26,16 @@ import { Customer } from '../../../../core/models/master-data.model';
   imports: [
     CommonModule, ReactiveFormsModule, NzCardModule, NzFormModule, NzInputModule,
     NzSelectModule, NzButtonModule, NzInputNumberModule, NzDatePickerModule,
-    NzGridModule, NzIconModule, NzDividerModule, NzTableModule
+    NzGridModule, NzIconModule, NzDividerModule, NzTableModule,
+    PageHeaderComponent
   ],
   template: `
     <nz-card>
-      <div class="page-header">
-        <h2>{{ isEditMode ? 'Edit' : 'New' }} Quotation</h2>
-      </div>
+      <app-page-header
+        [title]="isEditMode ? 'Edit Quotation' : 'New Quotation'"
+        subtitle="Prepare pricing and terms before converting to a sales order"
+        backLink="/sales/quotations"
+      ></app-page-header>
 
       <form nz-form [formGroup]="quotationForm" (ngSubmit)="onSubmit()" nzLayout="vertical">
         <div nz-row [nzGutter]="16">

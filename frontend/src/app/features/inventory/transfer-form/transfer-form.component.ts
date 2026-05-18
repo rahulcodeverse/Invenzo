@@ -19,6 +19,7 @@ import { MasterDataService } from '../../../core/services/master-data.service';
 import { ProductApiService, Product } from '../../products/services/product-api.service';
 import { Warehouse } from '../../../core/models/master-data.model';
 import { Stock } from '../../../core/models/inventory.model';
+import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-transfer-form',
@@ -36,7 +37,8 @@ import { Stock } from '../../../core/models/inventory.model';
     NzGridModule,
     NzIconModule,
     NzAlertModule,
-    NzDividerModule
+    NzDividerModule,
+    PageHeaderComponent
   ],
   templateUrl: './transfer-form.component.html',
   styleUrls: ['./transfer-form.component.scss']

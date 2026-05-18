@@ -1,10 +1,9 @@
 <nz-card>
-  <div class="page-header">
-    <div class="header-left">
-      <h2>{{ isEditMode ? 'Edit Product' : 'New Product' }}</h2>
-      <p>{{ isEditMode ? 'Update product details' : 'Create a new product' }}</p>
-    </div>
-  </div>
+  <app-page-header
+    [title]="isEditMode ? 'Edit Product' : 'New Product'"
+    [subtitle]="isEditMode ? 'Update product details' : 'Create a new product'"
+    backLink="/products"
+  ></app-page-header>
 
   <nz-spin [nzSpinning]="loading">
     <form nz-form [formGroup]="productForm" (ngSubmit)="onSubmit()" nzLayout="vertical">

@@ -20,6 +20,7 @@ import { MasterDataService } from '../../../../core/services/master-data.service
 import { ProductApiService, Product } from '../../../products/services/product-api.service';
 import { Customer } from '../../../../core/models/master-data.model';
 import { SalesOrder } from '../../models/sales.model';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-invoice-form',
@@ -27,13 +28,16 @@ import { SalesOrder } from '../../models/sales.model';
   imports: [
     CommonModule, ReactiveFormsModule, NzCardModule, NzFormModule, NzInputModule,
     NzSelectModule, NzButtonModule, NzInputNumberModule, NzDatePickerModule,
-    NzGridModule, NzIconModule, NzDividerModule, NzTableModule, NzDescriptionsModule
+    NzGridModule, NzIconModule, NzDividerModule, NzTableModule, NzDescriptionsModule,
+    PageHeaderComponent
   ],
   template: `
     <nz-card>
-      <div class="page-header">
-        <h2>{{ isViewMode ? 'View Invoice' : 'New Invoice' }}</h2>
-      </div>
+      <app-page-header
+        [title]="isViewMode ? 'View Invoice' : 'New Invoice'"
+        subtitle="Create and track customer billing"
+        backLink="/sales/invoices"
+      ></app-page-header>
 
       <form nz-form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()" nzLayout="vertical">
         <div nz-row [nzGutter]="16">

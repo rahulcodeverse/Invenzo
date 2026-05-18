@@ -178,6 +178,12 @@ export class MainLayoutComponent implements OnInit {
     return this.activeChildLink === link;
   }
 
+  get activeChildTitle(): string {
+    const activeLink = this.activeChildLink;
+    const childTitle = this.activeChildren.find(child => child.link === activeLink)?.title || '';
+    return childTitle === this.activeMenuItem?.title ? '' : childTitle;
+  }
+
   hasRole(roles: string[]): boolean {
     return this.authService.hasRole(roles);
   }

@@ -18,6 +18,7 @@ import { MasterDataService } from '../../../../core/services/master-data.service
 import { Warehouse } from '../../../../core/models/master-data.model';
 import { SalesOrder } from '../../models/sales.model';
 import { SalesService } from '../../services/sales.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-delivery-form',
@@ -35,14 +36,16 @@ import { SalesService } from '../../services/sales.service';
     NzInputModule,
     NzInputNumberModule,
     NzSelectModule,
-    NzTableModule
+    NzTableModule,
+    PageHeaderComponent
   ],
   template: `
     <nz-card>
-      <div class="page-header">
-        <h2>New Delivery Note</h2>
-        <p *ngIf="selectedOrder">Dispatch items for {{ selectedOrder.orderNumber }}</p>
-      </div>
+      <app-page-header
+        title="New Delivery Note"
+        [subtitle]="selectedOrder ? 'Dispatch items for ' + selectedOrder.orderNumber : 'Dispatch confirmed sales orders'"
+        backLink="/sales/delivery"
+      ></app-page-header>
 
       <nz-alert nzType="info" nzMessage="Stock will be reduced when this delivery is saved."
         nzShowIcon style="margin-bottom: 24px;"></nz-alert>

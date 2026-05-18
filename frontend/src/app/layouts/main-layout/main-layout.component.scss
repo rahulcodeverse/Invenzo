@@ -183,6 +183,29 @@ nz-content {
   min-height: calc(100vh - 134px);
 }
 
+.route-context {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  color: #8a7f74;
+  font-size: 13px;
+  font-weight: 700;
+
+  a {
+    color: #6f675f;
+
+    &:hover {
+      color: #9a4f12;
+    }
+  }
+
+  [nz-icon] {
+    color: #b8aa9a;
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 1080px) {
   .top-bar {
     grid-template-columns: 1fr auto;

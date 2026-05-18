@@ -68,6 +68,16 @@
 
   <nz-content>
     <div class="inner-content">
+      <div class="route-context" *ngIf="activeMenuItem">
+        <a [routerLink]="activeMenuItem.link || activeMenuItem.children?.[0]?.link">
+          {{ activeMenuItem.title }}
+        </a>
+        <span *ngIf="activeChildTitle" nz-icon nzType="arrow-right"></span>
+        <a *ngIf="activeChildTitle && activeChildLink" [routerLink]="activeChildLink">
+          {{ activeChildTitle }}
+        </a>
+      </div>
+
       <router-outlet></router-outlet>
     </div>
   </nz-content>

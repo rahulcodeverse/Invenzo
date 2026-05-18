@@ -61,7 +61,8 @@ import {
   LockOutline,
   MailOutline,
   ReloadOutline,
-  DownloadOutline
+  DownloadOutline,
+  BuildOutline
 } from '@ant-design/icons-angular/icons';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -123,7 +124,8 @@ const icons = [
   LockOutline,
   MailOutline,
   ReloadOutline,
-  DownloadOutline
+  DownloadOutline,
+  BuildOutline
 ];
 
 export const appConfig: ApplicationConfig = {

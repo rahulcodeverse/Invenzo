@@ -21,6 +21,7 @@ import { SalesService } from '../../services/sales.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
 import { Customer } from '../../../../core/models/master-data.model';
 import { SalesInvoice, PaymentMethod } from '../../models/sales.model';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-payment-form',
@@ -29,14 +30,15 @@ import { SalesInvoice, PaymentMethod } from '../../models/sales.model';
     CommonModule, ReactiveFormsModule, NzCardModule, NzFormModule, NzInputModule,
     NzSelectModule, NzButtonModule, NzInputNumberModule, NzDatePickerModule,
     NzGridModule, NzIconModule, NzDividerModule, NzTableModule, NzCheckboxModule,
-    NzAlertModule
+    NzAlertModule, PageHeaderComponent
   ],
   template: `
     <nz-card>
-      <div class="page-header">
-        <h2>Record Customer Payment</h2>
-        <p>Allocate payment against customer invoices</p>
-      </div>
+      <app-page-header
+        title="Record Customer Payment"
+        subtitle="Allocate payment against customer invoices"
+        backLink="/sales/invoices"
+      ></app-page-header>
 
       <nz-alert nzType="info" nzMessage="Payment Allocation"
                 nzDescription="Select customer to view outstanding invoices. Payment will be allocated to selected invoices."

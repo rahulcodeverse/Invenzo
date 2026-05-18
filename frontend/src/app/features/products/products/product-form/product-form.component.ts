@@ -15,6 +15,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { ProductApiService, Category, Brand, Unit } from '../../services/product-api.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-product-form',
@@ -33,7 +34,8 @@ import { ProductApiService, Category, Brand, Unit } from '../../services/product
     NzSpinModule,
     NzGridModule,
     NzIconModule,
-    NzCheckboxModule
+    NzCheckboxModule,
+    PageHeaderComponent
   ],
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss']

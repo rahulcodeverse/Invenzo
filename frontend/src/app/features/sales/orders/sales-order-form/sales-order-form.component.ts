@@ -20,6 +20,7 @@ import { SalesService } from '../../services/sales.service';
 import { MasterDataService } from '../../../../core/services/master-data.service';
 import { ProductApiService, Product } from '../../../products/services/product-api.service';
 import { Customer } from '../../../../core/models/master-data.model';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-sales-order-form',
@@ -27,14 +28,16 @@ import { Customer } from '../../../../core/models/master-data.model';
   imports: [
     CommonModule, ReactiveFormsModule, NzCardModule, NzFormModule, NzInputModule,
     NzSelectModule, NzButtonModule, NzInputNumberModule, NzDatePickerModule,
-    NzGridModule, NzIconModule, NzDividerModule, NzTableModule, NzAlertModule, NzTagModule
+    NzGridModule, NzIconModule, NzDividerModule, NzTableModule, NzAlertModule, NzTagModule,
+    PageHeaderComponent
   ],
   template: `
     <nz-card>
-      <div class="page-header">
-        <h2>{{ isEditMode ? 'View' : 'New' }} Sales Order</h2>
-        <p *ngIf="fromQuotation">Created from Quotation: {{ fromQuotation }}</p>
-      </div>
+      <app-page-header
+        [title]="isEditMode ? 'View Sales Order' : 'New Sales Order'"
+        [subtitle]="fromQuotation ? 'Created from Quotation: ' + fromQuotation : ''"
+        backLink="/sales/orders"
+      ></app-page-header>
 
       <nz-alert *ngIf="!isEditMode" nzType="info" nzMessage="Sales Order"
                 nzDescription="Create sales order from scratch or convert from quotation. Stock will be reserved on confirmation."
