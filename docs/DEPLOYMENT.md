@@ -98,6 +98,8 @@ Install Command: npm install
 
 If Vercel shows `dist/frontend` instead of `dist/frontend/browser` after build, use the directory that contains `index.html`.
 
+The frontend includes `frontend/.npmrc` with `legacy-peer-deps=true` so Vercel can install Angular 17 and NG Zorro peer dependencies consistently.
+
 ## 5. Point Frontend to Backend
 
 Before deploying the frontend, update:
