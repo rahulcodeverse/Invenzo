@@ -122,77 +122,6 @@
   }
 }
 
-.theme-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  height: 36px;
-  border-color: var(--invenzo-border);
-  color: var(--invenzo-muted);
-  font-size: 13px;
-  font-weight: 750;
-  background: var(--invenzo-surface);
-
-  &:hover,
-  &:focus {
-    color: var(--invenzo-ink);
-    border-color: var(--invenzo-primary);
-    background: var(--invenzo-primary-soft);
-  }
-}
-
-.theme-menu {
-  min-width: 245px;
-
-  li {
-    display: grid;
-    grid-template-columns: 16px minmax(0, 1fr) 16px;
-    align-items: center;
-    gap: 10px;
-    min-height: 56px;
-
-    &.active {
-      background: var(--invenzo-primary-soft);
-    }
-  }
-
-  strong,
-  small {
-    display: block;
-    line-height: 1.25;
-  }
-
-  strong {
-    color: var(--invenzo-ink);
-    font-size: 13px;
-  }
-
-  small {
-    margin-top: 2px;
-    color: var(--invenzo-muted);
-    font-size: 11px;
-  }
-}
-
-.theme-swatch {
-  width: 16px;
-  height: 16px;
-  border: 1px solid var(--invenzo-border);
-  border-radius: 50%;
-
-  &.teal-light {
-    background: linear-gradient(135deg, rgb(14, 138, 139) 0 50%, #f4efe5 50% 100%);
-  }
-
-  &.teal-dark {
-    background: linear-gradient(135deg, rgb(14, 138, 139) 0 50%, #071b1d 50% 100%);
-  }
-
-  &.copper-smooth {
-    background: linear-gradient(135deg, #c56a1a 0 50%, #f4f0ea 50% 100%);
-  }
-}
-
 .user-dropdown {
   display: flex;
   align-items: center;
@@ -297,8 +226,7 @@ nz-content {
 
 @media (max-width: 680px) {
   .user-name,
-  .quick-link,
-  .theme-trigger span:not([nz-icon]) {
+  .quick-link {
     display: none;
   }
 

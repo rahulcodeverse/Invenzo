@@ -6,7 +6,6 @@ export type InvenzoTheme = 'teal-light' | 'teal-dark' | 'copper-smooth';
 export interface ThemeOption {
   id: InvenzoTheme;
   label: string;
-  description: string;
 }
 
 const THEME_STORAGE_KEY = 'invenzo-theme';
@@ -17,17 +16,14 @@ export class ThemeService {
     {
       id: 'teal-light',
       label: 'Teal Light',
-      description: 'Teal with white and cream surfaces',
     },
     {
       id: 'teal-dark',
       label: 'Teal Dark',
-      description: 'Dark operations console with teal actions',
     },
     {
       id: 'copper-smooth',
       label: 'Copper Smooth',
-      description: 'Current warm theme, softened and polished',
     },
   ];
 

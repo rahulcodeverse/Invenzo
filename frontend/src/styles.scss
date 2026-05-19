@@ -64,23 +64,23 @@ body {
 
 :root[data-theme='teal-dark'] {
   color-scheme: dark;
-  --invenzo-bg: #071b1d;
-  --invenzo-surface: #102a2c;
-  --invenzo-surface-soft: #123335;
-  --invenzo-ink: #edf8f6;
-  --invenzo-panel: #061517;
+  --invenzo-bg: #050505;
+  --invenzo-surface: #111111;
+  --invenzo-surface-soft: #171717;
+  --invenzo-ink: #f5f7f7;
+  --invenzo-panel: #000000;
   --invenzo-primary: rgb(14, 138, 139);
   --invenzo-primary-dark: #35c9c8;
-  --invenzo-primary-soft: #123f42;
+  --invenzo-primary-soft: #0d3435;
   --invenzo-primary-rgb: 14, 138, 139;
   --invenzo-copper: var(--invenzo-primary);
   --invenzo-copper-dark: var(--invenzo-primary-dark);
   --invenzo-amber: #e2a857;
-  --invenzo-border: #24484a;
-  --invenzo-muted: #a2bbb8;
-  --invenzo-muted-soft: #78918e;
-  --invenzo-table-head: #173739;
-  --invenzo-table-hover: #153f42;
+  --invenzo-border: #2b2b2b;
+  --invenzo-muted: #b7c0bf;
+  --invenzo-muted-soft: #7d8887;
+  --invenzo-table-head: #181818;
+  --invenzo-table-hover: #151f20;
   --invenzo-shadow: rgba(0, 0, 0, 0.32);
   --invenzo-danger: #ff8f86;
   --invenzo-success: #65d6a8;
