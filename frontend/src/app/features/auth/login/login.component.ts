@@ -6,6 +6,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -19,7 +20,8 @@ import { AuthService } from '../../../core/services/auth.service';
     NzFormModule,
     NzInputModule,
     NzButtonModule,
-    NzCheckboxModule
+    NzCheckboxModule,
+    NzIconModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -68,6 +70,14 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  useDemoCredentials(): void {
+    this.loginForm.patchValue({
+      email: 'owner@invenzo.com',
+      password: 'password123',
+      remember: true
+    });
   }
 }
 
