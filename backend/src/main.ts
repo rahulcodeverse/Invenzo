@@ -14,11 +14,22 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
+  const configuredOrigins = (configService.get<string>('FRONTEND_URL') || 'http://localhost:4200')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
 
   // Security
   app.use(helmet());
   app.enableCors({
-    origin: configService.get('FRONTEND_URL') || 'http://localhost:4200',
+    origin: (origin, callback) => {
+      const isAllowedOrigin =
+        !origin ||
+        configuredOrigins.includes(origin) ||
+        /^https:\/\/[a-z0-9-]+(?:-[a-z0-9-]+)*\.vercel\.app$/i.test(origin);
+
+      callback(isAllowedOrigin ? null : new Error(`CORS blocked for origin: ${origin}`), isAllowedOrigin);
+    },
     credentials: true,
   });
 
