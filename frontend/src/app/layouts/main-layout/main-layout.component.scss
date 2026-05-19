@@ -19,7 +19,9 @@
   padding: 0;
   background: var(--invenzo-surface);
   border-bottom: 1px solid var(--invenzo-border);
-  box-shadow: 0 10px 28px var(--invenzo-shadow);
+  box-shadow:
+    inset 0 -1px 0 var(--invenzo-border),
+    0 10px 28px var(--invenzo-shadow);
 }
 
 .top-bar {
@@ -67,12 +69,31 @@
   gap: 7px;
   min-height: 42px;
   padding: 0 11px;
-  border-radius: 7px;
+  border-radius: 0;
   color: var(--invenzo-muted);
   font-size: 13px;
   font-weight: 750;
   white-space: nowrap;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+
+  &::after {
+    position: absolute;
+    right: 10px;
+    bottom: 0;
+    left: 10px;
+    height: 3px;
+    background: var(--invenzo-primary);
+    content: '';
+    opacity: 0;
+    transform: scaleX(0.35);
+    transform-origin: center;
+    transition:
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
 
   &:hover {
     color: var(--invenzo-ink);
@@ -84,15 +105,10 @@
     background: var(--invenzo-primary-soft);
   }
 
+  &:hover::after,
   &.active::after {
-    position: absolute;
-    right: 12px;
-    bottom: 5px;
-    left: 12px;
-    height: 3px;
-    border-radius: 999px;
-    background: var(--invenzo-primary);
-    content: '';
+    opacity: 1;
+    transform: scaleX(1);
   }
 }
 
@@ -151,18 +167,39 @@
   padding: 0 26px 8px 26px;
   overflow-x: auto;
   background: var(--invenzo-surface);
+  border-top: 1px solid var(--invenzo-border);
 }
 
 .sub-tab {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 34px;
   padding: 0 12px;
-  border-radius: 7px;
+  border-radius: 0;
   color: var(--invenzo-muted);
   font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+
+  &::after {
+    position: absolute;
+    right: 8px;
+    bottom: -1px;
+    left: 8px;
+    height: 2px;
+    background: var(--invenzo-primary);
+    content: '';
+    opacity: 0;
+    transform: scaleX(0.35);
+    transform-origin: center;
+    transition:
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
 
   &:hover {
     color: var(--invenzo-ink);
@@ -172,6 +209,12 @@
   &.active {
     color: var(--invenzo-primary-dark);
     background: var(--invenzo-primary-soft);
+  }
+
+  &:hover::after,
+  &.active::after {
+    opacity: 1;
+    transform: scaleX(1);
   }
 }
 
