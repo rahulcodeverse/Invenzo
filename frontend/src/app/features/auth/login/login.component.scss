@@ -68,15 +68,17 @@
   bottom: 58px;
   z-index: 1;
   max-width: 520px;
-  padding: 24px;
+  min-height: 286px;
+  padding: 26px;
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 22px 54px rgba(18, 24, 23, 0.12);
   backdrop-filter: blur(16px);
+  transition: transform 180ms ease, box-shadow 180ms ease;
 
   h1 {
     margin: 0;
     color: var(--invenzo-ink);
-    font-size: 38px;
+    font-size: 36px;
     line-height: 1.08;
     font-weight: 850;
   }
@@ -89,6 +91,26 @@
   }
 }
 
+.slide-count {
+  position: absolute;
+  top: 24px;
+  right: 26px;
+  color: var(--invenzo-muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.slide-metric {
+  display: inline-flex;
+  margin-top: 18px;
+  padding: 8px 10px;
+  border: 1px solid rgba(var(--invenzo-primary-rgb), 0.28);
+  color: var(--invenzo-primary-dark);
+  background: rgba(var(--invenzo-primary-rgb), 0.08);
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   color: var(--invenzo-primary-dark);
@@ -96,6 +118,33 @@
   font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.carousel-controls {
+  position: absolute;
+  right: 54px;
+  bottom: 380px;
+  z-index: 1;
+  display: flex;
+  gap: 8px;
+
+  button {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.68);
+    color: var(--invenzo-ink);
+    background: rgba(255, 255, 255, 0.74);
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    transition: background-color 160ms ease, transform 160ms ease;
+
+    &:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+  }
 }
 
 .slide-dots {
@@ -106,14 +155,25 @@
   display: flex;
   gap: 8px;
 
-  span {
-    width: 9px;
-    height: 9px;
-    background: rgba(32, 49, 42, 0.22);
+  button {
+    width: 42px;
+    height: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+
+    span {
+      display: block;
+      width: 100%;
+      height: 4px;
+      background: rgba(32, 49, 42, 0.18);
+      transition: background-color 180ms ease, height 180ms ease;
+    }
   }
 
-  .active {
-    width: 34px;
+  button.active span {
+    height: 5px;
     background: var(--invenzo-primary);
   }
 }
@@ -263,6 +323,11 @@
     right: 24px;
     bottom: 24px;
     left: 24px;
+  }
+
+  .carousel-controls {
+    right: 24px;
+    bottom: 330px;
   }
 }
 

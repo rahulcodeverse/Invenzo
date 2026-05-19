@@ -9,15 +9,34 @@
       <img class="hero-image" src="assets/login/logistics-hero.png" alt="Isometric logistics and warehouse illustration" />
 
       <div class="visual-copy">
-        <p class="eyebrow">Inventory • Manufacturing • Finance</p>
-        <h1>Control every movement from one workspace.</h1>
-        <p>Bring stock, orders, production, purchases, invoices, GST, and reports into a single operating view.</p>
+        <span class="slide-count">0{{ activeSlideIndex + 1 }} / 04</span>
+        <p class="eyebrow">{{ activeSlide.eyebrow }}</p>
+        <h1>{{ activeSlide.title }}</h1>
+        <p>{{ activeSlide.body }}</p>
+        <div class="slide-metric">
+          <span>{{ activeSlide.metric }}</span>
+        </div>
       </div>
 
-      <div class="slide-dots" aria-hidden="true">
-        <span class="active"></span>
-        <span></span>
-        <span></span>
+      <div class="carousel-controls" aria-label="Login carousel controls">
+        <button type="button" (click)="previousSlide()" aria-label="Previous slide">
+          <span nz-icon nzType="arrow-left"></span>
+        </button>
+        <button type="button" (click)="advanceSlide()" aria-label="Next slide">
+          <span nz-icon nzType="arrow-right"></span>
+        </button>
+      </div>
+
+      <div class="slide-dots" aria-label="Login carousel slides">
+        <button
+          *ngFor="let slide of slides; let i = index"
+          type="button"
+          [class.active]="i === activeSlideIndex"
+          (click)="selectSlide(i)"
+          [attr.aria-label]="'Show slide ' + (i + 1)"
+        >
+          <span></span>
+        </button>
       </div>
     </section>
 
