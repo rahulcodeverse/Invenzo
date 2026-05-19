@@ -33,28 +33,35 @@ export class LoginComponent implements OnInit, OnDestroy {
   private slideTimer?: ReturnType<typeof setInterval>;
   readonly slides = [
     {
-      eyebrow: 'Inventory control',
-      title: 'See stock clearly before every decision.',
-      body: 'Warehouse availability, transfers, adjustments, ageing, and low-stock signals stay visible from one workspace.',
-      metric: 'Live stock'
+      type: 'image',
+      eyebrow: 'Connected workspace',
+      title: 'Inventory, manufacturing, sales, and finance in one operating view.',
+      body: 'A cleaner way to see the movement of stock and money across the business.',
+      metric: 'Live operations'
     },
     {
-      eyebrow: 'Manufacturing flow',
-      title: 'Turn demand into production without friction.',
-      body: 'Move from BOM to MRP, purchase indents, and work orders with fewer gaps between planning and execution.',
-      metric: 'MRP ready'
+      type: 'data',
+      eyebrow: 'Operations snapshot',
+      title: 'Know what needs action today.',
+      body: 'Use the dashboard to track stock, pending orders, purchase flow, and production demand before problems build up.',
+      metric: '9 modules',
+      stats: [
+        { label: 'Stock visibility', value: 'Real time' },
+        { label: 'Order flow', value: 'Linked' },
+        { label: 'Warehouses', value: 'Multi-site' }
+      ]
     },
     {
-      eyebrow: 'Order to invoice',
-      title: 'Connect every order to the stock behind it.',
-      body: 'Quotes, purchase orders, GRNs, delivery notes, invoices, and payments stay tied to inventory impact.',
-      metric: 'Flow linked'
-    },
-    {
-      eyebrow: 'Finance and reports',
-      title: 'Close faster with reports that already know the flow.',
-      body: 'Ledgers, balances, inventory reports, GST summaries, and KPIs reflect what happened across operations.',
-      metric: 'Reports built in'
+      type: 'data',
+      eyebrow: 'Business control',
+      title: 'From purchase to payment, the flow stays connected.',
+      body: 'Create quotes, orders, invoices, payments, GST reports, BOMs, indents, and work orders without losing context.',
+      metric: 'Reports ready',
+      stats: [
+        { label: 'GST reports', value: 'Built in' },
+        { label: 'MRP planning', value: 'Ready' },
+        { label: 'Payments', value: 'Tracked' }
+      ]
     }
   ];
 
