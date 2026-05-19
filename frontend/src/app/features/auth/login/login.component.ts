@@ -33,18 +33,21 @@ export class LoginComponent implements OnInit, OnDestroy {
   private slideTimer?: ReturnType<typeof setInterval>;
   readonly slides = [
     {
-      type: 'image',
-      eyebrow: 'Connected workspace',
-      title: 'A modern control room for inventory-led businesses.',
-      body: 'See how stock, purchasing, production, sales, invoices, and payments move together without switching systems.',
-      metric: 'Live operations'
+      eyebrow: 'Unified ERP workspace',
+      title: 'The operating system for inventory-led businesses.',
+      body: 'Invenzo brings inventory, purchasing, manufacturing, sales, accounting, and GST reporting into one connected workflow.',
+      metric: 'Live operations',
+      stats: [
+        { label: 'Inventory', value: 'Control' },
+        { label: 'Manufacturing', value: 'Plan' },
+        { label: 'Finance', value: 'Close' }
+      ]
     },
     {
-      type: 'data',
-      eyebrow: 'Operations snapshot',
-      title: 'Start every day with the work that matters.',
-      body: 'Low stock, open orders, pending purchases, production demand, and receivables stay visible for faster decisions.',
-      metric: '9 modules',
+      eyebrow: 'Daily command view',
+      title: 'Act before stock, orders, or payments become problems.',
+      body: 'Teams can see critical stock, open orders, pending GRNs, production demand, and receivables without chasing spreadsheets.',
+      metric: 'Action ready',
       stats: [
         { label: 'Critical stock', value: '12 items' },
         { label: 'Open orders', value: '36' },
@@ -52,11 +55,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      type: 'data',
-      eyebrow: 'Business control',
-      title: 'Keep the full transaction cycle under control.',
-      body: 'From quote to invoice, purchase indent to GRN, BOM to work order, and ledger to GST report, every step keeps context.',
-      metric: 'Reports ready',
+      eyebrow: 'Connected transaction cycle',
+      title: 'Every document stays tied to stock and accounts.',
+      body: 'Quotes, orders, GRNs, invoices, payments, BOMs, indents, work orders, ledgers, and GST reports stay part of the same flow.',
+      metric: 'Flow connected',
       stats: [
         { label: 'GST summary', value: 'Ready' },
         { label: 'MRP runs', value: '4 active' },

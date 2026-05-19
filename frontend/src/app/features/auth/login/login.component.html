@@ -11,32 +11,27 @@
 
       <div class="brand-copy">
         <p class="eyebrow">Invenzo ERP</p>
-        <h1>Inventory control that feels calm, fast, and complete.</h1>
-        <p>Run stock, purchases, sales, manufacturing, finance, and reports from one connected workspace.</p>
+        <h1>Built for businesses that move stock, make products, and manage money.</h1>
+        <p>A connected ERP workspace for inventory, manufacturing, sales, purchases, accounting, and GST reporting.</p>
       </div>
 
       <div class="feature-carousel">
-        <ng-container *ngIf="activeSlide.type === 'image'; else dataSlide">
-          <div class="carousel-image">
-            <img src="assets/login/logistics-hero.png" alt="Isometric logistics and warehouse illustration" />
+        <div class="carousel-data">
+          <div class="carousel-data__copy">
+            <p class="eyebrow">{{ activeSlide.eyebrow }}</p>
+            <h3>{{ activeSlide.title }}</h3>
+            <p>{{ activeSlide.body }}</p>
           </div>
-        </ng-container>
-
-        <ng-template #dataSlide>
-          <div class="carousel-data">
-            <div class="carousel-data__copy">
-              <p class="eyebrow">{{ activeSlide.eyebrow }}</p>
-              <h3>{{ activeSlide.title }}</h3>
-              <p>{{ activeSlide.body }}</p>
+          <div class="solution-map">
+            <div class="map-core">
+              <span>Invenzo</span>
             </div>
-            <div class="data-grid">
-              <div *ngFor="let stat of activeSlide.stats">
-                <span>{{ stat.label }}</span>
-                <strong>{{ stat.value }}</strong>
-              </div>
+            <div *ngFor="let stat of activeSlide.stats" class="map-node">
+              <span>{{ stat.label }}</span>
+              <strong>{{ stat.value }}</strong>
             </div>
           </div>
-        </ng-template>
+        </div>
 
       </div>
     </section>
