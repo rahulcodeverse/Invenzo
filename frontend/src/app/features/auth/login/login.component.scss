@@ -4,8 +4,8 @@
   place-items: center;
   padding: 32px;
   background:
-    radial-gradient(circle at 15% 12%, rgba(213, 138, 58, 0.2), transparent 26rem),
-    linear-gradient(135deg, #211f1c 0%, #2b2925 46%, #f3f1ed 46%, #f3f1ed 100%);
+    radial-gradient(circle at 15% 12%, rgba(var(--invenzo-primary-rgb), 0.2), transparent 26rem),
+    linear-gradient(135deg, var(--invenzo-panel) 0%, var(--invenzo-panel) 46%, var(--invenzo-bg) 46%, var(--invenzo-bg) 100%);
 }
 
 .login-shell {
@@ -14,10 +14,10 @@
   width: min(1080px, 100%);
   min-height: 640px;
   overflow: hidden;
-  border: 1px solid rgba(221, 214, 204, 0.7);
+  border: 1px solid var(--invenzo-border);
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 28px 80px rgba(33, 31, 28, 0.24);
+  background: var(--invenzo-surface);
+  box-shadow: 0 28px 80px var(--invenzo-shadow);
 }
 
 .brand-panel {
@@ -28,8 +28,8 @@
   padding: 42px;
   color: #fff;
   background:
-    linear-gradient(180deg, rgba(33, 31, 28, 0.92), rgba(33, 31, 28, 0.98)),
-    #211f1c;
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.22)),
+    var(--invenzo-panel);
 }
 
 .brand-top {
@@ -45,7 +45,7 @@
 
 .eyebrow {
   margin: 0 0 10px;
-  color: #d58a3a;
+  color: var(--invenzo-amber);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -77,7 +77,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 48px 36px;
-  background: #fff;
+  background: var(--invenzo-surface);
 }
 
 .login-header {
@@ -85,21 +85,21 @@
 
   h2 {
     margin: 0 0 8px;
-    color: #211f1c;
+    color: var(--invenzo-ink);
     font-size: 30px;
     font-weight: 850;
   }
 
   p:last-child {
     margin: 0;
-    color: #6f675f;
+    color: var(--invenzo-muted);
   }
 }
 
 .field-label {
   display: block;
   margin-bottom: 7px;
-  color: #4b443d;
+  color: var(--invenzo-muted);
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -137,9 +137,9 @@
   gap: 12px;
   margin-top: 22px;
   padding: 14px;
-  border: 1px solid #efd1b0;
+  border: 1px solid rgba(var(--invenzo-primary-rgb), 0.24);
   border-radius: 8px;
-  background: #fff4e8;
+  background: var(--invenzo-primary-soft);
 
   strong,
   span {
@@ -147,21 +147,21 @@
   }
 
   strong {
-    color: #211f1c;
+    color: var(--invenzo-ink);
     font-size: 13px;
   }
 
   span,
   code {
-    color: #6f675f;
+    color: var(--invenzo-muted);
     font-size: 12px;
   }
 
   code {
     padding: 5px 8px;
-    border: 1px solid #ddd6cc;
+    border: 1px solid var(--invenzo-border);
     border-radius: 5px;
-    background: #fff;
+    background: var(--invenzo-surface);
   }
 }
 
@@ -183,7 +183,7 @@
   .login-container {
     display: block;
     padding: 0;
-    background: #fff;
+    background: var(--invenzo-surface);
   }
 
   .login-shell {

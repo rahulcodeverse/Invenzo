@@ -12,6 +12,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
 import { AppNotification, NotificationService } from '../../core/services/notification.service';
+import { InvenzoTheme, ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -140,7 +141,8 @@ export class MainLayoutComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    readonly themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
@@ -256,6 +258,10 @@ export class MainLayoutComponent implements OnInit {
   get userName(): string {
     if (!this.currentUser) return 'User';
     return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+  }
+
+  setTheme(theme: InvenzoTheme): void {
+    this.themeService.setTheme(theme);
   }
 }
 

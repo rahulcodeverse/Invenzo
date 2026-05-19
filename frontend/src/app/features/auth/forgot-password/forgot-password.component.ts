@@ -61,21 +61,21 @@ import { AuthService } from '../../../core/services/auth.service';
       display: grid;
       place-items: center;
       padding: 24px;
-      background: #f7f4ed;
+      background: var(--invenzo-bg);
     }
     .auth-card {
       width: min(440px, 100%);
-      background: #fff;
-      border: 1px solid #e4dccd;
+      background: var(--invenzo-surface);
+      border: 1px solid var(--invenzo-border);
       border-radius: 8px;
       padding: 28px;
-      box-shadow: 0 20px 50px rgba(32, 49, 42, .12);
+      box-shadow: 0 20px 50px var(--invenzo-shadow);
     }
     .back-link {
       display: inline-flex;
       gap: 6px;
       align-items: center;
-      color: #6b5c4a;
+      color: var(--invenzo-muted);
       margin-bottom: 24px;
     }
     .auth-header img {
@@ -83,12 +83,12 @@ import { AuthService } from '../../../core/services/auth.service';
       margin-bottom: 20px;
     }
     .auth-header h1 {
-      color: #20312a;
+      color: var(--invenzo-ink);
       font-size: 28px;
       margin: 0 0 8px;
     }
     .auth-header p {
-      color: #6b5c4a;
+      color: var(--invenzo-muted);
       margin-bottom: 24px;
     }
     .submit-button {

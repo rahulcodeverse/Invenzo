@@ -23,6 +23,36 @@
           Stock
         </a>
 
+        <button
+          nz-button
+          nz-dropdown
+          [nzDropdownMenu]="themeMenu"
+          nzTrigger="click"
+          class="theme-trigger"
+          type="button"
+        >
+          <span nz-icon nzType="skin"></span>
+          <span>{{ themeService.activeThemeLabel }}</span>
+        </button>
+
+        <nz-dropdown-menu #themeMenu="nzDropdownMenu">
+          <ul nz-menu class="theme-menu">
+            <li
+              nz-menu-item
+              *ngFor="let theme of themeService.themes"
+              [class.active]="theme.id === themeService.activeTheme"
+              (click)="setTheme(theme.id)"
+            >
+              <span class="theme-swatch" [ngClass]="theme.id"></span>
+              <span>
+                <strong>{{ theme.label }}</strong>
+                <small>{{ theme.description }}</small>
+              </span>
+              <span *ngIf="theme.id === themeService.activeTheme" nz-icon nzType="check"></span>
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+
         <a
           nz-dropdown
           [nzDropdownMenu]="notificationMenu"
