@@ -10,55 +10,23 @@
       </div>
 
       <div class="brand-copy">
-        <p class="eyebrow">Operations command center</p>
-        <h1>Every stock move, order, and payment in one clean flow.</h1>
-        <p>Invenzo gives growing teams a calm workspace for inventory, manufacturing, purchases, sales, finance, and reports.</p>
+        <p class="eyebrow">Invenzo ERP</p>
+        <h1>Inventory control that feels calm, fast, and complete.</h1>
+        <p>Run stock, purchases, sales, manufacturing, finance, and reports from one connected workspace.</p>
       </div>
 
-      <div class="operation-preview" aria-hidden="true">
-        <div class="preview-header">
-          <div>
-            <span>Today</span>
-            <strong>Production ready</strong>
-          </div>
-          <span class="preview-score">94%</span>
+      <div class="workflow-panel" aria-hidden="true">
+        <div class="workflow-line">
+          <span nz-icon nzType="inbox"></span>
+          <strong>Stock visibility</strong>
         </div>
-
-        <div class="preview-metrics">
-          <div>
-            <span>Orders</span>
-            <strong>128</strong>
-          </div>
-          <div>
-            <span>Stock health</span>
-            <strong>Good</strong>
-          </div>
-          <div>
-            <span>Receivables</span>
-            <strong>INR 4.8L</strong>
-          </div>
-        </div>
-
-        <div class="flow-card active">
+        <div class="workflow-line">
           <span nz-icon nzType="shopping-cart"></span>
-          <div>
-            <strong>Purchase order approved</strong>
-            <small>Raw material demand linked to MRP</small>
-          </div>
+          <strong>Order to invoice</strong>
         </div>
-        <div class="flow-card">
-          <span nz-icon nzType="build"></span>
-          <div>
-            <strong>Work order scheduled</strong>
-            <small>Batch INV-WO-104 starts tomorrow</small>
-          </div>
-        </div>
-        <div class="flow-card">
-          <span nz-icon nzType="bar-chart"></span>
-          <div>
-            <strong>GST report prepared</strong>
-            <small>Ready for finance review</small>
-          </div>
+        <div class="workflow-line">
+          <span nz-icon nzType="calculator"></span>
+          <strong>Accounts and GST</strong>
         </div>
       </div>
     </section>
@@ -70,8 +38,8 @@
 
       <div class="login-header">
         <p class="eyebrow">Secure access</p>
-        <h2>Welcome back</h2>
-        <p>Continue where operations left off.</p>
+        <h2>Sign in to Invenzo</h2>
+        <p>Open your business workspace.</p>
       </div>
 
       <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
