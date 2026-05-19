@@ -1,133 +1,98 @@
 <div class="login-container">
-  <div class="login-workbench">
-    <header class="login-topbar">
-      <img src="assets/brand/invenzo-logo.svg" alt="Invenzo" />
-      <span class="environment-pill">Production workspace</span>
-    </header>
+  <main class="login-stage">
+    <section class="visual-panel">
+      <header class="brand-row">
+        <img src="assets/brand/invenzo-logo.svg" alt="Invenzo" />
+        <span>ERP workspace</span>
+      </header>
 
-    <main class="login-shell">
-      <section class="system-panel">
-        <div class="hero-copy">
-          <p class="eyebrow">Access console</p>
-          <h1>Supply chain visibility from the first screen.</h1>
-          <p class="intro-copy">Track inventory, purchase flow, production, dispatch, payments, and reports from one connected workspace.</p>
+      <img class="hero-image" src="assets/login/logistics-hero.png" alt="Isometric logistics and warehouse illustration" />
+
+      <div class="visual-copy">
+        <p class="eyebrow">Inventory • Manufacturing • Finance</p>
+        <h1>Control every movement from one workspace.</h1>
+        <p>Bring stock, orders, production, purchases, invoices, GST, and reports into a single operating view.</p>
+      </div>
+
+      <div class="slide-dots" aria-hidden="true">
+        <span class="active"></span>
+        <span></span>
+        <span></span>
+      </div>
+    </section>
+
+    <section class="login-card">
+      <div class="mobile-brand">
+        <img src="assets/brand/invenzo-logo.svg" alt="Invenzo" />
+      </div>
+
+      <div class="login-header">
+        <p class="eyebrow">Secure login</p>
+        <h2>Welcome to Invenzo</h2>
+        <p>Sign in to open your business workspace.</p>
+      </div>
+
+      <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Please input your email!">
+            <label class="field-label">Email address</label>
+            <nz-input-group [nzPrefix]="userPrefix">
+              <input
+                type="email"
+                nz-input
+                formControlName="email"
+                placeholder="owner@invenzo.com"
+              />
+            </nz-input-group>
+            <ng-template #userPrefix>
+              <span nz-icon nzType="user"></span>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Please input your password!">
+            <label class="field-label">Password</label>
+            <nz-input-group [nzPrefix]="lockPrefix">
+              <input
+                type="password"
+                nz-input
+                formControlName="password"
+                placeholder="Enter password"
+              />
+            </nz-input-group>
+            <ng-template #lockPrefix>
+              <span nz-icon nzType="lock"></span>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div class="form-options">
+          <label nz-checkbox formControlName="remember">
+            <span>Keep me signed in</span>
+          </label>
+          <a routerLink="/auth/forgot-password">Reset password</a>
         </div>
 
-        <div class="visual-card">
-          <img src="assets/login/logistics-hero.png" alt="Isometric logistics and warehouse illustration" />
-          <div class="visual-caption">
-            <span>01 / Operations</span>
-            <strong>Warehouse, order, and production signals in one place.</strong>
-          </div>
-        </div>
-
-        <div class="carousel-strip" aria-label="Invenzo workspace highlights">
-          <div class="carousel-item active">
-            <span nz-icon nzType="inbox"></span>
-            <div>
-              <strong>Inventory</strong>
-              <small>Stock by warehouse, movement, transfer, ageing.</small>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <span nz-icon nzType="build"></span>
-            <div>
-              <strong>Manufacturing</strong>
-              <small>BOM, MRP, purchase indents, work orders.</small>
-            </div>
-          </div>
-          <div class="carousel-item">
-            <span nz-icon nzType="calculator"></span>
-            <div>
-              <strong>Finance</strong>
-              <small>Invoices, payments, GST, reports.</small>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="login-card">
-        <div class="mobile-brand">
-          <img src="assets/brand/invenzo-logo.svg" alt="Invenzo" />
-        </div>
-
-        <div class="login-header">
-          <p class="eyebrow">Secure login</p>
-          <h2>Workspace access</h2>
-          <p>Use your Invenzo account credentials.</p>
-        </div>
-
-        <form nz-form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <nz-form-item>
-            <nz-form-control nzErrorTip="Please input your email!">
-              <label class="field-label">Email address</label>
-              <nz-input-group [nzPrefix]="userPrefix">
-                <input
-                  type="email"
-                  nz-input
-                  formControlName="email"
-                  placeholder="owner@invenzo.com"
-                />
-              </nz-input-group>
-              <ng-template #userPrefix>
-                <span nz-icon nzType="user"></span>
-              </ng-template>
-            </nz-form-control>
-          </nz-form-item>
-
-          <nz-form-item>
-            <nz-form-control nzErrorTip="Please input your password!">
-              <label class="field-label">Password</label>
-              <nz-input-group [nzPrefix]="lockPrefix">
-                <input
-                  type="password"
-                  nz-input
-                  formControlName="password"
-                  placeholder="Enter password"
-                />
-              </nz-input-group>
-              <ng-template #lockPrefix>
-                <span nz-icon nzType="lock"></span>
-              </ng-template>
-            </nz-form-control>
-          </nz-form-item>
-
-          <div class="form-options">
-            <label nz-checkbox formControlName="remember">
-              <span>Keep me signed in</span>
-            </label>
-            <a routerLink="/auth/forgot-password">Reset password</a>
-          </div>
-
-          <button
-            nz-button
-            class="login-form-button"
-            [nzType]="'primary'"
-            [nzLoading]="loading"
-            [disabled]="!loginForm.valid"
-          >
-            <span nz-icon nzType="login"></span>
-            Open workspace
-          </button>
-        </form>
-
-        <button type="button" class="demo-credentials" (click)="useDemoCredentials()">
-          <div>
-            <strong>Try owner workspace</strong>
-            <span>owner&#64;invenzo.com</span>
-          </div>
-          <span class="demo-action">Fill demo</span>
+        <button
+          nz-button
+          class="login-form-button"
+          [nzType]="'primary'"
+          [nzLoading]="loading"
+          [disabled]="!loginForm.valid"
+        >
+          <span nz-icon nzType="login"></span>
+          Open workspace
         </button>
-      </section>
-    </main>
+      </form>
 
-    <footer class="login-footer">
-      <span>Inventory</span>
-      <span>Manufacturing</span>
-      <span>Sales</span>
-      <span>Purchases</span>
-      <span>Accounting</span>
-    </footer>
-  </div>
+      <button type="button" class="demo-credentials" (click)="useDemoCredentials()">
+        <div>
+          <strong>Try owner workspace</strong>
+          <span>owner&#64;invenzo.com</span>
+        </div>
+        <span class="demo-action">Fill demo</span>
+      </button>
+    </section>
+  </main>
 </div>
-
