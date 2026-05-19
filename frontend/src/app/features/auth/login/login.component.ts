@@ -34,26 +34,26 @@ export class LoginComponent implements OnInit, OnDestroy {
   readonly slides = [
     {
       eyebrow: 'Inventory control',
-      title: 'Know what is available before every sale.',
-      body: 'Track stock by warehouse, transfer items, adjust quantities, and spot ageing or low inventory early.',
+      title: 'See stock clearly before every decision.',
+      body: 'Warehouse availability, transfers, adjustments, ageing, and low-stock signals stay visible from one workspace.',
       metric: 'Live stock'
     },
     {
       eyebrow: 'Manufacturing flow',
-      title: 'Plan production from BOM to work order.',
-      body: 'Convert demand into MRP, purchase indents, BOM planning, and production execution without jumping tools.',
+      title: 'Turn demand into production without friction.',
+      body: 'Move from BOM to MRP, purchase indents, and work orders with fewer gaps between planning and execution.',
       metric: 'MRP ready'
     },
     {
       eyebrow: 'Order to invoice',
-      title: 'Keep sales and purchases moving together.',
-      body: 'Manage quotations, orders, GRNs, delivery notes, invoices, and payments with connected stock impact.',
+      title: 'Connect every order to the stock behind it.',
+      body: 'Quotes, purchase orders, GRNs, delivery notes, invoices, and payments stay tied to inventory impact.',
       metric: 'Flow linked'
     },
     {
       eyebrow: 'Finance and reports',
-      title: 'Close the loop with accounts and GST.',
-      body: 'Review ledgers, customer/vendor balances, inventory reports, GST summaries, and business KPIs in one place.',
+      title: 'Close faster with reports that already know the flow.',
+      body: 'Ledgers, balances, inventory reports, GST summaries, and KPIs reflect what happened across operations.',
       metric: 'Reports built in'
     }
   ];

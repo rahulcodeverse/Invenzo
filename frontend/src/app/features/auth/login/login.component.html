@@ -18,15 +18,6 @@
         </div>
       </div>
 
-      <div class="carousel-controls" aria-label="Login carousel controls">
-        <button type="button" (click)="previousSlide()" aria-label="Previous slide">
-          <span nz-icon nzType="arrow-left"></span>
-        </button>
-        <button type="button" (click)="advanceSlide()" aria-label="Next slide">
-          <span nz-icon nzType="arrow-right"></span>
-        </button>
-      </div>
-
       <div class="slide-dots" aria-label="Login carousel slides">
         <button
           *ngFor="let slide of slides; let i = index"
