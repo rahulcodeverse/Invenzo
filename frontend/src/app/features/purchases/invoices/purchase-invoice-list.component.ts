@@ -129,10 +129,10 @@ import { PurchaseInvoice } from '../models/purchases.model';
     .summary-grid { margin-bottom: 16px; }
     .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:16px; }
     .header-left h2 { margin:0; font-size:24px; font-weight:600; }
-    .header-left p { margin:4px 0 0; color:rgba(0,0,0,.45); }
+    .header-left p { margin:4px 0 0; color:var(--invenzo-muted); }
     .filters { display:flex; gap:12px; }
     .aging-strip { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-    .overdue-row { background:#fff1f0; }
+    .overdue-row { background:rgba(255, 77, 79, .12); }
     .overdue, .danger { color:#b42318; font-weight:600; }
     .success { color:#9a4f12; font-weight:600; }
     .due-note { display:block; margin-top:4px; color:#6f675f; }

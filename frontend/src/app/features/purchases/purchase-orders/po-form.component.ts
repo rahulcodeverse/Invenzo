@@ -161,10 +161,10 @@ import { ManufacturingService } from '../../manufacturing/services/manufacturing
   styles: [`
     .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
     .page-header h2 { margin:0; font-size:24px; font-weight:600; }
-    .item-row { background:#fafafa; padding:8px; border-radius:4px; margin-bottom:8px; }
-    .totals-box { background:#f5f5f5; padding:16px; border-radius:8px; }
+    .item-row { background:var(--invenzo-surface-soft); padding:8px; border-radius:4px; margin-bottom:8px; }
+    .totals-box { background:var(--invenzo-surface-soft); padding:16px; border-radius:8px; color:var(--invenzo-ink); }
     .total-row { display:flex; justify-content:space-between; margin-bottom:8px; }
-    .total-row.grand { font-size:16px; border-top:1px solid #ddd; padding-top:8px; margin-top:8px; }
+    .total-row.grand { font-size:16px; border-top:1px solid var(--invenzo-border); padding-top:8px; margin-top:8px; }
   `]
 })
 export class PoFormComponent implements OnInit {

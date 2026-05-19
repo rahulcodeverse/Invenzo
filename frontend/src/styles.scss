@@ -65,8 +65,8 @@ body {
 :root[data-theme='teal-dark'] {
   color-scheme: dark;
   --invenzo-bg: #050505;
-  --invenzo-surface: #111111;
-  --invenzo-surface-soft: #171717;
+  --invenzo-surface: #121212;
+  --invenzo-surface-soft: #1b1b1b;
   --invenzo-ink: #f5f7f7;
   --invenzo-panel: #000000;
   --invenzo-primary: rgb(14, 138, 139);
@@ -76,11 +76,11 @@ body {
   --invenzo-copper: var(--invenzo-primary);
   --invenzo-copper-dark: var(--invenzo-primary-dark);
   --invenzo-amber: #e2a857;
-  --invenzo-border: #2b2b2b;
+  --invenzo-border: #303030;
   --invenzo-muted: #b7c0bf;
   --invenzo-muted-soft: #7d8887;
-  --invenzo-table-head: #181818;
-  --invenzo-table-hover: #151f20;
+  --invenzo-table-head: #1c1c1c;
+  --invenzo-table-hover: #202626;
   --invenzo-shadow: rgba(0, 0, 0, 0.32);
   --invenzo-danger: #ff8f86;
   --invenzo-success: #65d6a8;
@@ -100,6 +100,15 @@ body {
 }
 
 .ant-card-head-title,
+.ant-card-body,
+.ant-modal-title,
+.ant-form-item-label > label,
+.ant-descriptions-title,
+.ant-descriptions-item-label,
+.ant-descriptions-item-content,
+.ant-empty-description,
+.ant-statistic-title,
+.ant-statistic-content,
 .page-header h2,
 .header-left h2 {
   color: var(--invenzo-ink);
@@ -173,12 +182,24 @@ a:hover {
 .ant-table,
 .ant-table-container,
 .ant-table-tbody > tr > td,
+.ant-table-placeholder > td,
 .ant-modal-content,
 .ant-modal-header,
 .ant-modal-body,
+.ant-modal-footer,
 .ant-dropdown-menu,
 .ant-select-dropdown,
-.ant-picker-panel-container {
+.ant-picker-panel-container,
+.ant-popover-inner,
+.ant-popover-title,
+.ant-popover-inner-content,
+.ant-descriptions-view,
+.ant-list,
+.ant-list-item,
+.ant-alert,
+.ant-drawer-content,
+.ant-drawer-header,
+.ant-drawer-body {
   color: var(--invenzo-ink);
   background: var(--invenzo-surface);
 }
@@ -186,8 +207,13 @@ a:hover {
 .ant-table-tbody > tr > td,
 .ant-table-thead > tr > th,
 .ant-modal-header,
+.ant-modal-footer,
 .ant-dropdown-menu-item,
-.ant-select-item {
+.ant-select-item,
+.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-bordered .ant-descriptions-item-content,
+.ant-list-item,
+.ant-drawer-header {
   border-color: var(--invenzo-border);
 }
 
@@ -203,6 +229,26 @@ textarea.ant-input {
   color: var(--invenzo-ink) !important;
   background: var(--invenzo-surface) !important;
   border-color: var(--invenzo-border) !important;
+}
+
+.ant-input::placeholder,
+textarea.ant-input::placeholder,
+.ant-picker-input > input::placeholder,
+.ant-select-selection-placeholder {
+  color: var(--invenzo-muted-soft) !important;
+}
+
+.ant-btn:not(.ant-btn-primary):not(.ant-btn-link) {
+  color: var(--invenzo-ink);
+  background: var(--invenzo-surface);
+  border-color: var(--invenzo-border);
+}
+
+.ant-btn:not(.ant-btn-primary):not(.ant-btn-link):hover,
+.ant-btn:not(.ant-btn-primary):not(.ant-btn-link):focus {
+  color: var(--invenzo-primary-dark);
+  background: var(--invenzo-primary-soft);
+  border-color: var(--invenzo-primary);
 }
 
 .ant-input,
@@ -319,5 +365,75 @@ textarea.ant-input {
 @media (max-width: 680px) {
   .notification-panel {
     width: 300px;
+  }
+}
+
+:root[data-theme='teal-dark'] {
+  .ant-card,
+  .ant-card-head,
+  .ant-card-body,
+  .ant-table,
+  .ant-table-container,
+  .ant-table-content,
+  .ant-table-tbody > tr > td,
+  .ant-modal-content,
+  .ant-modal-header,
+  .ant-modal-body,
+  .ant-modal-footer,
+  .ant-dropdown-menu,
+  .ant-select-dropdown,
+  .ant-picker-panel-container,
+  .ant-popover-inner,
+  .ant-drawer-content {
+    background: var(--invenzo-surface) !important;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-descriptions-bordered .ant-descriptions-item-label {
+    background: var(--invenzo-table-head) !important;
+  }
+
+  .ant-table-tbody > tr:hover > td,
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+  .ant-dropdown-menu-item:hover {
+    background: var(--invenzo-table-hover) !important;
+  }
+
+  .filters-section,
+  .summary-section,
+  .item-row,
+  .totals-box,
+  .balance-info,
+  .transfer-preview,
+  .preview-content,
+  .warehouse-card,
+  .stat-card,
+  .details-section,
+  .detail-card,
+  .product-info,
+  .category-row,
+  .logo-upload,
+  .allocation-summary {
+    color: var(--invenzo-ink) !important;
+    background: var(--invenzo-surface-soft) !important;
+    border-color: var(--invenzo-border) !important;
+  }
+
+  .overdue-row,
+  .balance-error {
+    color: var(--invenzo-danger) !important;
+    background: rgba(255, 143, 134, 0.12) !important;
+    border-color: rgba(255, 143, 134, 0.32) !important;
+  }
+
+  .balance-ok {
+    color: var(--invenzo-success) !important;
+    background: rgba(101, 214, 168, 0.12) !important;
+    border-color: rgba(101, 214, 168, 0.32) !important;
+  }
+
+  .ant-tag {
+    background: var(--invenzo-surface-soft);
+    border-color: var(--invenzo-border);
   }
 }

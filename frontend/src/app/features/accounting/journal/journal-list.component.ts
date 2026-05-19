@@ -173,10 +173,10 @@ import { AccountingService } from '../services/accounting.service';
   styles: [`
     .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
     .header-left h2 { margin:0; font-size:24px; font-weight:600; }
-    .header-left p { margin:4px 0 0; color:rgba(0,0,0,.45); }
-    .balance-info { padding:8px 12px; border-radius:4px; background:#f5f5f5; }
-    .balance-ok { background:#fff4e8; border:1px solid #e6c29a; color:#9a4f12; }
-    .balance-error { background:#fff2f0; border:1px solid #ffccc7; color:#ff4d4f; }
+    .header-left p { margin:4px 0 0; color:var(--invenzo-muted); }
+    .balance-info { padding:8px 12px; border-radius:4px; background:var(--invenzo-surface-soft); color:var(--invenzo-ink); }
+    .balance-ok { background:var(--invenzo-primary-soft); border:1px solid var(--invenzo-border); color:var(--invenzo-primary); }
+    .balance-error { background:rgba(255, 77, 79, .14); border:1px solid rgba(255, 77, 79, .45); color:#ff7875; }
   `]
 })
 export class JournalListComponent implements OnInit {

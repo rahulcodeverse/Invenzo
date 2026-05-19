@@ -187,13 +187,13 @@ import { PageHeaderComponent } from '../../../../shared/page-header/page-header.
   styles: [`
     .page-header { margin-bottom: 24px; }
     .page-header h2 { margin: 0; font-size: 24px; font-weight: 600; }
-    .page-header p { margin: 4px 0 0; color: rgba(0, 0, 0, 0.45); }
+    .page-header p { margin: 4px 0 0; color: var(--invenzo-muted); }
     .text-danger { color: #cf1322; }
     .text-success { color: #9a4f12; }
     .text-warning { color: #faad14; }
-    .allocation-summary { max-width: 400px; margin-left: auto; margin-top: 16px; padding: 16px; background: #f0f2f5; border-radius: 4px; }
+    .allocation-summary { max-width: 400px; margin-left: auto; margin-top: 16px; padding: 16px; background: var(--invenzo-surface-soft); border-radius: 4px; color: var(--invenzo-ink); }
     .summary-row { display: flex; justify-content: space-between; padding: 8px 0; }
-    .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid #f0f0f0; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--invenzo-border); }
   `]
 })
 export class PaymentFormComponent implements OnInit {

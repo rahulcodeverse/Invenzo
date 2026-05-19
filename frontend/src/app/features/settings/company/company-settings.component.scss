@@ -9,14 +9,14 @@
       margin: 0 0 4px 0;
       font-size: 24px;
       font-weight: 600;
-      color: #262626;
+      color: var(--invenzo-ink);
       display: flex;
       align-items: center;
     }
 
     p {
       margin: 0;
-      color: #8c8c8c;
+      color: var(--invenzo-muted);
       font-size: 14px;
     }
   }
@@ -26,7 +26,7 @@
   margin-bottom: 24px;
 
   ::ng-deep .ant-card-head {
-    background: #fafafa;
+    background: var(--invenzo-surface-soft);
   }
 }
 
@@ -45,15 +45,15 @@
     img {
       max-width: 200px;
       max-height: 200px;
-      border: 1px solid #d9d9d9;
+      border: 1px solid var(--invenzo-border);
       border-radius: 4px;
       padding: 8px;
-      background: white;
+      background: var(--invenzo-surface);
     }
   }
 
   .upload-hint {
-    color: #8c8c8c;
+    color: var(--invenzo-muted);
     font-size: 12px;
   }
 }
@@ -61,7 +61,7 @@
 .form-actions {
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--invenzo-border);
   display: flex;
   justify-content: flex-end;
   gap: 12px;

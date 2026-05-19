@@ -134,8 +134,8 @@ import { debounceTime, Subject } from 'rxjs';
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .header-left h2 { margin: 0; font-size: 24px; font-weight: 600; }
-    .header-left p { margin: 4px 0 0; color: rgba(0, 0, 0, 0.45); }
-    .filters-section { margin-bottom: 16px; padding: 16px; background: #fafafa; border-radius: 4px; }
+    .header-left p { margin: 4px 0 0; color: var(--invenzo-muted); }
+    .filters-section { margin-bottom: 16px; padding: 16px; background: var(--invenzo-surface-soft); border-radius: 4px; }
   `]
 })
 export class SalesOrderListComponent implements OnInit {

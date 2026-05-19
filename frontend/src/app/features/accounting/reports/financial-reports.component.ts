@@ -132,7 +132,7 @@ import { AccountingService } from '../services/accounting.service';
                     <tr *ngFor="let r of balanceSheet.assets">
                       <td>{{ r.name }}</td><td nzAlign="right">{{ r.balance | number:'1.2-2' }}</td>
                     </tr>
-                    <tr style="font-weight:700;background:#f0f8ff">
+                    <tr class="total-row-info">
                       <td>Total Assets</td><td nzAlign="right">{{ balanceSheet.totalAssets | number:'1.2-2' }}</td>
                     </tr>
                   </tbody>
@@ -146,7 +146,7 @@ import { AccountingService } from '../services/accounting.service';
                     <tr *ngFor="let r of (balanceSheet.liabilities || []).concat(balanceSheet.equity || [])">
                       <td>{{ r.name }}</td><td nzAlign="right">{{ r.balance | number:'1.2-2' }}</td>
                     </tr>
-                    <tr style="font-weight:700;background:#fff0f6">
+                    <tr class="total-row-info">
                       <td>Total Liabilities & Equity</td><td nzAlign="right">{{ (balanceSheet.totalLiabilities || 0) + (balanceSheet.totalEquity || 0) | number:'1.2-2' }}</td>
                     </tr>
                   </tbody>
@@ -181,9 +181,10 @@ import { AccountingService } from '../services/accounting.service';
   styles: [`
     .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
     .header-left h2 { margin:0; font-size:24px; font-weight:600; }
-    .header-left p { margin:4px 0 0; color:rgba(0,0,0,.45); }
+    .header-left p { margin:4px 0 0; color:var(--invenzo-muted); }
     .date-range { display:flex; align-items:center; }
     .loading { display:flex; justify-content:center; padding:40px; }
+    .total-row-info { font-weight:700; background:var(--invenzo-primary-soft); color:var(--invenzo-ink); }
   `]
 })
 export class FinancialReportsComponent implements OnInit {

@@ -59,7 +59,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
       color: var(--invenzo-ink);
       font-weight: 700;
       border-radius: 7px;
-      background: #fffaf5;
+      background: var(--invenzo-surface-soft);
       flex: 0 0 auto;
     }
 
@@ -67,7 +67,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     .app-page-header__back:focus {
       color: var(--invenzo-copper-dark);
       border-color: var(--invenzo-copper);
-      background: #fff4e8;
+      background: var(--invenzo-primary-soft);
     }
 
     .app-page-header__copy {

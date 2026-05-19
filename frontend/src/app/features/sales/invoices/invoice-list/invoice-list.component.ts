@@ -153,16 +153,16 @@ import { debounceTime, Subject } from 'rxjs';
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .header-left h2 { margin: 0; font-size: 24px; font-weight: 600; }
-    .header-left p { margin: 4px 0 0; color: rgba(0, 0, 0, 0.45); }
+    .header-left p { margin: 4px 0 0; color: var(--invenzo-muted); }
     .aging-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .filters-section { margin-bottom: 16px; padding: 16px; background: #fafafa; border-radius: 4px; }
-    .overdue-row { background-color: #fff1f0; }
+    .filters-section { margin-bottom: 16px; padding: 16px; background: var(--invenzo-surface-soft); border-radius: 4px; }
+    .overdue-row { background-color: rgba(255, 77, 79, .12); }
     .due-note { display: block; margin-top: 4px; color: #6f675f; }
     .text-danger { color: #cf1322; }
     .text-success { color: #9a4f12; }
-    .summary-section { margin-top: 24px; padding: 16px; background: #f0f2f5; border-radius: 4px; }
+    .summary-section { margin-top: 24px; padding: 16px; background: var(--invenzo-surface-soft); border-radius: 4px; }
     .summary-item { text-align: center; }
-    .summary-label { font-size: 12px; color: rgba(0, 0, 0, 0.45); margin-bottom: 4px; }
+    .summary-label { font-size: 12px; color: var(--invenzo-muted); margin-bottom: 4px; }
     .summary-value { font-size: 24px; font-weight: 600; }
     @media (max-width: 680px) {
       .page-header { align-items: flex-start; flex-direction: column; }

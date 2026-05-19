@@ -10,7 +10,7 @@
 
     p {
       margin: 4px 0 0;
-      color: rgba(0, 0, 0, 0.45);
+      color: var(--invenzo-muted);
     }
   }
 }
@@ -18,9 +18,9 @@
 .transfer-preview {
   margin: 24px 0;
   padding: 24px;
-  background: #f0f2f5;
+  background: var(--invenzo-surface-soft);
   border-radius: 8px;
-  border-left: 4px solid #c56a1a;
+  border-left: 4px solid var(--invenzo-primary);
 
   .preview-header {
     display: flex;
@@ -41,22 +41,22 @@
       .warehouse-box {
         flex: 1;
         padding: 16px;
-        background: white;
+        background: var(--invenzo-surface);
         border-radius: 8px;
         text-align: center;
-        border: 2px solid #d9d9d9;
+        border: 2px solid var(--invenzo-border);
 
         &.from {
           border-color: #ff7875;
         }
 
         &.to {
-          border-color: #9a4f12;
+          border-color: var(--invenzo-primary-dark);
         }
 
         .warehouse-icon {
           font-size: 32px;
-          color: #c56a1a;
+          color: var(--invenzo-primary);
           margin-bottom: 8px;
         }
 
@@ -68,7 +68,7 @@
 
         .stock-info {
           font-size: 12px;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--invenzo-muted);
         }
       }
 
@@ -81,7 +81,7 @@
         .transfer-qty {
           font-size: 14px;
           font-weight: 600;
-          color: #c56a1a;
+          color: var(--invenzo-primary);
           white-space: nowrap;
         }
       }
@@ -89,7 +89,7 @@
 
     .product-info {
       padding: 12px;
-      background: white;
+      background: var(--invenzo-surface);
       border-radius: 4px;
       font-size: 14px;
     }
@@ -102,7 +102,7 @@
   gap: 12px;
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--invenzo-border);
 }
 
 @media (max-width: 768px) {
