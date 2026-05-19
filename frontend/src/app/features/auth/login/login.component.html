@@ -38,22 +38,6 @@
           </div>
         </ng-template>
 
-        <div class="carousel-caption">
-          <span>0{{ activeSlideIndex + 1 }} / 03</span>
-          <strong>{{ activeSlide.metric }}</strong>
-        </div>
-
-        <div class="slide-dots" aria-label="Login carousel slides">
-          <button
-            *ngFor="let slide of slides; let i = index"
-            type="button"
-            [class.active]="i === activeSlideIndex"
-            (click)="selectSlide(i)"
-            [attr.aria-label]="'Show slide ' + (i + 1)"
-          >
-            <span></span>
-          </button>
-        </div>
       </div>
     </section>
 

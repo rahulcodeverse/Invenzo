@@ -35,32 +35,32 @@ export class LoginComponent implements OnInit, OnDestroy {
     {
       type: 'image',
       eyebrow: 'Connected workspace',
-      title: 'Inventory, manufacturing, sales, and finance in one operating view.',
-      body: 'A cleaner way to see the movement of stock and money across the business.',
+      title: 'A modern control room for inventory-led businesses.',
+      body: 'See how stock, purchasing, production, sales, invoices, and payments move together without switching systems.',
       metric: 'Live operations'
     },
     {
       type: 'data',
       eyebrow: 'Operations snapshot',
-      title: 'Know what needs action today.',
-      body: 'Use the dashboard to track stock, pending orders, purchase flow, and production demand before problems build up.',
+      title: 'Start every day with the work that matters.',
+      body: 'Low stock, open orders, pending purchases, production demand, and receivables stay visible for faster decisions.',
       metric: '9 modules',
       stats: [
-        { label: 'Stock visibility', value: 'Real time' },
-        { label: 'Order flow', value: 'Linked' },
-        { label: 'Warehouses', value: 'Multi-site' }
+        { label: 'Critical stock', value: '12 items' },
+        { label: 'Open orders', value: '36' },
+        { label: 'Pending GRNs', value: '8' }
       ]
     },
     {
       type: 'data',
       eyebrow: 'Business control',
-      title: 'From purchase to payment, the flow stays connected.',
-      body: 'Create quotes, orders, invoices, payments, GST reports, BOMs, indents, and work orders without losing context.',
+      title: 'Keep the full transaction cycle under control.',
+      body: 'From quote to invoice, purchase indent to GRN, BOM to work order, and ledger to GST report, every step keeps context.',
       metric: 'Reports ready',
       stats: [
-        { label: 'GST reports', value: 'Built in' },
-        { label: 'MRP planning', value: 'Ready' },
-        { label: 'Payments', value: 'Tracked' }
+        { label: 'GST summary', value: 'Ready' },
+        { label: 'MRP runs', value: '4 active' },
+        { label: 'Payments due', value: 'INR 4.8L' }
       ]
     }
   ];

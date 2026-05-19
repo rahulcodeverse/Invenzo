@@ -82,7 +82,7 @@
   h1 {
     margin: 0;
     color: #fff;
-    font-size: 40px;
+    font-size: 38px;
     line-height: 1.08;
     font-weight: 850;
   }
@@ -98,10 +98,10 @@
 
 .feature-carousel {
   position: relative;
-  height: 210px;
+  height: 218px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .carousel-image,
@@ -113,8 +113,10 @@
 
 .carousel-image img {
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
+  padding: 10px;
+  background: #f7f8f7;
 }
 
 .carousel-data {
@@ -129,7 +131,7 @@
   h3 {
     margin: 0;
     color: #fff;
-    font-size: 24px;
+    font-size: 23px;
     line-height: 1.18;
     font-weight: 850;
   }
@@ -165,65 +167,6 @@
     color: #fff;
     font-size: 13px;
     font-weight: 850;
-  }
-}
-
-.carousel-caption {
-  position: absolute;
-  right: 16px;
-  bottom: 14px;
-  left: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  pointer-events: none;
-
-  span,
-  strong {
-    color: #fff;
-    font-size: 12px;
-    font-weight: 850;
-  }
-}
-
-.slide-dots {
-  position: absolute;
-  bottom: 14px;
-  left: 16px;
-  display: flex;
-  gap: 8px;
-
-  button {
-    width: 34px;
-    height: 8px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    overflow: hidden;
-
-    span {
-      display: block;
-      width: 100%;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.25);
-      transform-origin: left;
-    }
-  }
-
-  button.active span {
-    background: var(--invenzo-primary);
-    animation: slide-progress 5.2s linear;
-  }
-}
-
-@keyframes slide-progress {
-  from {
-    transform: scaleX(0.08);
-  }
-
-  to {
-    transform: scaleX(1);
   }
 }
 
