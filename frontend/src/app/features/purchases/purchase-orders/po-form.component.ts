@@ -18,6 +18,7 @@ import { PurchasesService } from '../services/purchases.service';
 import { MasterDataService } from '../../../core/services/master-data.service';
 import { ProductApiService } from '../../products/services/product-api.service';
 import { Vendor } from '../../../core/models/master-data.model';
+import { ManufacturingService } from '../../manufacturing/services/manufacturing.service';
 
 @Component({
   selector: 'app-po-form',
@@ -176,12 +177,14 @@ export class PoFormComponent implements OnInit {
   subtotal = 0;
   taxAmount = 0;
   total = 0;
+  sourceIndentId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private service: PurchasesService,
     private masterData: MasterDataService,
     private productApi: ProductApiService,
+    private manufacturingService: ManufacturingService,
     private router: Router,
     private route: ActivatedRoute,
     private message: NzMessageService
@@ -208,6 +211,7 @@ export class PoFormComponent implements OnInit {
     this.productApi.getProducts({ limit: 200 }).subscribe((res: any) => {
       const data = res.data?.data ?? res.data ?? res;
       this.products = Array.isArray(data) ? data : [];
+      this.applyIndentDraft();
     });
 
     if (id) {
@@ -229,6 +233,8 @@ export class PoFormComponent implements OnInit {
           this.recalcTotals();
         }
       });
+    } else {
+      this.applyIndentDraft();
     }
   }
 
@@ -246,6 +252,36 @@ export class PoFormComponent implements OnInit {
     if (product) {
       this.items.at(i).patchValue({ unitPrice: Number(product.costPrice ?? 0), taxRate: Number(product.taxRate ?? 0) });
       this.calcItem(i);
+    }
+  }
+
+  applyIndentDraft(): void {
+    if (this.isViewMode || !this.form) return;
+
+    const query = this.route.snapshot.queryParamMap;
+    const productId = query.get('indentProductId');
+    const qty = Number(query.get('indentQty') || 0);
+    const ref = query.get('indentRef');
+    this.sourceIndentId = query.get('indentId');
+
+    if (!productId || qty <= 0) {
+      return;
+    }
+
+    const firstItem = this.items.at(0);
+    const alreadyApplied = firstItem.get('productId')?.value === productId;
+
+    const requiredBy = query.get('indentRequiredBy');
+    if (requiredBy && !alreadyApplied) {
+      this.form.patchValue({ expectedDate: new Date(requiredBy) });
+    }
+
+    firstItem.patchValue({ productId, quantity: qty });
+    this.onProductChange(0, productId);
+
+    const currentNotes = this.form.get('notes')?.value;
+    if (!currentNotes && ref) {
+      this.form.patchValue({ notes: `Created from purchase indent ${ref}.` });
     }
   }
 
@@ -272,7 +308,17 @@ export class PoFormComponent implements OnInit {
     const val = this.form.value;
     const payload = { ...val, subtotal: this.subtotal, taxAmount: this.taxAmount, total: this.total };
     this.service.createPurchaseOrder(payload).subscribe({
-      next: () => { this.message.success('Purchase Order created'); this.router.navigate(['/purchases/orders']); },
+      next: () => {
+        this.message.success('Purchase Order created');
+        if (this.sourceIndentId) {
+          this.manufacturingService.updatePurchaseIndent(this.sourceIndentId, 'CONVERTED').subscribe({
+            next: () => this.router.navigate(['/purchases/orders']),
+            error: () => this.router.navigate(['/purchases/orders']),
+          });
+          return;
+        }
+        this.router.navigate(['/purchases/orders']);
+      },
       error: (e) => { this.message.error(e.error?.message ?? 'Failed'); this.saving = false; }
     });
   }

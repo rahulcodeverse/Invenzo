@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -46,6 +47,9 @@ import { ManufacturingService } from './services/manufacturing.service';
               <button nz-button nzSize="small" *ngIf="indent.status === 'OPEN'" (click)="updateStatus(indent, 'APPROVED')">
                 Approve
               </button>
+              <button nz-button nzSize="small" nzType="primary" *ngIf="indent.status === 'APPROVED'" (click)="createPo(indent)">
+                Create PO
+              </button>
             </td>
           </tr>
         </tbody>
@@ -61,6 +65,7 @@ export class PurchaseIndentListComponent implements OnInit {
   constructor(
     private readonly manufacturingService: ManufacturingService,
     private readonly message: NzMessageService,
+    private readonly router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -83,6 +88,18 @@ export class PurchaseIndentListComponent implements OnInit {
       next: () => {
         this.message.success(`Indent ${status.toLowerCase()}`);
         this.load();
+      },
+    });
+  }
+
+  createPo(indent: any): void {
+    this.router.navigate(['/purchases/orders/new'], {
+      queryParams: {
+        indentId: indent.id,
+        indentProductId: indent.product?.id,
+        indentQty: indent.shortageQty,
+        indentRef: indent.indentNumber,
+        indentRequiredBy: indent.requiredBy,
       },
     });
   }

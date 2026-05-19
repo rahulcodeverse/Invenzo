@@ -337,12 +337,14 @@ export class PurchaseOrdersService {
       });
     }
 
-    await this.notificationsService.createOrderUpdate(
-      tenantId,
-      `Purchase order approved: ${updated.poNumber}`,
-      `${updated.vendor.name} purchase order is ready for goods receipt.`,
-      { purchaseOrderId: updated.id, poNumber: updated.poNumber },
-    );
+    if (updatePoDto.status && updatePoDto.status !== existing.status) {
+      await this.notificationsService.createOrderUpdate(
+        tenantId,
+        `Purchase order ${updatePoDto.status.toLowerCase()}: ${updated.poNumber}`,
+        `${updated.vendor.name} purchase order status changed from ${existing.status} to ${updatePoDto.status}.`,
+        { purchaseOrderId: updated.id, poNumber: updated.poNumber, status: updatePoDto.status },
+      );
+    }
 
     return updated;
   }
@@ -380,8 +382,8 @@ export class PurchaseOrdersService {
 
     await this.notificationsService.createOrderUpdate(
       tenantId,
-      `Purchase order cancelled: ${po.poNumber}`,
-      `Purchase order ${po.poNumber} was cancelled.`,
+      `Purchase order approved: ${updated.poNumber}`,
+      `${updated.vendor.name} purchase order is ready for goods receipt.`,
       { purchaseOrderId: id, poNumber: po.poNumber },
     );
 
