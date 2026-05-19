@@ -60,47 +60,48 @@
 
 .visual-copy {
   position: absolute;
-  top: 50%;
-  right: 64px;
+  top: 168px;
+  right: 72px;
   z-index: 1;
-  width: min(560px, 48vw);
-  transform: translateY(-46%);
+  width: min(460px, 40vw);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: left;
 
   h1 {
     margin: 0;
     color: var(--invenzo-ink);
-    font-size: clamp(42px, 4.4vw, 68px);
-    line-height: 0.98;
-    font-weight: 900;
-    letter-spacing: -0.02em;
+    font-size: clamp(30px, 3vw, 44px);
+    line-height: 1.06;
+    font-weight: 820;
+    letter-spacing: -0.015em;
   }
 
   p:last-child {
-    max-width: 490px;
-    margin: 20px 0 0;
+    max-width: 430px;
+    margin: 16px 0 0;
     color: var(--invenzo-muted);
-    font-size: 17px;
+    font-size: 15px;
     line-height: 1.6;
   }
 }
 
 .slide-count {
   display: inline-block;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
   color: var(--invenzo-primary-dark);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.16em;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
 }
 
 .slide-metric {
   display: inline-flex;
-  margin-top: 24px;
-  padding: 9px 12px;
+  margin-top: 20px;
+  padding: 7px 10px;
   color: var(--invenzo-primary-dark);
   background: rgba(var(--invenzo-primary-rgb), 0.1);
-  font-size: 12px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: 850;
   letter-spacing: 0.04em;
 }
 
@@ -115,8 +116,8 @@
 
 .slide-dots {
   position: absolute;
-  right: 64px;
-  bottom: 48px;
+  top: 520px;
+  right: 72px;
   z-index: 1;
   display: flex;
   gap: 10px;
@@ -299,17 +300,16 @@
   .visual-copy {
     right: 24px;
     left: 24px;
-    bottom: 72px;
-    top: auto;
+    top: 104px;
     width: auto;
-    transform: none;
 
     h1 {
-      font-size: 38px;
+      font-size: 34px;
     }
   }
 
   .slide-dots {
+    top: auto;
     right: 24px;
     bottom: 24px;
   }
