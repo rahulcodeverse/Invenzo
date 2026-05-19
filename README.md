@@ -131,6 +131,16 @@ The frontend runs at:
 http://localhost:4200
 ```
 
+## Deployment
+
+Recommended hosting:
+
+- Frontend: Vercel
+- Backend: Render
+- Database: Render PostgreSQL
+
+See [Deployment Guide](docs/DEPLOYMENT.md) for exact setup steps.
+
 ## Demo Accounts
 
 After running the seed script, use these accounts:
