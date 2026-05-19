@@ -41,6 +41,8 @@ The application includes an Angular frontend, a NestJS backend, Prisma ORM, Post
 7. Track inventory changes through stock overview and movement history.
 8. Review finance and operations using accounting reports, KPI dashboards, and analytics.
 
+For the full operator workflow, setup order, daily transaction path, module dependencies, and demo script, see [Invenzo User Flow Guide](docs/USER_FLOW.md).
+
 ## Tech Stack
 
 | Layer | Technology |
